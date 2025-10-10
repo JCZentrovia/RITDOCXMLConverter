@@ -1,0 +1,494 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE article>
+<article
+  xmlns="http://docbook.org/ns/docbook" version="5.0"
+  xmlns:xlink="http://www.w3.org/1999/xlink" >
+  <info>
+    <title>sample</title>
+  </info>
+  <para>
+    <inlinemediaobject>
+      <imageobject>
+        <imagedata fileref="media/image1.png" width="2.98611in" depth="9.62847in" />
+      </imageobject>
+    </inlinemediaobject>
+  </para>
+  <informaltable>
+    <tgroup cols="2">
+      <colspec colwidth="50*" align="left" />
+      <colspec colwidth="50*" align="left" />
+      <thead>
+        <row>
+          <entry>
+            <blockquote>
+<literallayout>Lalit
+<emphasis role="strong">Kaushik</emphasis></literallayout>
+              <para>
+                Certified Magento 2 Developer
+              </para>
+            </blockquote>
+          </entry>
+          <entry>
+            <blockquote>
+              <para>
+                <emphasis role="strong">ABOUT ME</emphasis>
+              </para>
+              <para>
+                With over 13+ years of experience as a Full Stack Magento 2 certified developer, the individual has worked on various projects, including Magento Cloud, Enterprise, and community editions. I have experience in website design, technical support, software integration, and strategic advice. I have experience in GitHub, Bitbucket, Jira, Trello, Asana, Linux, and server administration.
+              </para>
+            </blockquote>
+          </entry>
+        </row>
+      </thead>
+      <tbody>
+      </tbody>
+    </tgroup>
+  </informaltable>
+  <para>
+    <emphasis role="strong">PROJECTS</emphasis>
+  </para>
+  <informaltable>
+    <tgroup cols="2">
+      <colspec colwidth="50*" align="left" />
+      <colspec colwidth="50*" align="left" />
+      <thead>
+        <row>
+          <entry>
+            <blockquote>
+              <para>
+                <emphasis role="strong">SKILLS</emphasis>
+              </para>
+<literallayout><emphasis role="strong">CMS:</emphasis> Magento 1, Magento 2, WooCommerce, Shopify
+<emphasis role="strong">Serverside:</emphasis> PHP</literallayout>
+            </blockquote>
+          </entry>
+          <entry>
+            <blockquote>
+              <para>
+                <emphasis role="strong">MY FELT</emphasis>
+              </para>
+              <para>
+                E-commerce B2C Website l Lead Developer
+              </para>
+              <para>
+                <emphasis role="strong">Languages/Tools:</emphasis> Magento 2.0, MySQL, html, CSS, Trello
+              </para>
+              <para>
+                Handcrafted felt rugs made with eco-friendly materials and traditional Nepalese techniques. Wide variety of designs and colors to complement any home decor. Additional felt products for your furry friends.
+              </para>
+              <para>
+                Manage the Magento 2 website and support living issues and new features regularly.
+              </para>
+<literallayout>Upgrade the Magento 2 website versions regularly once the new version is launched in the market
+Manage services &amp; and hosting configurations
+Implemented new eCommerce features.</literallayout>
+<literallayout>Fixand reportthe bugs
+Fix checkout issues
+Added local shipping options
+Implement multiple payment gateways
+Manage 3rd Party Paid and free extensions and customize the functionality.</literallayout>
+              <para>
+                Manage custom-coded features.
+              </para>
+              <para>
+                <emphasis role="strong">ZEBRA PACK</emphasis>
+              </para>
+              <para>
+                E-commerce B2C Website l Lead Developer
+              </para>
+            </blockquote>
+          </entry>
+        </row>
+      </thead>
+      <tbody>
+        <row>
+          <entry>
+            <blockquote>
+              <para>
+                <emphasis role="strong">Clientside:</emphasis> JQUERY,
+              </para>
+            </blockquote>
+          </entry>
+          <entry>
+          </entry>
+        </row>
+        <row>
+          <entry>
+            <blockquote>
+              <para>
+                JAVASCRIPT, KNOCKOUT JS, GraphQL &amp; REST API
+              </para>
+            </blockquote>
+          </entry>
+          <entry>
+          </entry>
+        </row>
+        <row>
+          <entry>
+            <blockquote>
+              <para>
+                <emphasis role="strong">Database:</emphasis> MySQL
+              </para>
+            </blockquote>
+          </entry>
+          <entry>
+          </entry>
+        </row>
+        <row>
+          <entry>
+            <blockquote>
+              <para>
+                <emphasis role="strong">Webservers:</emphasis> APACHE, NGINX, AWS
+              </para>
+            </blockquote>
+          </entry>
+          <entry>
+          </entry>
+        </row>
+        <row>
+          <entry>
+            <blockquote>
+              <para>
+                <emphasis role="strong">Other:</emphasis> HTML 5, CSS, XML, AJAX,
+              </para>
+            </blockquote>
+          </entry>
+          <entry>
+          </entry>
+        </row>
+        <row>
+          <entry>
+            <blockquote>
+<literallayout>JSON
+<emphasis role="strong">OS:</emphasis> LINUX(Ubuntu,
+Mint),WINDOWS</literallayout>
+            </blockquote>
+          </entry>
+          <entry>
+          </entry>
+        </row>
+      </tbody>
+    </tgroup>
+  </informaltable>
+  <para>
+    <emphasis role="strong">Languages/Tools:</emphasis> Magento 2.0, MySQL, html, CSS3, KnockoutJS
+  </para>
+  <informaltable>
+    <tgroup cols="2">
+      <colspec colwidth="50*" align="left" />
+      <colspec colwidth="50*" align="left" />
+      <thead>
+        <row>
+          <entry>
+            <blockquote>
+              <para>
+                <emphasis role="strong">CERTIFICATION</emphasis>
+              </para>
+            </blockquote>
+          </entry>
+          <entry>
+            <blockquote>
+              <para>
+                Managed a shipping and mailing supply company including packaging supplies, custom printed boxes and packing tape. Increased sales by offering same day shipping on all orders.
+              </para>
+            </blockquote>
+          </entry>
+        </row>
+      </thead>
+      <tbody>
+      </tbody>
+    </tgroup>
+  </informaltable>
+  <para>
+    Magento Update to the latest version and security patches
+  </para>
+  <informaltable>
+    <tgroup cols="2">
+      <colspec colwidth="50*" align="left" />
+      <colspec colwidth="50*" align="left" />
+      <thead>
+        <row>
+          <entry>
+            <blockquote>
+<literallayout><emphasis role="strong">LANGUAGES</emphasis> English
+Hindi</literallayout>
+            </blockquote>
+          </entry>
+          <entry>
+            <blockquote>
+<literallayout>Theme &amp; Extensions update to their latest versions (compatibility to be checked)
+Deployment of Cpanel (license already procured)
+Server optimization and implementing necessary updates for optimal running
+Website optimization (cronjobs, settings, and schedule, etc.)
+Page loading and Google page speed score improvement</literallayout>
+            </blockquote>
+          </entry>
+        </row>
+      </thead>
+      <tbody>
+      </tbody>
+    </tgroup>
+  </informaltable>
+  <blockquote>
+<literallayout>Website clone for testing needs
+Zopim live API optimization (seems to slow down page loading)
+Sitemap setup and optimization
+Correction of Google indexation periodic error message
+Integration of Express Delivery option icon for featured products
+Any Bug Fixes
+24x7 Phone support for website uptime.</literallayout>
+  </blockquote>
+  <para>
+    <inlinemediaobject>
+      <imageobject>
+        <imagedata fileref="media/image2.png" width="2.93056in" depth="11.69445in" />
+      </imageobject>
+    </inlinemediaobject>
+  </para>
+  <informaltable>
+    <tgroup cols="2">
+      <colspec colwidth="50*" align="left" />
+      <colspec colwidth="50*" align="left" />
+      <thead>
+        <row>
+          <entry>
+            <blockquote>
+              <para>
+                <emphasis role="strong">AREA’S OF EXPERTISE</emphasis>
+              </para>
+<literallayout>Webkul Marketplace
+BoostMy Shop
+StoreCredit
+PricePer Customer
+BundleProduct Discount Gift WrapperModule
+MegaMenu extension</literallayout>
+            </blockquote>
+          </entry>
+          <entry>
+            <blockquote>
+              <para>
+                <emphasis role="strong">MODA METRIX</emphasis>
+              </para>
+              <para>
+                E-commerce B2C Website l Lead Developer
+              </para>
+<literallayout><emphasis role="strong">Languages/Tools:</emphasis> Magento 2.4.3
+ModaMatrix is a fashion industry data analytics platform that provides users with insights into different aspects of the fashion business. These insights can help businesses improve their manufacturing efficiency, marketing strategies, and retail operations.</literallayout>
+              <para>
+                Manage the Magento 2 website and support live issues and new features regularly.
+              </para>
+              <para>
+                Created Mobile application API’s.
+              </para>
+<literallayout>Search in the sticky header
+City search functionality speed optimization
+City Autofill on shipping address on checkout
+Upgrade the Magento 2 website versions regularly once the new version is launched in the market</literallayout>
+              <para>
+                <emphasis role="strong"><emphasis role="underline">PASSION SPORT</emphasis></emphasis>
+              </para>
+              <para>
+                E-commerce B2C Website l Lead Developer
+              </para>
+              <para>
+                <emphasis role="strong">Languages/Tools:</emphasis> Magento 2.4.3, mysql, html,css, GraphQL
+              </para>
+            </blockquote>
+          </entry>
+        </row>
+      </thead>
+      <tbody>
+        <row>
+          <entry>
+            <blockquote>
+<literallayout>AdvanceCustom
+OptionModule.</literallayout>
+<literallayout>DeliveryChecker Module
+ProductAttachment Module One step checkout
+Amazon pay</literallayout>
+            </blockquote>
+          </entry>
+          <entry>
+          </entry>
+        </row>
+      </tbody>
+    </tgroup>
+  </informaltable>
+  <blockquote>
+    <para>
+      Passion Sports is a custom clothing company that sells a variety of clothing items including t-shirts, jerseys, hats, and bags. They offer screen printing and embroidery services and can customize products for teams,
+    </para>
+  </blockquote>
+  <informaltable>
+    <tgroup cols="2">
+      <colspec colwidth="50*" align="left" />
+      <colspec colwidth="50*" align="left" />
+      <thead>
+        <row>
+          <entry>
+            <emphasis role="strong">OTHER PROJECTS</emphasis>
+          </entry>
+          <entry>
+            <blockquote>
+              <para>
+                schools, or events.
+              </para>
+              <para>
+                Manage the Magento 2 website and provide regular support related to live issues andnew features.
+              </para>
+<literallayout>Engraving functionality implement
+Doofinder function integrate
+Error in &quot;Inside Number&quot; field
+Checkout page shipping issue
+Payment getway issue (Breakdown of payment methods.) Image issue on category page
+Security Bulletin
+GA4 implementation
+Search in the sticky header</literallayout>
+            </blockquote>
+          </entry>
+        </row>
+      </thead>
+      <tbody>
+        <row>
+          <entry>
+            <blockquote>
+              <para>
+                beverlyhillsfashion.com www.jtfcorp.com
+              </para>
+            </blockquote>
+          </entry>
+          <entry>
+          </entry>
+        </row>
+        <row>
+          <entry>
+            <blockquote>
+              <para>
+                uprint.id
+              </para>
+            </blockquote>
+          </entry>
+          <entry>
+          </entry>
+        </row>
+        <row>
+          <entry>
+            <blockquote>
+              <para>
+                www.ellisbuildingproducts.co. uk
+              </para>
+            </blockquote>
+          </entry>
+          <entry>
+          </entry>
+        </row>
+        <row>
+          <entry>
+            <blockquote>
+              <para>
+                underthefeet.com
+              </para>
+            </blockquote>
+          </entry>
+          <entry>
+          </entry>
+        </row>
+      </tbody>
+    </tgroup>
+  </informaltable>
+  <blockquote>
+    <para>
+      kaynoo.sn
+    </para>
+  </blockquote>
+  <para>
+    castleviewenterprises.co.uk
+  </para>
+  <blockquote>
+    <para>
+      <emphasis role="strong">KONTACK HOME</emphasis>
+    </para>
+    <para>
+      <emphasis role="strong">and more...</emphasis> E-commerce B2C Website l Lead Developer
+    </para>
+  </blockquote>
+  <para>
+    <emphasis role="strong">Languages/Tools:</emphasis> Magento 2.4.x, Knockout API , MySQL, HTML,CSS
+  </para>
+  <blockquote>
+    <para>
+      Kontack Home is an online store called Kontakt Home. It discusses electronics, home goods, furniture, and more. The website sells items like kitchen appliances, TVs, gaming consoles, and beauty products. They also sell baby products, including car seats and strollers.
+    </para>
+<literallayout>MagentoUpgrade 2.3.xto 2.4.x
+Developedthe Front-endand Back-endmodules.</literallayout>
+  </blockquote>
+  <para>
+    Developed the code and set up a project locally.
+  </para>
+  <para>
+    Websitetesting results&amp; Fixthe complicated bugs.
+  </para>
+  <blockquote>
+<literallayout>Worked closely with clients and a team of developers to address client concerns and devise the best
+practices for implementing client-desired functionality
+Used the LAMP stack and Docker technologies to design, develop, test, implement, and maintain client--
+branded scalable websites</literallayout>
+  </blockquote>
+  <para>
+    <emphasis role="strong">GARAGE APPEAL</emphasis>
+  </para>
+  <para>
+    E-commerce B2C Website l Back-end Role
+  </para>
+  <para>
+    <emphasis role="strong">Languages/Tools:</emphasis> Magento 2.4.x
+  </para>
+  <blockquote>
+    <para>
+      <inlinemediaobject>
+        <imageobject>
+          <imagedata fileref="media/image3.png" />
+        </imageobject>
+      </inlinemediaobject>Successfully collaborated with DigitlHaus, a digital agency, to achieve ecommerce goals. Utilized my skills in [mention relevant skills] to improve user experience and drive sales.
+    </para>
+<literallayout>Used front-end web development technologies like XHTML, CSS, jQuery (with various plugins), and web
+accessibility concepts to take designs from Photoshop/PSD files to working HTML interfaces with a heavy
+concentration on cross-browser compatibility (IE6+, Safari 4+, Firefox 3+)
+CreateModule ofProduct Inquiry
+Detail page and product listing page are customized
+Banners module configure
+Designed, built, tested, and implemented stand-alone modules for Magento, including payment and
+shipping modules. Customized Magento's inherent features based on client needs.</literallayout>
+  </blockquote>
+  <para>
+    <emphasis role="strong">MedExcess</emphasis>
+  </para>
+  <para>
+    E-commerce B2C Website l Back-end Developer
+  </para>
+  <para>
+    <emphasis role="strong">Languages/Tools:</emphasis> Magento 2.4.x , PHP, GraphQL , Mysql, Apache
+  </para>
+  <blockquote>
+    <para>
+      <inlinemediaobject>
+        <imageobject>
+          <imagedata fileref="media/image4.png" />
+        </imageobject>
+      </inlinemediaobject> Managed medical supply procurement through a trusted network of healthcare providers at MedXess, a medical supply company. Increased transparency, improved patient outcomes, and ensured reliable supply chains through effective medical supply management.
+    </para>
+<literallayout>Checkout steps modification
+Configure and customize the Matrix Rate plugin.</literallayout>
+  </blockquote>
+  <para>
+    CustomizeConfigurable Products.
+  </para>
+  <blockquote>
+<literallayout>Development of Custom Theme into Magento 2. x
+Custom Module or Extended Module into Magento 2. x
+Full page caching (APC, Varnish)
+Theming, preprocess functions, templates, and custom themes.</literallayout>
+<literallayout>Installing and configuring the extensions and custom API’s.
+Worked on shipping and payment gateway modules.</literallayout>
+  </blockquote>
+</article>
