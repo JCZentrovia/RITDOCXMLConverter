@@ -30,7 +30,7 @@
           },
           "configurations": {
             "production": {
-              "baseHref": "/manuscript/",
+              "baseHref": "/xmlconverter/",
               "budgets": [
                 {
                   "type": "initial",

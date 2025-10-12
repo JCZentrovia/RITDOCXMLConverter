@@ -19,7 +19,7 @@ import pypandoc
 
 
 from app.services.pdf_conversion_service import pdf_conversion_service, ConversionQuality
-from app.services.storage_service import s3_service
+from app.services.s3_service import s3_service
 from pathlib import Path
 from app.utils.docbook_postprocess import postprocess_docbook_file
 
@@ -129,8 +129,8 @@ class DocBookConversionService:
                     f'--metadata=title:{Path(local_docx).stem}',  # gives <info><title>...</title>
                    ],
                 )
-            # NEW: enforce proper root + namespace (belt-and-suspenders)
-            _ensure_docbook5_root(local_xml, root_tag="article", title=Path(local_docx).stem)
+                # NEW: enforce proper root + namespace (belt-and-suspenders)
+                _ensure_docbook5_root(local_xml, root_tag="article", title=Path(local_docx).stem)
 
             except Exception as e:
                 logger.exception("Pandoc conversion DOCX->DocBook5 failed")

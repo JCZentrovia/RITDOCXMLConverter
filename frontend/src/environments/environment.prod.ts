@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.xmlconvertor.zentrovia.tech'
+  apiUrl: 'https://backend.zentrovia.tech/xmlconverter'
 };

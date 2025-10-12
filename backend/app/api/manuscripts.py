@@ -28,7 +28,6 @@ from app.services.pdf_conversion_service import ConversionQuality
 from app.models.manuscript import ManuscriptStatus, ManuscriptUpdate
 from datetime import datetime
 from app.services.activity_service import activity_service
-from app.services.storage_service import s3_service
 
 logger = logging.getLogger(__name__)
 

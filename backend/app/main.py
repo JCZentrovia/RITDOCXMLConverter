@@ -213,7 +213,7 @@ setup_middleware(app)
 setup_api_docs(app)
 
 # Include API routers with manuscript prefix
-app.include_router(api_router, prefix="/manuscript/api")
+app.include_router(api_router, prefix="/xmlconverter/api")
 
 
 @app.get("/", tags=["Root"])
@@ -227,20 +227,20 @@ async def root():
         "documentation": api_info["documentation"],
         "status": "running",
         "endpoints": {
-            "health": "/manuscript/health",
-            "api": "/manuscript/api/v1/",
-            "docs": "/manuscript/docs"
+            "health": "/xmlconverter/health",
+            "api": "/xmlconverter/api/v1/",
+            "docs": "/xmlconverter/docs"
         }
     }
 
 
-@app.get("/manuscript/health", tags=["Health Check"])
+@app.get("/xmlconverter/health", tags=["Health Check"])
 async def health_check():
     """Simple health check endpoint."""
     return {"status": "healthy", "message": "Manuscript Processor API is running"}
 
 
-@app.get("/manuscript/health/detailed", tags=["Health Check"])
+@app.get("/xmlconverter/health/detailed", tags=["Health Check"])
 async def detailed_health_check():
     """Detailed health check with database and basic system status."""
     try:
