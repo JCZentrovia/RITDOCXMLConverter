@@ -7,7 +7,7 @@ import { ManuscriptService, ManuscriptResponse, ManuscriptStatistics } from '../
 import { ErrorHandlerService } from '../shared/services/error-handler.service';
 import { NavigationComponent } from '../shared/components/navigation/navigation.component';
 import { FileUploadComponent, FileUploadConfig } from '../shared/components/file-upload/file-upload.component';
-import { switchMap } from 'rxjs/operators';
+//import { switchMap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { switchMap } from 'rxjs';
 
