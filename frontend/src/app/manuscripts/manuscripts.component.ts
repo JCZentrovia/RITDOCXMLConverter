@@ -1086,32 +1086,16 @@ export class ManuscriptsComponent implements OnInit, OnDestroy {
   }
 
   onDownloadWithOptions(options: DownloadOptions): void {
-    if (!this.selectedManuscriptForDownload) return;
+  if (!this.selectedManuscriptForDownload) return;
+  const m = this.selectedManuscriptForDownload;
 
-    const manuscript = this.selectedManuscriptForDownload;
-    
-    // Use the same approach as the direct download button
-    this.manuscriptService.getDownloadUrl(manuscript.id, options.fileType).subscribe({
-      next: (response) => {
-        // Create a temporary link and trigger download
-        const link = document.createElement('a');
-        link.href = response.download_url;
-        link.download = options.fileType === 'xml' 
-          ? manuscript.file_name?.replace('.pdf', '.xml') || 'manuscript.xml'
-          : manuscript.file_name || 'manuscript.pdf';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        this.errorHandler.showSuccess('Download started');
-      },
-      error: (error: any) => {
-        this.errorHandler.showError(error);
-      }
-    });
+  const fileName = options.fileType === 'xml'
+    ? m.file_name.replace(/\.pdf$/i, '.xml')
+    : m.file_name;
 
-    this.closeDownloadDialog();
-  }
+  this.downloadService.downloadFile(m.id, fileName, options.fileType).subscribe();
+  this.closeDownloadDialog();
+}
 
 
   // Utility Methods
