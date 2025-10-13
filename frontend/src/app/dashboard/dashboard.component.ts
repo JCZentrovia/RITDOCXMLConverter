@@ -306,6 +306,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private manuscriptService: ManuscriptService,
+    private downloadservice: DownloadService,
     private errorHandler: ErrorHandlerService,
     private http: HttpClient
   ) {}
