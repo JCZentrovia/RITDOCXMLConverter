@@ -431,15 +431,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     next: (blob: Blob) => {
       const fileName =
         manuscript.file_name?.replace(/\.pdf$/i, '.xml') ?? 'manuscript.xml';
+      this.downloadService.downloadFile(manuscript.id, fileName, 'xml').subscribe(); //JC added this
 
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(blobUrl);
+      //JC commented below 8 lines
+     // const blobUrl = URL.createObjectURL(blob);
+      //const a = document.createElement('a');
+     // a.href = blobUrl;
+      //a.download = fileName;
+      //document.body.appendChild(a);
+     // a.click();
+      //a.remove();
+      //URL.revokeObjectURL(blobUrl);
 
       this.errorHandler.showSuccess('Download started');
     },
