@@ -8,6 +8,8 @@ import { ErrorHandlerService } from '../shared/services/error-handler.service';
 import { NavigationComponent } from '../shared/components/navigation/navigation.component';
 import { FileUploadComponent, FileUploadConfig } from '../shared/components/file-upload/file-upload.component';
 import { switchMap } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -303,7 +305,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private manuscriptService: ManuscriptService,
-    private errorHandler: ErrorHandlerService
+    private errorHandler: ErrorHandlerService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -443,7 +446,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     error: (err) => this.errorHandler.showError(err),
   });
 }
-  /* Commenting this out - as it was opening the xml in the same window and not downloading the xml file
+  /*Commenting this out - as it was opening the xml in the same window and not downloading the xml file
   downloadManuscript(manuscript: ManuscriptResponse): void {
     this.manuscriptService.getDownloadUrl(manuscript.id, 'xml').subscribe({
       next: (response) => {
@@ -461,5 +464,5 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.errorHandler.showError(error);
       }
     });
-  }
-} */
+  }*/
+}
