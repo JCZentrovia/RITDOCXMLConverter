@@ -10,6 +10,7 @@ import { FileUploadComponent, FileUploadConfig } from '../shared/components/file
 //import { switchMap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { switchMap } from 'rxjs';
+import { DownloadService } from '../shared/services/Download.service';
 
 @Component({
   selector: 'app-dashboard',
