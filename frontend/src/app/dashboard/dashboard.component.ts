@@ -10,7 +10,6 @@ import { FileUploadComponent, FileUploadConfig } from '../shared/components/file
 //import { switchMap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { switchMap } from 'rxjs';
-import { DownloadService } from '../shared/services/Download.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -306,7 +305,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private manuscriptService: ManuscriptService,
-    private downloadservice: DownloadService,
     private errorHandler: ErrorHandlerService,
     private http: HttpClient
   ) {}
@@ -433,17 +431,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     next: (blob: Blob) => {
       const fileName =
         manuscript.file_name?.replace(/\.pdf$/i, '.xml') ?? 'manuscript.xml';
-      this.downloadService.downloadFile(manuscript.id, fileName, 'xml').subscribe(); //JC added this
-
-      //JC commented below 8 lines
-     // const blobUrl = URL.createObjectURL(blob);
-      //const a = document.createElement('a');
-     // a.href = blobUrl;
-      //a.download = fileName;
-      //document.body.appendChild(a);
-     // a.click();
-      //a.remove();
-      //URL.revokeObjectURL(blobUrl);
+     const blobUrl = URL.createObjectURL(blob);
+     const a = document.createElement('a');
+     a.href = blobUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+     a.click();
+      a.remove();
+      URL.revokeObjectURL(blobUrl);
 
       this.errorHandler.showSuccess('Download started');
     },
