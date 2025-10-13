@@ -7,6 +7,7 @@ import { ManuscriptService, ManuscriptResponse, ManuscriptStatistics } from '../
 import { ErrorHandlerService } from '../shared/services/error-handler.service';
 import { NavigationComponent } from '../shared/components/navigation/navigation.component';
 import { FileUploadComponent, FileUploadConfig } from '../shared/components/file-upload/file-upload.component';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-dashboard',
@@ -419,6 +420,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   downloadManuscript(manuscript: ManuscriptResponse): void {
+  this.manuscriptService.getDownloadUrl(manuscript.id, 'xml').pipe(
+    switchMap(({ download_url }) =>
+      this.http.get(download_url, { responseType: 'blob' }) // Observable<Blob>
+    )
+  ).subscribe({
+    next: (blob: Blob) => {
+      const fileName =
+        manuscript.file_name?.replace(/\.pdf$/i, '.xml') ?? 'manuscript.xml';
+
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(blobUrl);
+
+      this.errorHandler.showSuccess('Download started');
+    },
+    error: (err) => this.errorHandler.showError(err),
+  });
+}
+  /* Commenting this out - as it was opening the xml in the same window and not downloading the xml file
+  downloadManuscript(manuscript: ManuscriptResponse): void {
     this.manuscriptService.getDownloadUrl(manuscript.id, 'xml').subscribe({
       next: (response) => {
         // Create a temporary link and trigger download
@@ -436,4 +462,4 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }
     });
   }
-}
+} */
