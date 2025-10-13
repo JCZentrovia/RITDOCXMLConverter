@@ -1120,7 +1120,7 @@ export class ManuscriptsComponent implements OnInit, OnDestroy {
         this.errorHandler.showError(error);
       }
     });
-
+  }
 
 
   // Utility Methods
