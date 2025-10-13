@@ -38,7 +38,7 @@ async def process_manuscript_conversion(manuscript_id: str, task, conversion_ser
                 manuscript_id, 
                 ManuscriptUpdate(
                     status=ManuscriptStatus.COMPLETE, 
-                    docx_s3_key=result.docx_s3_key,
+                    xml_s3_key=result.xml_s3_key,
                     processing_completed_at=datetime.utcnow()
                 )
             )

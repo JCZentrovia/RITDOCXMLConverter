@@ -359,7 +359,7 @@ class PDFConversionService:
                     "cpu_count": 1,  # Single CPU for stability
                 }
             else:
-                # Standard quality settings (faster)
+                # Standard quality settings (faster, skip images to avoid pixmap errors)
                 converter_params = {
                     "start": 0,
                     "end": None,
@@ -369,9 +369,9 @@ class PDFConversionService:
                     "cpu_count": 1,
                 }
             
-            # Perform conversion
+            # Perform conversion (skip images to avoid pixmap errors)
             converter = Converter(str(pdf_path))
-            converter.convert(str(docx_path), **converter_params)
+            converter.convert(str(docx_path), image=False, **converter_params)
             converter.close()
             
             conversion_end = datetime.utcnow()

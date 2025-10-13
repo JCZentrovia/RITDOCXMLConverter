@@ -84,6 +84,7 @@ class Manuscript(ManuscriptBase):
     status: ManuscriptStatus = Field(..., description="Processing status")
     pdf_s3_key: str = Field(..., description="S3 key for the PDF file")
     docx_s3_key: Optional[str] = Field(None, description="S3 key for the converted Word document")
+    xml_s3_key: Optional[str] = Field(None, description="S3 key for the converted XML document")
     
     # Timestamps
     upload_date: datetime = Field(..., description="Upload timestamp")

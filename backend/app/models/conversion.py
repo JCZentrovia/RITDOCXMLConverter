@@ -63,6 +63,7 @@ class ConversionTaskInDB(BaseModel):
     
     # Results
     docx_s3_key: Optional[str] = Field(None, description="S3 key of the converted DOCX file")
+    xml_s3_key: Optional[str] = Field(None, description="S3 key of the converted XML file")
     error_message: Optional[str] = Field(None, description="Error message if conversion failed")
     conversion_metadata: Optional[Dict[str, Any]] = Field(None, description="Conversion metadata and statistics")
     
@@ -160,6 +161,7 @@ class ConversionResult(BaseModel):
     manuscript_id: str = Field(..., description="Original manuscript ID")
     status: ConversionStatus = Field(..., description="Final conversion status")
     docx_s3_key: Optional[str] = Field(None, description="S3 key of converted DOCX file")
+    xml_s3_key: Optional[str] = Field(None, description="S3 key of converted XML file")
     error_message: Optional[str] = Field(None, description="Error message if failed")
     
     # Performance metrics

@@ -412,17 +412,23 @@ class ConversionLogger:
         })
     
     def log_conversion_success(self, conversion_id: str, manuscript_id: str, 
-                             docx_s3_key: str, metadata: Dict[str, Any]):
+                             xml_s3_key: str = None, docx_s3_key: str = None, metadata: Dict[str, Any] = None):
         """Log successful conversion."""
+        if metadata is None:
+            metadata = {}
+        
+        result_metadata = {**metadata}
+        if xml_s3_key:
+            result_metadata["xml_s3_key"] = xml_s3_key
+        if docx_s3_key:
+            result_metadata["docx_s3_key"] = docx_s3_key
+            
         self.logger.info("Conversion completed successfully", extra={
             "conversion_id": conversion_id,
             "manuscript_id": manuscript_id,
             "status": "completed",
             "progress": 100,
-            "metadata": {
-                "docx_s3_key": docx_s3_key,
-                **metadata
-            }
+            "metadata": result_metadata
         })
     
     def log_conversion_error(self, conversion_id: str, manuscript_id: str, 

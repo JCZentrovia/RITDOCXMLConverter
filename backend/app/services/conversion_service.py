@@ -1,5 +1,5 @@
 """
-Conversion Service for managing PDF to Word conversion tasks.
+Conversion Service for managing PDF to XML conversion tasks.
 
 This service handles the creation, tracking, and management of conversion tasks,
 including queue management, progress tracking, and result handling.
@@ -26,14 +26,16 @@ from app.models.conversion import (
     ConversionTaskResponse, ConversionTaskListResponse, ConversionStatistics,
     ConversionStatus, ConversionQuality, ConversionProgress, ConversionResult
 )
-from app.models.manuscript import ManuscriptInDB, ManuscriptStatus
-from app.services.pdf_conversion_service import pdf_conversion_service, ConversionError
+from app.models.manuscript import ManuscriptInDB, ManuscriptStatus, ManuscriptUpdate
+from app.services.pdf_conversion_service import pdf_conversion_service
+from app.core.error_handling import ConversionError
+from app.services.docbook_conversion_service import docbook_conversion_service
 from app.services.manuscript_service import manuscript_service
 
 logger = logging.getLogger(__name__)
 
 class ConversionService:
-    """Service for managing PDF to Word conversion tasks."""
+    """Service for managing PDF to XML conversion tasks."""
 
     def __init__(self, db: Optional[AsyncIOMotorDatabase] = None):
         self.db = db
@@ -316,26 +318,26 @@ class ConversionService:
                     message="Manuscript retrieved and validated"
                 )
                 
-                # Perform PDF to DOCX conversion with error handling
+                # Perform PDF to XML conversion with error handling
                 try:
                     conversion_logger.log_conversion_progress(
                         conversion_id=task_id,
                         manuscript_id=task.manuscript_id,
                         progress=30,
                         status="processing",
-                        message="Starting PDF to DOCX conversion"
+                        message="Starting PDF to XML conversion"
                     )
                     
-                    docx_s3_key, conversion_metadata = await pdf_conversion_service.convert_pdf_to_docx_ai(
+                    xml_s3_key, conversion_metadata = await docbook_conversion_service.convert_pdf_to_docbook(
                         pdf_s3_key=manuscript.pdf_s3_key,
-                        output_filename=manuscript.file_name.replace('.pdf', '.docx'),
+                        output_filename=manuscript.file_name.replace('.pdf', '.xml'),
                         quality=task.quality.value,
                         include_metadata=task.include_metadata
                     )
                     
                 except Exception as e:
                     raise ConversionError(
-                        message=f"PDF to DOCX conversion failed",
+                        message=f"PDF to XML conversion failed",
                         conversion_id=task_id,
                         manuscript_id=task.manuscript_id,
                         context=error_context,
@@ -355,13 +357,16 @@ class ConversionService:
                     message="PDF conversion completed, updating manuscript"
                 )
                 
-                # Update manuscript with DOCX key and status
+                # Update manuscript with XML key and status
                 try:
-                    await manuscript_service.update_manuscript(task.manuscript_id, {
-                        "docx_s3_key": docx_s3_key,
-                        "status": ManuscriptStatus.COMPLETE,
-                        "processing_completed_at": datetime.utcnow()
-                    })
+                    await manuscript_service.update_manuscript(
+                        task.manuscript_id, 
+                        ManuscriptUpdate(
+                            xml_s3_key=xml_s3_key,
+                            status=ManuscriptStatus.COMPLETE,
+                            processing_completed_at=datetime.utcnow()
+                        )
+                    )
                 except Exception as e:
                     raise DatabaseError(
                         message=f"Failed to update manuscript {task.manuscript_id} with conversion results",
@@ -376,7 +381,7 @@ class ConversionService:
                     await self.update_conversion_task(task_id, ConversionTaskUpdate(
                         status=ConversionStatus.COMPLETED,
                         progress_percentage=100,
-                        docx_s3_key=docx_s3_key,
+                        xml_s3_key=xml_s3_key,
                         conversion_metadata=conversion_metadata,
                         processing_completed_at=datetime.utcnow()
                     ))
@@ -412,7 +417,7 @@ class ConversionService:
                 conversion_logger.log_conversion_success(
                     conversion_id=task_id,
                     manuscript_id=task.manuscript_id,
-                    docx_s3_key=docx_s3_key,
+                    xml_s3_key=xml_s3_key,
                     metadata=conversion_metadata
                 )
                 
@@ -427,7 +432,7 @@ class ConversionService:
                     task_id=task_id,
                     manuscript_id=task.manuscript_id,
                     status=ConversionStatus.COMPLETED,
-                    docx_s3_key=docx_s3_key,
+                    xml_s3_key=xml_s3_key,
                     processing_time_seconds=processing_time_seconds,
                     input_file_size_mb=input_size_mb,
                     output_file_size_mb=output_size_mb,
@@ -497,11 +502,14 @@ class ConversionService:
                     
                     # Update manuscript status to failed
                     try:
-                        await manuscript_service.update_manuscript(task.manuscript_id, {
-                            "status": ManuscriptStatus.FAILED,
-                            "error_message": app_error.message,
-                            "processing_completed_at": datetime.utcnow()
-                        })
+                        await manuscript_service.update_manuscript(
+                            task.manuscript_id, 
+                            ManuscriptUpdate(
+                                status=ManuscriptStatus.FAILED,
+                                error_message=app_error.message,
+                                processing_completed_at=datetime.utcnow()
+                            )
+                        )
                     except Exception as update_error:
                         logger.error(f"Failed to update manuscript status to failed: {update_error}")
                 
@@ -531,9 +539,10 @@ class ConversionService:
     async def _rollback_manuscript_status(self, manuscript_id: str, old_status: str) -> None:
         """Rollback manuscript status."""
         try:
-            await manuscript_service.update_manuscript(manuscript_id, {
-                "status": old_status
-            })
+            await manuscript_service.update_manuscript(
+                manuscript_id, 
+                ManuscriptUpdate(status=ManuscriptStatus(old_status))
+            )
         except Exception as e:
             logger.error(f"Failed to rollback manuscript status for {manuscript_id}: {e}")
 
