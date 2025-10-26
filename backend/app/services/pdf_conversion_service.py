@@ -369,10 +369,20 @@ class PDFConversionService:
                     "cpu_count": 1,
                 }
             
-            # Perform conversion (skip images to avoid pixmap errors)
+            # Perform conversion with images enabled; gracefully fall back to no images
             converter = Converter(str(pdf_path))
-            converter.convert(str(docx_path), image=False, **converter_params)
-            converter.close()
+            try:
+                # Try including images so downstream DocBook packaging can extract them
+                converter.convert(str(docx_path), image=True, **converter_params)
+            except Exception as image_error:
+                # Some PDFs can cause image extraction errors; retry without images
+                logger.warning(
+                    "pdf2docx image extraction failed; retrying without images: %s",
+                    image_error,
+                )
+                converter.convert(str(docx_path), image=False, **converter_params)
+            finally:
+                converter.close()
             
             conversion_end = datetime.utcnow()
             conversion_duration = (conversion_end - conversion_start).total_seconds()
