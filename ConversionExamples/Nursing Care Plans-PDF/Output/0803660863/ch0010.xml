@@ -1,0 +1,1458 @@
+<chapter label="CHAPTER 10" id="ch0010">
+<title><emphasis role="strong">Men&rsquo;s Health</emphasis></title>
+<sect1 id="ch0010s0283"><title><emphasis role="strong">BENIGN PROSTATIC HYPERPLASIA (BPH)</emphasis></title>
+<orderedlist numeration="upperroman" inheritnum="ignore" continuation="restarts">
+<listitem><para><emphasis role="strong">Pathophysiology</emphasis></para>
+<orderedlist numeration="loweralpha" inheritnum="ignore" continuation="restarts">
+<listitem><para>Overgrowth of normal, nonmalignant cells that causes progressive enlargement of the prostate gland, resulting in bladder outlet obstruction with urinary retention, leakage, and frequency (Deters et al, 2017).</para></listitem>
+<listitem><para>The enlarged gland contributes to the overall lower urinary tract symptoms (LUTS) complex via at least two routes: (1) direct bladder outlet obstruction (BOO) from enlarged tissue (static component) and (2) from increased smooth muscle tone and resistance within the enlarged gland (dynamic component) (American Urological Association [AUA], 2014).</para></listitem>
+<listitem><para>Additional complications: bladder wall trabeculation, detrusor muscle enlargement, narrowing of urethra, incontinence, and acute or chronic renal failure (Springhouse, 2005).</para>
+</listitem></orderedlist></listitem>
+<listitem><para><emphasis role="strong">Classification (AUA, 2014; Deters et al, 2017)</emphasis></para>
+<orderedlist numeration="loweralpha" inheritnum="ignore" continuation="restarts">
+<listitem><para>The severity of BPH can be determined with the International Prostate Symptom Score (IPSS)/American Urological Association Symptom Index (AUA-SI) plus a disease-specific quality-of-life (QOL) question.</para></listitem>
+<listitem><para>Questions and subsequent scoring focus on degree of incomplete emptying, frequency, intermittency, urgency, weak stream, straining, nocturia, as well as impact on quality of life.</para>
+<orderedlist numeration="lowerroman" inheritnum="ignore" continuation="restarts">
+<listitem><para>Score of 0 to 7: mildly symptomatic</para></listitem>
+<listitem><para>Score of 8 to 19: moderately symptomatic</para></listitem>
+<listitem><para>Score of 20 to 35: severely symptomatic</para>
+</listitem></orderedlist></listitem></orderedlist></listitem>
+<listitem><para><emphasis role="strong">Etiology</emphasis></para>
+<orderedlist numeration="loweralpha" inheritnum="ignore" continuation="restarts">
+<listitem><para>Cause is unknown, although testosterone and other hormones may affect growth.</para></listitem>
+<listitem><para>Microscopically characterized as a hyperplastic process with the number of cells in the gland increasing with age.</para>
+</listitem></orderedlist></listitem>
+<listitem><para><emphasis role="strong">Statistics</emphasis></para>
+<orderedlist numeration="loweralpha" inheritnum="ignore" continuation="restarts">
+<listitem><para>Morbidity: BPH is the most common disorder of the prostate gland. About half of all men between the ages of 51 and 60 have BPH. Up to 90% of men over age 80 have BPH (Urology Care Foundation, 2015). An estimated 15 million men in the United States have symptoms related to benign enlargement (Egan, 2016).</para></listitem>
+<listitem><para>Mortality: generally related to renal failure, infection, and complications of surgery.</para></listitem>
+<listitem><para>Cost: The direct cost of BPH treatment (drugs, procedures, imaging, and office visits [based on 2005 data]) was estimated to be $4 billion annually (Saigal &amp; Joyce, 2005; Vuichoud &amp; Loughlin, 2015).</para></listitem></orderedlist></listitem></orderedlist>
+<note id="ch0010s0283note0738">
+<title><emphasis role="strong">GLOSSARY</emphasis></title>
+<para><emphasis role="strong">Benign prostatic enlargement: </emphasis>Term used when there is prostate gland enlargement and is usually a presumptive diagnosis based on the size of the prostate.</para>
+<para><emphasis role="strong">Benign prostatic hyperplasia (BPH) [also called benign prostatic hypertrophy]: </emphasis>Histologic diagnosis characterized by proliferation of the cellular elements of the prostate.</para>
+<para><emphasis role="strong">Benign prostatic obstruction (BPO): </emphasis>Term used when obstruction has been proven by pressure flow studies or is highly suspected from flow rates and if the gland is enlarged.</para>
+<para><emphasis role="strong">Bladder outlet obstruction (BOO): </emphasis>Generic term for all forms of obstruction to the bladder outlet (e.g., urethral stricture).</para>
+<para><emphasis role="strong">Bladder wall trabeculation: </emphasis>Characterized by thick wall and hypertrophied muscle bundles; typically seen in instances of longstanding obstruction.</para>
+<para><emphasis role="strong">Dysuria: </emphasis>Painful, difficult urination.</para>
+<para><emphasis role="strong">LUTS (Lower urinary tract symptoms): </emphasis>Storage and/or voiding disturbances common in aging men. LUTS may be due to structural or functional abnormalities in one or more parts of the lower urinary tract that comprises the bladder, bladder neck, prostate, distal sphincter mechanism, and urethra. Not all men with BPH have LUTS, and likewise, not all men with LUTS have BPH. <emphasis>Note:</emphasis> LUTS may also result from abnormalities of the peripheral and/or central nervous systems that provide neural control to the lower urinary tract (AUA, 2014; Deters et al, 2017).</para>
+<para><emphasis role="strong">Prostate Health Index (phi): </emphasis>Test that helps distinguish between prostate cancer and benign disease and improves the specificity of prostate cancer detection in the PSA range of 2 to 10 ng/mL (Nalley, 2017).</para>
+<para><emphasis role="strong">Prostatitis: </emphasis>Inflammation of the prostate gland.</para>
+</note>
+<sect2 id="ch0010s0284"><title><emphasis role="strong">CARE SETTINGS</emphasis></title>
+<para>Client is treated at the community level, with more acute care provided during outpatient procedures.</para>
+</sect2>
+<sect2 id="ch0010s0285"><title><emphasis role="strong">RELATED CONCERNS</emphasis></title>
+<para><link linkend="ch0008s0244">Acute kidney injury</link></para>
+<para><link linkend="ch0010s0288">Prostatectomy</link></para>
+<para><link linkend="ch0014s0338">Psychosocial aspects of care</link></para>
+<table frame="top" id="ch0010s0283ta0414"><title><emphasis role="strong">CLIENT ASSESSMENT DATABASE</emphasis></title>
+<tgroup colsep="0" rowsep="0" cols="2">
+<colspec colnum="1" colname="1" align="left" colsep="0"/>
+<colspec colnum="2" colname="2" align="left" colsep="0"/>
+<thead>
+<row rowsep="1" valign="bottom">
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">DIAGNOSTIC DIVISION<?lb?>MAY REPORT</emphasis></para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">MAY EXHIBIT</emphasis></para></entry></row></thead>
+<tbody>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="strong">CIRCULATION</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<itemizedlist mark="&bull;">
+<listitem><para>Elevated blood pressure (BP)</para></listitem></itemizedlist></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="strong">ELIMINATION</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<itemizedlist mark="&bull;">
+<listitem><para>Feeling need to urinate urgently, sensation of imminent loss of urine without control</para></listitem>
+<listitem><para>Hesitancy or straining in initiating voiding, having to stand at or sit on the toilet for some time prior to producing a urinary stream</para></listitem>
+<listitem><para>Decreased force or caliber of urinary stream, intermittent flow, dribbling</para></listitem>
+<listitem><para>Usually voiding only small amounts of urine with each episode, sensation of incomplete emptying</para></listitem>
+<listitem><para>Need to urinate frequently during the day or night (nocturia), resulting in interrupted sleep</para></listitem>
+<listitem><para>Dysuria, hematuria</para></listitem>
+<listitem><para>Chronic constipation, resulting from protrusion of prostate into rectum</para></listitem></itemizedlist></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<itemizedlist mark="&bull;">
+<listitem><para>Firm mass in lower abdomen (distended bladder), bladder tenderness</para></listitem>
+<listitem><para>Inguinal hernia, hemorrhoids&mdash;result of increased abdominal pressure required to empty bladder against resistance</para></listitem></itemizedlist></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="strong">FOOD/FLUID</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<itemizedlist mark="&bull;">
+<listitem><para>Anorexia, nausea, vomiting</para></listitem>
+<listitem><para>Recent weight loss</para></listitem></itemizedlist></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="strong">PAIN/DISCOMFORT</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<itemizedlist mark="&bull;">
+<listitem><para>Suprapubic, flank, or back pain; sharp, intense, with acute prostatitis</para></listitem>
+<listitem><para>Low back pain</para></listitem></itemizedlist></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="strong">SAFETY</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<itemizedlist mark="&bull;">
+<listitem><para>Fever</para></listitem></itemizedlist></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="strong">SEXUALITY</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<itemizedlist mark="&bull;">
+<listitem><para>Concerns about effects of condition or therapy on sexual abilities</para></listitem>
+<listitem><para>Fear of incontinence or dribbling during intimacy</para></listitem>
+<listitem><para>Decrease in force of ejaculatory contractions</para></listitem></itemizedlist></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<itemizedlist mark="&bull;">
+<listitem><para>Enlarged, tender prostate</para></listitem></itemizedlist></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="strong">TEACHING/LEARNING</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<itemizedlist mark="&bull;">
+<listitem><para>Family history of cancer, hypertension, kidney disease</para></listitem>
+<listitem><para>Use of antihypertensive or antidepressant medications, over-the-counter (OTC) cold and allergy medications containing sympathomimetics, urinary antibiotics or antibacterial agents</para></listitem>
+<listitem><para>Use of nutrients or herbal supplements for self-treatment of BPH and urinary flow&mdash;saw palmetto, pygeum, pumpkin seed oil, or soy products</para></listitem></itemizedlist></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="strong">DISCHARGE PLAN CONSIDERATIONS</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<itemizedlist mark="&bull;">
+<listitem><para>May need assistance with management of therapy&mdash;indwelling catheter</para></listitem></itemizedlist></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="1" valign="top">
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para><inlinemediaobject><imageobject><imagedata fileref="pa.jpg"/></imageobject></inlinemediaobject> Refer to section at end of plan for postdischarge considerations.</para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+</entry></row></tbody></tgroup></table>
+<table frame="top" id="ch0010s0283ta0415"><title><emphasis role="strong">DIAGNOSTIC STUDIES</emphasis></title>
+<tgroup colsep="0" rowsep="0" cols="2">
+<colspec colnum="1" colname="1" align="left" colsep="0"/>
+<colspec colnum="2" colname="2" align="left" colsep="0"/>
+<thead>
+<row rowsep="1" valign="bottom">
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">TEST<?lb?>WHY IT IS DONE</emphasis></para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">WHAT IT TELLS ME</emphasis></para></entry></row></thead>
+<tbody>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="strong">BLOOD TESTS</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<itemizedlist mark="&bull;">
+<listitem><para><emphasis role="bi">Prostate-specific antigen (PSA):</emphasis> Substance manufactured solely by prostate gland cells. An elevated reading indicates an abnormal condition of the prostate gland, either benign or malignant.</para></listitem></itemizedlist></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Serum PSA reflects the amount of glandular epithelium, which in turn reflects prostate size. As prostate size increases with increasing age, the PSA concentration also rises; it increases at a faster rate in elderly men. As a result, different normal reference ranges may be appropriate based upon a man&rsquo;s age. Anything that irritates the prostate (e.g., prostatitis, prostate biopsy, recent sexual activity) will cause the PSA to rise, at least temporarily (Schmitz, 2017). <emphasis>Note:</emphasis> Using PSA numbers for screening for prostate cancer remains controversial but is still done. Although BPH does not cause prostate cancer, men at risk for BPH are also at risk for this disease (Deters et al, 2017).</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="strong">URINE TESTS</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<itemizedlist mark="&bull;">
+<listitem><para><emphasis role="bi">Urinalysis:</emphasis> Laboratory examination of urine for red blood cells (RBCs) and WBCs or presence of infection or excessive protein.</para></listitem></itemizedlist></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Yellow, dark brown, dark or bright red (bloody) in color; appearance may be cloudy, pH of 7 or greater suggests infection; and bacteria, WBCs, and RBCs may be present microscopically.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<itemizedlist mark="&bull;">
+<listitem><para><emphasis role="bi">Postvoid residual (PVR):</emphasis> Volume of urine remaining in bladder immediately after voiding.</para></listitem></itemizedlist></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Determines the severity of urinary retention; may be done by catheterization or by transabdominal ultrasound (bladder scan).</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="strong">OTHER DIAGNOSTIC STUDIES</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<itemizedlist mark="&bull;">
+<listitem><para><emphasis role="bi">Ultrasound (abdominal, renal):</emphasis> Diagnostic imaging technique utilizing reflected high-frequency sound waves to delineate, measure, or examine internal body structures.</para></listitem></itemizedlist></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Useful for helping to determine bladder and prostate size and the degree of kidney enlargement (if any) in patients with urinary retention or signs of renal insufficiency. Generally not indicated for the initial evaluation of uncomplicated lower urinary tract symptoms.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<itemizedlist mark="&bull;">
+<listitem><para><emphasis role="bi">Transrectal prostatic ultrasound (TRUS):</emphasis> Examination where a fingerlike probe is placed in the rectum and ultrasound pictures are made of the prostate.</para></listitem></itemizedlist></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Measures size of prostate and amount of residual urine, locates lesions unrelated to BPH. For client with elevated PSA levels, a TRUS-guided biopsy may be indicated.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<itemizedlist mark="&bull;">
+<listitem><para><emphasis role="bi">Digital rectal exam (DRE):</emphasis> Test performed by inserting gloved finger into rectum to detect prostate abnormalities.</para></listitem></itemizedlist></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Prostate size and contour can be assessed, nodules evaluated, and areas of suspected malignancy detected; also helps determine pelvic floor tone and fluctuance, such as in prostate abscess, and pain and sensitivity of gland can be assessed.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<itemizedlist mark="&bull;">
+<listitem><para><emphasis role="bi">Uroflowmetry:</emphasis> Measures urine amount and flow rate via a collection device and scale. The equipment creates a graph that shows changes in flow rate from second to second, measuring peak flow rate and how long it took to get there.</para></listitem></itemizedlist></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Results of this test will be abnormal if the bladder muscle is weak or urine flow is obstructed. Helps distinguish poor bladder contractibility (detrusor underactivity) from BOO caused by prostate hyperplasia.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<itemizedlist mark="&bull;">
+<listitem><para><emphasis role="bi">Urography:</emphasis> Series of x-rays of the kidney, ureters, and bladder after injection of a contrast dye into a vein.</para></listitem></itemizedlist></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Shows any blockage in the urinary tract causing delayed emptying of bladder, urinary retention, or presence of prostatic enlargement.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<itemizedlist mark="&bull;">
+<listitem><para><emphasis role="bi">Cystourethrography:</emphasis> Allows visualization of the bladder and urethra on x-ray, using radiopaque contrast material injected through the urethra.</para></listitem></itemizedlist></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>May be used instead of intravenous pyelogram (IVP) to visualize bladder and urethra because it uses localized, rather than systemic, radiopaque contrast media.</para></entry></row>
+<row rowsep="1" valign="top">
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<itemizedlist mark="&bull;">
+<listitem><para><emphasis role="bi">Cystourethroscopy:</emphasis> Direct visualization of the bladder and urethra by means of a flexible fiber-optic scope.</para></listitem></itemizedlist></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>May be done in selected individuals. Shows degree of prostatic enlargement and bladder wall changes associated with bladder trabeculation.</para></entry></row></tbody></tgroup></table>
+</sect2>
+<sect2 id="ch0010s0286"><title><emphasis role="strong">NURSING PRIORITIES</emphasis></title>
+<orderedlist numeration="arabic" inheritnum="ignore" continuation="restarts">
+<listitem><para>Relieve acute urinary retention.</para></listitem>
+<listitem><para>Promote comfort.</para></listitem>
+<listitem><para>Prevent complications.</para></listitem>
+<listitem><para>Assist client to deal with psychosocial concerns.</para></listitem>
+<listitem><para>Provide information about disease process, prognosis, and treatment needs.</para></listitem></orderedlist>
+</sect2>
+<sect2 id="ch0010s0287"><title><emphasis role="strong">DISCHARGE GOALS</emphasis></title>
+<orderedlist numeration="arabic" inheritnum="ignore" continuation="restarts">
+<listitem><para>Voiding pattern normalized.</para></listitem>
+<listitem><para>Pain or discomfort relieved.</para></listitem>
+<listitem><para>Complications prevented or minimized.</para></listitem>
+<listitem><para>Situation being dealt with realistically.</para></listitem>
+<listitem><para>Disease process, prognosis, and therapeutic regimen understood.</para></listitem>
+<listitem><para>Plan in place to meet needs after discharge.</para></listitem></orderedlist>
+<note id="ch0010s0283note0739">
+<title><emphasis role="strong">NURSING DIAGNOSIS: [acute/chronic] urinary Retention</emphasis></title>
+<para><emphasis role="strong">May Be Related To</emphasis></para>
+<para>High urethral pressure; strong sphincter; blockage in urinary tract </para>
+<para><emphasis role="strong">Possibly Evidenced By</emphasis></para>
+<para>Sensation of bladder fullness; dribbling of urine; dysuria </para>
+<para>Small or frequent voiding </para>
+<para>Bladder distention; residual urine</para>
+<para><emphasis role="strong">Desired Outcomes/Evaluation Criteria&mdash;Client Will </emphasis></para>
+<para><emphasis role="strong">Urinary Elimination</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnic.jpg"/></imageobject></inlinemediaobject></para>
+<para>Void in sufficient amounts with no palpable bladder distention.</para>
+<para>Demonstrate postvoid residuals of less than 50 mL, with absence of dribbling or overflow.</para>
+</note>
+
+
+<note role="none" id="ch0010s0283note0740">
+<table frame="top" id="ch0010s0283ta0416"><title/>
+<tgroup colsep="0" rowsep="0" cols="3">
+<colspec colnum="1" colname="1" align="left" colsep="0"/>
+<colspec colnum="2" colname="2" align="left" colsep="0"/>
+<colspec colnum="3" colname="3" align="left" colsep="0"/>
+<spanspec spanname="1-2" namest="1" nameend="2"/>
+<thead>
+<row rowsep="1" valign="bottom">
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom" spanname="1-2">
+<para><emphasis role="strong">ACTIONS/INTERVENTIONS</emphasis></para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">RATIONALE</emphasis></para></entry></row></thead>
+<tbody>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para><emphasis role="strong">Urinary Retention Care</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnic.jpg"/></imageobject></inlinemediaobject></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para><emphasis role="bi">Independent</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Encourage client to void every 2 to 4 hours and when urge is noted.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>May minimize urinary retention and overdistention of the bladder.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Ask client about stress incontinence when moving, sneezing, coughing, laughing, or lifting objects.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>High urethral pressure inhibits bladder emptying or can inhibit voiding until abdominal pressure increases enough for urine to be involuntarily lost.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Observe urinary stream, noting size and force.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Useful in evaluating degree of obstruction and choice of intervention.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Have client document time and amount of each voiding. Note diminished urinary output. Measure specific gravity, as indicated.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Urinary retention increases pressure within the ureters and kidneys, which may cause renal insufficiency. Any deficit in blood flow to the kidney impairs its ability to filter and concentrate substances.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Percuss and palpate suprapubic area.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>A distended bladder can be felt in the suprapubic area.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Encourage oral fluids, if indicated.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Increased circulating fluid maintains renal perfusion and flushes kidneys, bladder, and ureters of sediment and bacteria. <emphasis>Note:</emphasis> Fluids may be restricted to prevent bladder distention if severe obstruction is present or until adequate urinary flow is reestablished.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Monitor vital signs closely. Observe for hypertension, peripheral or dependent edema, and changes in mentation. Weigh daily. Maintain accurate intake and output (I&amp;O).</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Loss of kidney function results in decreased fluid elimination and accumulation of toxic wastes.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Provide and encourage meticulous catheter and perineal care.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Reduces risk of ascending infection.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Recommend sitz bath, as indicated.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Promotes muscle relaxation, decreases edema, and may enhance voiding effort.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para><emphasis role="bi">Collaborative</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Administer medications, as indicated, for example:</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Medications have long been used as a first-line therapy for clients with mild to moderate symptoms.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>5-alpha-reductase inhibitors (5-ARIs), such as dutasteride (Avodart); finasteride (Proscar)</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Reduces the size of the prostate and decreases symptoms if taken long term; however, side effects, such as decreased libido and ejaculatory dysfunction, may influence client&rsquo;s choice for long-term use. Studies indicate that combination therapy with 5-ARI plus alpha blocker may be superior to taking either drug class alone for prevention of BPH progression (AUA, 2017).</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Alpha-adrenergic antagonists, such as alfuzosin (Uro-Xatral), terazosin (Hytrin), doxazosin (Cardura), and tamsulosin (Flomax)</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>These agents block effects of postganglionic synapses that affect smooth muscle and exocrine glands. This action can decrease adverse urinary tract symptoms and increase urinary flow.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Phosphodiesterase-5 enzyme inhibitors, such as tadalafil (Cialis)</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Bring about smooth muscle relaxation in the lower urinary tract, thus improving the symptoms of BPH (Deters et al, 2017).</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Antibiotics and antibacterials</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Given to combat infection. May be used prophylactically.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Catheterize for residual urine and leave indwelling catheter, as indicated.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Relieves and prevents urinary retention and rules out presence of ureteral stricture. Coud&eacute; catheter may be required because the curved tip eases passage of the tube around the enlarged prostate. <emphasis>Note:</emphasis> Bladder decompression should be done with caution to observe for signs of adverse reaction, such as hematuria due to rupture of blood vessels in the mucosa of the overdistended bladder and syncope due to excessive autonomic stimulation.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Monitor laboratory studies, such as the following:</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Blood urea nitrogen (BUN), creatinine (Cr), and electrolytes</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Prostatic enlargement with obstruction eventually causes dilation of upper urinary tract, ureters, and kidneys, potentially impairing kidney function and leading to uremia.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Urinalysis and culture</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Urinary stasis potentiates bacterial growth, increasing risk of urinary tract infection (UTI).</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Prepare for and assist with urinary drainage, such as emergency cystostomy.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>May be indicated to drain bladder during acute episode with azotemia or when surgery is contraindicated because of client&rsquo;s health status.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Prepare for minimally invasive therapies, such as:</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Heat therapies, such as laser treatment to destroy prostate tissue: transurethral microwave thermotherapy (TUMT), Cortherm, Prostatron, and transurethral needle ablation (TUNA)</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>These therapies rely on heat to cause destruction of prostatic tissue. Treatment is often completed in a one-time procedure carried out in the physician&rsquo;s office. Long-term outcomes are variable in terms of adequately treating urinary tract symptoms.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Prostatic urethral lift (PUL) implant</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Treatment involves insertion of permanent implants into the prostate to retract the lobes away from the prostatic urethra. <emphasis>Note:</emphasis> A recent study comparing effectiveness of PUL with other procedures for BPH revealed that at 5 years, 86% of men did not require another procedure for BPH. The same study reported that for thermally based procedures, the 5-year retreatment rate ranges from 20% to 50%, and the annual retreatment rate for TURP is 1% to 2% (Bankhead, 2013; Krader, 2017).</para></entry></row>
+<row rowsep="1" valign="top">
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+</entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>Prepare for surgery as indicated.</para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>Transurethral resection of the prostate (TURP) is the standard treatment for BOO secondary to BPH. Open prostatectomy is reserved for client with very large prostate (&gt;75 g) or with concomitant bladder stones or who cannot be positioned for transurethral surgery (Deters et al, 2017).</para></entry></row></tbody></tgroup></table></note>
+
+
+<note id="ch0010s0283note0741">
+<title><emphasis role="strong">NURSING DIAGNOSIS: acute Pain</emphasis></title>
+<para><emphasis role="strong">May Be Related To</emphasis></para>
+<para>Physical injury agents&mdash;[mucosal irritation (e.g., bladder distention/urinary retention; urinary infection)]</para>
+<para><emphasis role="strong">Possibly Evidenced By</emphasis></para>
+<para>Self-report of pain intensity and characteristics using a standardized rating scale</para>
+<para>Guarding and protective behavior</para>
+<para>Expressive behaviors (e.g., restlessness, irritability)</para>
+<para>Self-focus/narrowed focus</para>
+<para><emphasis role="strong">Desired Outcomes/Evaluation Criteria&mdash;Client Will </emphasis></para>
+<para><emphasis role="strong">Pain Level</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnoc.jpg"/></imageobject></inlinemediaobject></para>
+<para>Report pain relieved or controlled.</para>
+<para>Appear relaxed.</para>
+<para>Be able to sleep and rest appropriately.</para>
+</note>
+<note role="none" id="ch0010s0283note0742">
+<table frame="top" id="ch0010s0283ta0417"><title/>
+<tgroup colsep="0" rowsep="0" cols="3">
+<colspec colnum="1" colname="1" align="left" colsep="0"/>
+<colspec colnum="2" colname="2" align="left" colsep="0"/>
+<colspec colnum="3" colname="3" align="left" colsep="0"/>
+<spanspec spanname="1-2" namest="1" nameend="2"/>
+<thead>
+<row rowsep="1" valign="bottom">
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom" spanname="1-2">
+<para><emphasis role="strong">ACTIONS/INTERVENTIONS</emphasis></para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">RATIONALE</emphasis></para></entry></row></thead>
+<tbody>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para><emphasis role="strong">Pain Management: Acute</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnic.jpg"/></imageobject></inlinemediaobject></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para><emphasis role="bi">Independent</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Assess pain, noting location, intensity (0 to 10 or similar coded scale), characteristics, and duration.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Provides information to aid in determining choice and effectiveness of interventions.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Provide comfort measures, such as back rub, helping client assume position of comfort. Suggest use of relaxation and deep-breathing exercises and diversional activities.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Promotes relaxation, refocuses attention, and may enhance coping abilities.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Encourage use of sitz baths and warm soaks to perineum.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Helps relax the smooth muscle in the prostate, easing the constriction of the urethra and bladder neck and increasing blood circulation to the pelvic region.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Ascertain that client is taking medications for BPH as prescribed. Document and discuss with physician if medication changes may be needed in medication regimen.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Client should be constant in taking prostate medications as prescribed to reduce swelling, improve urine flow, and prevent or treat urinary retention. The client should also avoid medications known to be associated with urinary retention (e.g., those that contain decongestants).</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para><emphasis role="bi">Collaborative</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Insert catheter and attach to straight drainage, as indicated. Maintain indwelling catheter when needed.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Draining bladder reduces acute bladder tension and irritability. Indwelling catheter may be needed in the short term for acute urinary retention or may be required long term for chronic retention.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Administer medications, as indicated, for example:</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Opioids, such as meperidine (Demerol)</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Given to relieve severe pain; provide physical and mental relaxation.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Antibacterials, such as methenamine hippurate (Hiprex)</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Reduces bacteria present in urinary tract and those introduced by drainage system.</para></entry></row>
+<row rowsep="1" valign="top">
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+</entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>Antispasmodics and bladder sedatives, such as flavoxate (Urispas) and oxybutynin (Ditropan)</para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>Relieves bladder irritability.</para></entry></row></tbody></tgroup></table></note>
+<note id="ch0010s0283note0743">
+<title><emphasis role="strong">NURSING DIAGNOSIS: risk for deficient Fluid Volume</emphasis></title>
+<para><emphasis role="strong">Possibly Evidenced By</emphasis></para>
+<para>Failure of regulatory mechanism (e.g., postobstructive diuresis from rapid drainage of a chronically overdistended bladder)</para>
+<para><emphasis role="strong">Desired Outcomes/Evaluation Criteria&mdash;Client Will </emphasis></para>
+<para><emphasis role="strong">Fluid Balance</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnoc.jpg"/></imageobject></inlinemediaobject></para>
+<para>Maintain adequate hydration as evidenced by stable vital signs, palpable peripheral pulses, adequate capillary refill, and moist mucous membranes.</para>
+</note>
+<note role="none" id="ch0010s0283note0744">
+<table frame="top" id="ch0010s0283ta0418"><title/>
+<tgroup colsep="0" rowsep="0" cols="2">
+<colspec colnum="1" colname="1" align="left" colsep="0"/>
+<colspec colnum="2" colname="2" align="left" colsep="0"/>
+<thead>
+<row rowsep="1" valign="bottom">
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">ACTIONS/INTERVENTIONS</emphasis></para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">RATIONALE</emphasis></para></entry></row></thead>
+<tbody>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="strong">Fluid Management</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnic.jpg"/></imageobject></inlinemediaobject></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="bi">Independent</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Monitor output carefully. Note outputs of 100 to 200 mL/hr.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Rapid or sustained diuresis could cause client&rsquo;s total fluid volume to become depleted and limits sodium reabsorption in renal tubules.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Encourage increased oral intake based on individual needs.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Client may have restricted oral intake in an attempt to control urinary symptoms, reducing homeostatic reserves and increasing risk of dehydration and hypovolemia.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Monitor BP and pulse. Evaluate capillary refill and oral mucous membranes.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Enables early detection of and intervention for systemic hypovolemia.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Promote bedrest with head elevated.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Decreases cardiac workload, facilitating circulatory homeostasis.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="bi">Collaborative</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Monitor electrolyte levels, especially sodium.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>As fluid is pulled from extracellular spaces, sodium may follow the shift, causing hyponatremia.</para></entry></row>
+<row rowsep="1" valign="top">
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>Administer intravenous (IV) fluids&mdash;hypertonic saline as needed.</para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>Replaces fluid and sodium losses to prevent or correct hypovolemia following outpatient procedures.</para></entry></row></tbody></tgroup></table></note>
+<note id="ch0010s0283note0745">
+<title><emphasis role="strong">NURSING DIAGNOSIS: Anxiety [specify level]</emphasis></title>
+<para><emphasis role="strong">May Be Related To</emphasis></para>
+<para>Stressors/threat to current status (change in health status; threat to self-concept; threat to role function [e.g., concern about sexual ability])</para>
+<para><emphasis role="strong">Possibly Evidenced By</emphasis></para>
+<para>Increase in tension, apprehensiveness, uncertainty </para>
+<para>Worried about change in life event</para>
+<para><emphasis role="strong">Desired Outcomes/Evaluation Criteria&mdash;Client Will </emphasis></para>
+<para><emphasis role="strong">Anxiety Self-Control</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnoc.jpg"/></imageobject></inlinemediaobject></para>
+<para>Appear relaxed and report anxiety is reduced to a manageable level.</para>
+<para>Verbalize accurate knowledge of the situation.</para>
+<para>Demonstrate problem-solving skills.</para>
+<para>Uses resources/support systems effectively.</para>
+</note>
+<note role="none" id="ch0010s0283note0746">
+<table frame="top" id="ch0010s0283ta0419"><title/>
+<tgroup colsep="0" rowsep="0" cols="2">
+<colspec colnum="1" colname="1" align="left" colsep="0"/>
+<colspec colnum="2" colname="2" align="left" colsep="0"/>
+<thead>
+<row rowsep="1" valign="bottom">
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">ACTIONS/INTERVENTIONS</emphasis></para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">RATIONALE</emphasis></para></entry></row></thead>
+<tbody>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="strong">Anxiety Reduction</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnic.jpg"/></imageobject></inlinemediaobject></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="bi">Independent</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Be available to client. Establish trusting relationship with client and significant other (SO).</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Demonstrates concern and willingness to help. Encourages discussion of sensitive subjects.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Provide information about specific procedures and tests and what to expect afterward, such as catheter, bloody urine, and bladder irritation. Be aware of how much information client wants.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Helps client understand purpose of what is being done and reduces concerns associated with the unknown, including fear of cancer. However, overload of information is not helpful and may increase anxiety.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Maintain matter-of-fact attitude in doing procedures and dealing with client. Protect client&rsquo;s privacy.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Communicates acceptance and eases client&rsquo;s embarrassment.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Encourage client and SO to verbalize concerns and feelings.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Defines the problem, providing opportunity to answer questions, clarify misconceptions, and problem-solve solutions.</para></entry></row>
+<row rowsep="1" valign="top">
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>Reinforce previous information client has been given.</para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>Allows client to deal with reality and strengthens trust in caregivers and information presented.</para></entry></row></tbody></tgroup></table></note>
+<note id="ch0010s0283note0747">
+<title><emphasis role="strong">NURSING DIAGNOSIS: deficient Knowledge regarding condition, prognosis, treatment, self-care, and discharge needs</emphasis></title>
+<para><emphasis role="strong">May Be Related To</emphasis></para>
+<para>Insufficient information; insufficient interest in leaning; misinformation presented by others </para>
+<para>Insufficient knowledge of resources</para>
+<para><emphasis role="strong">Possibly Evidenced By</emphasis></para>
+<para>Insufficient knowledge</para>
+<para>Inappropriate behaviors&mdash;apathetic, withdrawn</para>
+<para>Inaccurate follow-through of instruction or performance on a test or procedure </para>
+<para>Development of preventable complications</para>
+<para><emphasis role="strong">Desired Outcomes/Evaluation Criteria&mdash;Client Will</emphasis></para>
+<para><emphasis role="strong">Knowledge: Disease Process</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnoc.jpg"/></imageobject></inlinemediaobject></para>
+<para>Verbalize understanding of disease process, prognosis, and potential complications.</para>
+<para>Identify relationship of signs and symptoms to the disease process.</para>
+<para>Initiate necessary lifestyle or behavior changes.</para>
+<para><emphasis role="strong">Knowledge: Treatment Regimen</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnoc.jpg"/></imageobject></inlinemediaobject></para>
+<para>Verbalize understanding of therapeutic needs.</para>
+<para>Participate in treatment regimen.</para>
+<para>Perform necessary procedures correctly.</para>
+</note>
+<note role="none" id="ch0010s0283note0748">
+<table frame="top" id="ch0010s0283ta0420"><title/>
+<tgroup colsep="0" rowsep="0" cols="2">
+<colspec colnum="1" colname="1" align="left" colsep="0"/>
+<colspec colnum="2" colname="2" align="left" colsep="0"/>
+<thead>
+<row rowsep="1" valign="bottom">
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">ACTIONS/INTERVENTIONS</emphasis></para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">RATIONALE</emphasis></para></entry></row></thead>
+<tbody>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="strong">Teaching: Disease Process</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnic.jpg"/></imageobject></inlinemediaobject></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="bi">Independent</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Review disease process and client expectations.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Provides knowledge base from which client can make informed therapy choices. <emphasis>Note:</emphasis> &ldquo;Watchful waiting&rdquo; is one of the options in client with early BPH with no symptoms of urinary retention. Client should understand that this includes ongoing periodic evaluation for change.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Encourage verbalization of fears, feelings, and concerns.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Helping client work through feelings can be vital to rehabilitation.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Give information that the condition is not sexually transmitted.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>May be an unspoken fear.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Review drug therapy, use of herbal products, and diet, such as increasing intake of fruits and soybeans.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Some clients may prefer to treat with complementary therapy because of decreased occurrence and lessened severity of side effects, such as impotence. <emphasis>Note:</emphasis> Nutrients known to inhibit prostate enlargement include zinc, soy protein, essential fatty acids, flaxseed, and lycopene. Herbal supplements that client may use include saw palmetto, pygeum, stinging nettle, and pumpkin seed oil. <emphasis>Note:</emphasis> A recent study found no difference in efficacy or side effects between saw palmetto and a placebo, indicating a need for further research as to benefit versus variability of potency or purity of botanical products (Martin, 2016).</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Review usual medication regimen.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Medications known to be associated with urinary obstruction symptoms (e.g., tricyclic antidepressants, first-generation antihistamines, anticholinergic agents, diuretics, narcotics, and decongestants) may require dose adjustment or change to a different drug.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Encourage reading of labels and discuss concerns with over-the-counter (OTC) drugs.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Many OTC medications for upper respiratory symptom relief can increase urinary retention. Client with BPH should avoid these medications.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Recommend avoiding spicy foods, coffee, alcohol, long automobile rides, and rapid intake of fluids.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>May cause prostatic irritation with resulting congestion. Sudden increase in urinary flow can cause bladder distention and loss of bladder tone, resulting in episodes of acute urinary retention.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Address sexual concerns&mdash;during acute episodes of prostatitis, intercourse should be avoided but may be helpful in treatment of chronic condition.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Sexual activity can increase pain during acute episodes but may serve as massaging agent in presence of chronic disease. <emphasis>Note:</emphasis> Medications, such as finasteride (Proscar), are known to interfere with libido and erections. Alternatives include terazosin (Hytrin), doxazosin mesylate (Cardura), and tamsulosin (Flomax), which do not affect testosterone levels.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Provide information about sexual anatomy and function as it relates to prostatic enlargement. Encourage questions and promote a dialogue about concerns.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Having information about anatomy involved helps client understand the implications of proposed treatments because they might affect sexual performance.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Review signs and symptoms requiring medical evaluation&mdash;cloudy, odorous urine; diminished urinary output; inability to void; and presence of fever or chills.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Prompt interventions may prevent more serious complications.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Discuss necessity of notifying other healthcare providers of diagnosis.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Reduces risk of inappropriate therapy, such as the use of decongestants, anticholinergics, and antidepressants, which can increase urinary retention and may precipitate an acute episode.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Reinforce importance of medical follow-up for at least 6 months to 1 year, including rectal examination and urinalysis.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Recurrence of hyperplasia and infection caused by same or different organisms is not uncommon and requires changes in therapeutic regimen to prevent serious complications.</para></entry></row>
+<row rowsep="1" valign="top">
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>Discuss personal safety issues and potential environmental changes.</para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>Recent research reports increased risk of falls in the presence of moderate to severe BPH associated with urgency, nocturia, and straining to void, with fall risk increasing with age and symptom severity (Parsons, 2010).</para></entry></row></tbody></tgroup></table></note>
+<note id="ch0010s0283note0749">
+<para><emphasis role="strong">POTENTIAL CONSIDERATIONS </emphasis>following acute hospitalization (dependent on client&rsquo;s age, physical condition and presence of complications, personal resources, and life responsibilities)</para>
+<itemizedlist mark="&bull;">
+<listitem><para><emphasis role="bi">[acute/chronic] urinary Retention</emphasis>&mdash;blockage [loss of bladder tone, decompensation of detrusor musculature]</para></listitem>
+<listitem><para><emphasis role="bi">risk for Infection</emphasis>&mdash;urinary stasis, invasive procedure (periodic catheterization)</para></listitem>
+<listitem><para><emphasis role="bi">risk for ineffective Health Management</emphasis>&mdash;perceived barriers</para></listitem></itemizedlist></note>
+</sect2></sect1>
+<sect1 id="ch0010s0288"><title><emphasis role="strong">PROSTATECTOMY</emphasis></title>
+<para>Prostatectomy includes a number of surgical procedures to remove part or all of the prostate gland and can be performed in several ways depending on the condition involved and the recommended treatment approach. When medical and minimally invasive options for benign prostatic hyperplasia (BPH) have been unsuccessful, more invasive treatment options may be considered, such as transurethral resection of the prostate (TURP) or open prostatectomy.</para>
+<para><emphasis role="strong">Simple prostatectomy </emphasis>removes part of the prostate and is generally recommended for men with severe urinary symptoms and very enlarged prostate gland (BPH) rather than cancer and can be performed open or robotically.</para>
+<para>Prostatectomy for localized prostate cancer is often a <emphasis role="strong">radical procedure, </emphasis>removing not only the prostate but also surrounding lymph nodes and/or other structures. Prostatectomy may be used alone or in conjunction with chemotherapy, radiation, and hormone therapy. Transurethral procedures may be performed before open prostatectomy when urinary retention is occurring because of obstruction.</para>
+<orderedlist numeration="upperroman" inheritnum="ignore" continuation="restarts">
+<listitem><para><emphasis role="strong">Indications</emphasis></para>
+<orderedlist numeration="loweralpha" inheritnum="ignore" continuation="restarts">
+<listitem><para>Benign prostatic hyperplasia (BPH)&ndash;related complications</para>
+<orderedlist numeration="lowerroman" inheritnum="ignore" continuation="restarts">
+<listitem><para>Urinary retention</para></listitem>
+<listitem><para>Frequent urinary tract infections</para></listitem>
+<listitem><para>Bladder stones secondary to bladder outlet obstruction</para></listitem>
+<listitem><para>Recurrent gross hematuria</para></listitem>
+<listitem><para>Kidney damage from longstanding blockage</para></listitem>
+<listitem><para>Failure to respond to medical or minimally invasive treatments</para>
+</listitem></orderedlist></listitem>
+<listitem><para>Prostate cancer</para>
+</listitem></orderedlist></listitem>
+<listitem><para><emphasis role="strong">Procedures (AUA, 2014; Khera et al, 2015; Mayo Clinic Staff, 2017)</emphasis></para>
+<orderedlist numeration="loweralpha" inheritnum="ignore" continuation="restarts">
+<listitem><para>Minimally invasive prostatectomy</para>
+<orderedlist numeration="lowerroman" inheritnum="ignore" continuation="restarts">
+<listitem><para>Transurethral microwave thermotherapy (TUMT)</para></listitem>
+<listitem><para>Transurethral needle ablation (TUNA) using low-level frequency thermal energy</para></listitem>
+<listitem><para>Laser ablation: includes transurethral holmium laser ablation of the prostate (HoLAP), transurethral laser enucleation of the prostate (HoLEP), and holmium laser resection of the prostate (HoLRP)</para></listitem>
+<listitem><para>Transurethral vaporization of the prostate (TUVP)</para></listitem>
+<listitem><para>Transurethral resection of the prostate (TURP)</para>
+<orderedlist numeration="arabic" inheritnum="ignore" continuation="restarts">
+<listitem><para>Most common procedure for the long-term treatment of BPH in client with moderate to severe lower urinary tract symptoms (LUTS) and/or where significantly bothered by these symptoms</para></listitem>
+<listitem><para>Obstructive prostatic tissue of the medial lobe surrounding the urethra is removed by means of a cystoscope introduced through the urethra.</para>
+</listitem></orderedlist></listitem></orderedlist></listitem>
+<listitem><para>Open surgical approaches performed when the prostate is overly enlarged (greater than 75 g), the bladder has been damaged, or when there are complicating factors, such as cancer</para>
+<orderedlist numeration="lowerroman" inheritnum="ignore" continuation="restarts">
+<listitem><para>Robot assisted&mdash;nerve sparing, uses a laparoscope, and several incisions are made in the abdomen</para></listitem>
+<listitem><para>Suprapubic prostatectomy&mdash;Obstructing prostatic tissue is removed through a low midline incision made through the bladder.</para></listitem>
+<listitem><para>Retropubic prostatectomy&mdash;Hypertrophied prostatic tissue mass located high in the pelvic region is removed through a low abdominal incision without opening the bladder.</para></listitem>
+<listitem><para>Perineal prostatectomy&mdash;Large prostatic masses low in the pelvic area are removed through an incision between the scrotum and the rectum.</para>
+</listitem></orderedlist></listitem></orderedlist></listitem>
+<listitem><para><emphasis role="strong">Statistics</emphasis></para>
+<orderedlist numeration="loweralpha" inheritnum="ignore" continuation="restarts">
+<listitem><para>Morbidity: In 2010, 138,000 prostatectomy (for any diagnosis) procedures were performed in short-stay hospitals in the United States (Centers for Disease Control and Prevention [CDC], 2016). The most commonly performed procedures are prostatectomy and TURP, although numerous other less invasive procedures are on the rise (El-Hakim, 2010).</para></listitem>
+<listitem><para>Mortality: Prostatectomy is a relatively low-risk procedure (mortality stated as 0% or less than 1% and usually associated with cardiovascular disease) (Guilli et al, n.d.). The current 5-year survival rate for prostate cancer (stage dependent) is 98.6%, despite the fact that it was estimated that 26,730 would die of it in 2017 (National Cancer Institute, Surveillance, Epidemiology, and End Results Program [SEER], 2014).</para></listitem>
+<listitem><para>Cost: In 2017, the direct costs for treatment of prostate cancer totaled $14.3 billion (NCI, 2018). A study of 1499 men who underwent robotic prostatectomy and 2565 men who had retropubic prostatectomy between 2008 and 2011 in Maryland reported that during that study period, the cost of a robotic prostatectomy averaged $14,000 compared with $10,100 for retropubic prostatectomy (Bankhead, 2012).</para></listitem></orderedlist></listitem></orderedlist>
+<note id="ch0010s0288note0750">
+<title><emphasis role="strong">GLOSSARY</emphasis></title>
+<para><emphasis role="strong">Continuous bladder irrigation (CBI): </emphasis>Constant flow of normal saline or another bladder irrigant through a three-way urinary catheter to keep the catheter patent.</para>
+<para><emphasis role="strong">Hematuria: </emphasis>Blood in the urine.</para>
+<para><emphasis role="strong">Kegel exercises: </emphasis>Pelvic muscle exercises intended to improve pelvic muscle tone and prevent urine leakage.</para>
+<para><emphasis role="strong">Retropubic: </emphasis>Behind the pubic bone.</para>
+<para><emphasis role="strong">Suprapubic: </emphasis>Above the pubic bone.</para>
+<para><emphasis role="strong">Transurethral resection of the prostate (TURP) syndrome: </emphasis>Rare complication directly related to this procedure. During the surgery, excess fluid collects in the body, reducing the concentration of sodium in the bloodstream. Common symptoms include nausea, vomiting, and confusion.</para>
+<para><emphasis role="strong">Urinary retention: </emphasis>Inability to empty bladder.</para>
+</note>
+<sect2 id="ch0010s0289"><title><emphasis role="strong">CARE SETTING</emphasis></title>
+<para>Client is treated in short-stay inpatient acute surgical unit.</para>
+</sect2>
+<sect2 id="ch0010s0290"><title><emphasis role="strong">RELATED CONCERNS</emphasis></title>
+<para><link linkend="ch0010s0283">Benign prostatic hyperplasia (BPH)</link></para>
+<para><link linkend="ch0014s0370">Cancer</link></para>
+<para><link linkend="ch0014s0338">Psychosocial aspects of care</link></para>
+<para><link linkend="ch0014s0348">Surgical intervention</link></para>
+<table frame="top" id="ch0010s0288ta0421"><title><emphasis role="strong">CLIENT ASSESSMENT DATABASE</emphasis></title>
+<tgroup colsep="0" rowsep="0" cols="2">
+<colspec colnum="1" colname="1" align="left" colsep="0"/>
+<colspec colnum="2" colname="2" align="left" colsep="0"/>
+<spanspec spanname="1-2" namest="1" nameend="2"/>
+<tbody>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Refer to CP: <link linkend="ch0010s0283">Benign Prostatic Hyperplasia (BPH)</link> for assessment data.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="strong">DIAGNOSTIC DIVISION<?lb?>MAY REPORT</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="strong">MAY EXHIBIT</emphasis></para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="strong">DISCHARGE PLAN CONSIDERATIONS</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<itemizedlist mark="&bull;">
+<listitem><para>Dependent upon type of procedure, needs may be minimal or client may require assistance with self-care needs, transportation, medical supplies, and home maintenance</para></listitem></itemizedlist></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="1" valign="top">
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para><inlinemediaobject><imageobject><imagedata fileref="pa.jpg"/></imageobject></inlinemediaobject> Refer to section at end of plan for postdischarge.</para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+</entry></row></tbody></tgroup></table>
+</sect2>
+<sect2 id="ch0010s0291"><title><emphasis role="strong">NURSING PRIORITIES</emphasis></title>
+<orderedlist numeration="arabic" inheritnum="ignore" continuation="restarts">
+<listitem><para>Maintain homeostasis and hemodynamic stability.</para></listitem>
+<listitem><para>Promote comfort.</para></listitem>
+<listitem><para>Prevent complications.</para></listitem>
+<listitem><para>Provide information about surgical procedure, prognosis, treatment, and rehabilitation needs.</para></listitem></orderedlist>
+</sect2>
+<sect2 id="ch0010s0292"><title><emphasis role="strong">DISCHARGE GOALS</emphasis></title>
+<orderedlist numeration="arabic" inheritnum="ignore" continuation="restarts">
+<listitem><para>Urinary flow restored or enhanced.</para></listitem>
+<listitem><para>Pain relieved or controlled.</para></listitem>
+<listitem><para>Complications prevented or minimized.</para></listitem>
+<listitem><para>Procedure, prognosis, therapeutic regimen, and rehabilitation needs understood.</para></listitem>
+<listitem><para>Plan in place to meet needs after discharge.</para></listitem></orderedlist>
+<note id="ch0010s0288note0751">
+<title><emphasis role="strong">NURSING DIAGNOSIS: impaired urinary Elimination</emphasis></title>
+<para><emphasis role="strong">May Be Related To</emphasis></para>
+<para>Anatomic obstruction (e.g., blood clots, edema, trauma, surgical procedure)</para>
+<para><emphasis role="strong">Possibly Evidenced By</emphasis></para>
+<para>Frequency, urgency, hesitancy, dysuria </para><para>Incontinence; retention</para>
+<para><emphasis role="strong">Desired Outcomes/Evaluation Criteria&mdash;Client Will</emphasis></para>
+<para><emphasis role="strong">Urinary Elimination</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnoc.jpg"/></imageobject></inlinemediaobject></para>
+<para>Void normal amounts without retention.</para>
+<para>Demonstrate behaviors to regain bladder and urinary control.</para>
+</note>
+<note role="none" id="ch0010s0288note0752">
+<table frame="top" id="ch0010s0288ta0422"><title/>
+<tgroup colsep="0" rowsep="0" cols="2">
+<colspec colnum="1" colname="1" align="left" colsep="0"/>
+<colspec colnum="2" colname="2" align="left" colsep="0"/>
+<thead>
+<row rowsep="1" valign="bottom">
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">ACTIONS/INTERVENTIONS</emphasis></para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">RATIONALE</emphasis></para></entry></row></thead>
+<tbody>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="strong">Urinary Elimination Management</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnic.jpg"/></imageobject></inlinemediaobject></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="bi">Independent</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Assess urine output and catheter drainage system, especially during bladder irrigation after TURP.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Retention can occur because of edema of the surgical area, blood clots, and bladder spasms.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Assist client to assume normal position to void; for example, stand and walk to bathroom at frequent intervals after catheter is removed.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Encourages passage of urine and promotes sense of normality.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Record time, amount of voiding, and size of stream after catheter is removed. Note reports of bladder fullness, inability to void, and incontinence.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>The catheter is usually removed 2 to 5 days after surgery, but voiding may continue to be a problem for some time because of urethral edema and loss of bladder tone. Urinary incontinence (associated with sphincter insufficiency and bladder dysfunction) is a common complication following prostate surgery and persists for varying lengths of time. <emphasis>Note:</emphasis> A review of two randomized trials of incontinent men postsurgery compared one-to-one sessions with a physical therapist to standard care and lifestyle advice only. High rates of incontinence persisted in both groups after 12 months. Pelvic floor muscle training after prostate surgery is unlikely to be effective (Glazner et al, 2011).</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Encourage client to void when urge is noted but not more than every 2 to 4 hours per protocol.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Voiding with urge can reduce risk of urinary retention. However, limiting voids to every 4 hours, if tolerated, can increase bladder tone and aids in bladder retraining.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Encourage fluid intake to 2000 to 2500 mL as tolerated and if not contraindicated by cardiac or kidney disease. Limit evening fluids once catheter is removed.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Maintains adequate hydration and renal perfusion for urinary flow. &ldquo;Scheduling&rdquo; fluid intake reduces need to void during the night.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Instruct client in perineal exercises, trying to repeatedly stop and start urine stream several times a day.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Although not always successful in men after prostatectomy, exercise should be initiated to regain bladder sphincter control, in effort to minimize incontinence over time (Robinson, 2016; Sobol, 2016).</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Advise client that &ldquo;dribbling&rdquo; is to be expected after catheter is removed and should resolve as recuperation progresses. Provide and instruct in use of continence pads when indicated.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Information can help client deal with and manage the problem.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="bi">Collaborative</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Maintain continuous bladder irrigation (CBI), as indicated, in early postoperative period.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Flushes bladder of blood clots and debris to maintain patency of the catheter and urinary flow.</para></entry></row>
+<row rowsep="1" valign="top">
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>Measure residual volumes via suprapubic catheter, if present, or with Doppler ultrasound.</para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>Monitors effectiveness of bladder emptying. Residuals of more than 50 mL suggest need for continuation of catheter until bladder tone improves.</para></entry></row></tbody></tgroup></table></note>
+<note id="ch0010s0288note0753">
+<title><emphasis role="strong">NURSING DIAGNOSIS: risk for Bleeding</emphasis></title>
+<para><emphasis role="strong">Possibly Evidenced By</emphasis></para>
+<para>Treatment-related side effects (e.g., surgery&mdash;vascular nature of surgical area)</para>
+<para><emphasis role="strong">Desired Outcomes/Evaluation Criteria&mdash;Client Will</emphasis></para>
+<para><emphasis role="strong">Blood Loss Severity</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnoc.jpg"/></imageobject></inlinemediaobject></para>
+<para>Display no signs of active bleeding.</para>
+</note>
+<note role="none" id="ch0010s0288note0754">
+<table frame="top" id="ch0010s0288ta0423"><title/>
+<tgroup colsep="0" rowsep="0" cols="3">
+<colspec colnum="1" colname="1" align="left" colsep="0"/>
+<colspec colnum="2" colname="2" align="left" colsep="0"/>
+<colspec colnum="3" colname="3" align="left" colsep="0"/>
+<spanspec spanname="1-2" namest="1" nameend="2"/>
+<thead>
+<row rowsep="1" valign="bottom">
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom" spanname="1-2">
+<para><emphasis role="strong">ACTIONS/INTERVENTIONS</emphasis></para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">RATIONALE</emphasis></para></entry></row></thead>
+<tbody>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para><emphasis role="strong">Bleeding Precautions</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnic.jpg"/></imageobject></inlinemediaobject></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para><emphasis role="bi">Independent</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Monitor intake and output (I&amp;O).</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Indicator of fluid balance and replacement needs. With bladder irrigations, monitoring is essential for estimating blood loss and accurately assessing urine output. <emphasis>Note: </emphasis>Following release of urinary tract obstruction, marked diuresis may occur during initial recovery period.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Monitor vital signs, noting increased pulse and respiration, decreased blood pressure (BP), diaphoresis, pallor, delayed capillary refill, and dry mucous membranes.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>If these symptoms are present, client may be hypovolemic due to overt or hidden hemorrhage. Hypovolemia requires prompt intervention to prevent impending shock. <emphasis>Note: </emphasis>Hypertension, bradycardia, and nausea or vomiting suggest TURP syndrome, requiring immediate medical intervention. TURP syndrome occurs because of fluid overload and hyponatremia associated with the use of large amounts of irrigation fluids flushing the bladder during surgery. If this solution is low in sodium, and the body absorbs too much of the fluid, the sodium level in the entire body can fall rapidly. Symptoms can occur within minutes to around 24 hours after surgery and can range from mild to life-threatening (Whitlock, 2017).</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Investigate restlessness, confusion, and changes in behavior.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>May reflect decreased cerebral perfusion (hypovolemia) or indicate cerebral edema from excessive solution absorbed into the venous sinusoids during TURP procedure (TURP syndrome).</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Inspect dressings and wound drains. Weigh dressings, if indicated. Note hematoma formation.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Signs of persistent bleeding may be evident or sequestered within tissues of the perineum.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Encourage increased fluid intake, preferably water, to 2000 to 2500 mL/d unless contraindicated by medical condition.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Helps maintain circulating fluid volume.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para><emphasis role="strong">Bleeding Reduction</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnic.jpg"/></imageobject></inlinemediaobject></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Anchor urethral catheter and avoid excessive manipulation.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>After TURP, the client will have special catheter in place that allows traction on the prostatic fossa to minimize bleeding. The catheter also allows irrigation of the bladder. Displacement of the catheter may cause bleeding. With bladder distention, clot formation may cause plugging of the catheter.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Observe urethral and suprapubic catheter drainage, noting excessive or continued bleeding.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Bleeding is not unusual during first 24 hours for all but the perineal approach. Continued or heavy bleeding or recurrence of active bleeding requires medical evaluation and intervention.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Evaluate color, consistency of urine, for example:</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Bright red with bright red clots</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Usually indicates arterial bleeding and requires aggressive therapy.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Dark burgundy with dark clots and increased viscosity</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Suggests venous source, which is the most common type of bleeding and usually subsides on its own.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Bleeding with absence of clots</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>May indicate blood dyscrasias or systemic clotting problems.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Avoid taking rectal temperatures and use of rectal tubes or enemas.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>May result in referred irritation to prostatic bed and increased pressure on prostatic capsule with risk of bleeding.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para><emphasis role="bi">Collaborative</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Monitor laboratory studies, as indicated, such as:</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Hemoglobin/hematocrit (Hgb/Hct) and RBCs</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Useful in evaluating blood losses and replacement needs.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Coagulation studies and platelet count</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>May indicate developing complications that can potentiate bleeding or clotting.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Serum sodium</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Monitors for presence of hyponatremia.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Administer intravenous (IV) therapy or blood products, as indicated.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>May need additional fluids, if oral intake inadequate, or blood products, if losses are excessive.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Maintain traction on indwelling catheter; tape catheter to inner thigh.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Traction on the 30-mL balloon positioned in the prostatic urethral fossa creates pressure on the arterial supply of the prostatic capsule to help prevent or control bleeding.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Release traction within 4 to 5 hours. Document period of application and release of traction, if used.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Prolonged traction may cause permanent trauma and problems with urinary control.</para></entry></row>
+<row rowsep="1" valign="top">
+<entry rowsep="1" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Administer stool softeners or laxatives, as indicated.</para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>Prevention of constipation and straining for stool reduces risk of rectal-perineal bleeding.</para></entry></row></tbody></tgroup></table></note>
+<note id="ch0010s0288note0755">
+<title><emphasis role="strong">NURSING DIAGNOSIS: risk for Infection</emphasis></title>
+<para><emphasis role="strong">Possibly Evidenced By</emphasis></para>
+<para>Alteration in skin/tissue integrity&mdash;traumatized tissue, surgical incision, drains</para>
+<para>Invasive procedures (e.g., instrumentation during surgery, indwelling catheter, frequent bladder irrigation)</para>
+<para><emphasis role="strong">Desired Outcomes/Evaluation Criteria&mdash;Client Will</emphasis></para>
+<para><emphasis role="strong">Wound Healing: Primary Intention</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnoc.jpg"/></imageobject></inlinemediaobject></para>
+<para>Experience no signs of infection.</para>
+<para>Achieve timely healing.</para></note>
+<note role="none" id="ch0010s0288note0756">
+<table frame="top" id="ch0010s0288ta0424"><title/>
+<tgroup colsep="0" rowsep="0" cols="2">
+<colspec colnum="1" colname="1" align="left" colsep="0"/>
+<colspec colnum="2" colname="2" align="left" colsep="0"/>
+<thead>
+<row rowsep="1" valign="bottom">
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">ACTIONS/INTERVENTIONS</emphasis></para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">RATIONALE</emphasis></para></entry></row></thead>
+<tbody>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="strong">Infection Protection</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnic.jpg"/></imageobject></inlinemediaobject></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="bi">Independent</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Maintain sterile catheter system; provide regular catheter and urinary meatus care with soap and water, applying antibiotic ointment around catheter site per protocol.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Prevents introduction of bacteria and resultant infection.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Ambulate with drainage bag dependent.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Avoids backward reflux of urine, which may introduce bacteria into the bladder.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Monitor vital signs, noting low-grade fever, chills, rapid pulse and respiration, restlessness, irritability, and disorientation.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Client who has had TURP is at increased risk for surgical and septic shock related to instrumentation.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Observe drainage from wounds around suprapubic catheter.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Presence of drains and suprapubic incision increases risk of infection, as indicated by erythema or purulent drainage.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Change suprapubic/retropubic and perineal incision dressings frequently, cleaning and drying skin thoroughly each time.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Wet dressings cause skin irritation and provide medium for bacterial growth, increasing risk of wound infection.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Use ostomy-type skin barriers.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Provides protection for surrounding skin, preventing excoriation and reducing risk of infection.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="bi">Collaborative</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="1" valign="top">
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>Administer antibiotics, as indicated.</para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>May be given prophylactically because of increased risk of infection with prostatectomy.</para></entry></row></tbody></tgroup></table></note>
+<note id="ch0010s0288note0757">
+<title><emphasis role="strong">NURSING DIAGNOSIS: acute Pain</emphasis></title>
+<para><emphasis role="strong">May Be Related To</emphasis></para>
+<para>Physical injury agents (e.g., operative procedure; irritation of bladder mucosa; reflex muscle spasm) </para>
+<para><emphasis role="strong">Possibly Evidenced By</emphasis></para>
+<para>Self-report of pain intensity and characteristics using a standardized rating scale </para>
+<para>Guarding and protective behaviors </para>
+<para>Expressive behaviors&mdash;restlessness, irritability </para>
+<para>Self-focus</para>
+<para>Changes in vital signs</para>
+<para><emphasis role="strong">Desired Outcomes/Evaluation Criteria&mdash;Client Will </emphasis></para>
+<para><emphasis role="strong">Pain Level</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnoc.jpg"/></imageobject></inlinemediaobject></para>
+<para>Report pain is relieved or controlled.</para>
+<para>Appear relaxed and sleep and rest appropriately.</para>
+<para><emphasis role="strong">Pain Control</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnoc.jpg"/></imageobject></inlinemediaobject></para>
+<para>Demonstrate use of relaxation skills and diversional activities, as indicated, for individual situation.</para>
+</note>
+<note role="none" id="ch0010s0288note0758">
+<table frame="top" id="ch0010s0288ta0425"><title/>
+<tgroup colsep="0" rowsep="0" cols="3">
+<colspec colnum="1" colname="1" align="left" colsep="0"/>
+<colspec colnum="2" colname="2" align="left" colsep="0"/>
+<colspec colnum="3" colname="3" align="left" colsep="0"/>
+<spanspec spanname="1-2" namest="1" nameend="2"/>
+<thead>
+<row rowsep="1" valign="bottom">
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom" spanname="1-2">
+<para><emphasis role="strong">ACTIONS/INTERVENTIONS</emphasis></para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">RATIONALE</emphasis></para></entry></row></thead>
+<tbody>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para><emphasis role="strong">Pain Management: Acute</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnic.jpg"/></imageobject></inlinemediaobject></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para><emphasis role="bi">Independent</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Assess pain, noting location, intensity (0 to 10 or similar coded scale), and characteristics.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Changes in pain reports may indicate developing complications requiring further evaluation and intervention. <emphasis>Note: </emphasis>Sharp, intermittent pain with urge to void and passage of urine around catheter suggests bladder spasms, which tend to be more severe with suprapubic or TURP approaches and usually decrease within 48 hours.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Maintain patency of catheter and drainage system. Keep tubing free of kinks and clots.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Maintaining a properly functioning catheter and drainage system decreases risk of bladder distention and spasm.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Promote intake of up to 3000 mL/d, as tolerated.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Decreases irritation by maintaining a constant flow of fluid over the bladder mucosa.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Give client accurate information about catheter, drainage, bladder spasms, and potential for voiding difficulties.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Allays anxiety and promotes cooperation with necessary procedures. <emphasis>Note:</emphasis> Depending on the degree of preoperative urge incontinence, postoperative urge incontinence may be present for weeks or months.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Provide comfort measures, such as position changes, back rub, Therapeutic Touch, and diversional activities. Encourage use of relaxation techniques, including deep-breathing exercises, visualization, and guided imagery.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Reduces muscle tension, refocuses attention, and may enhance coping abilities.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para><emphasis role="bi">Collaborative</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top" spanname="1-2">
+<para>Administer antispasmodics, such as:</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Oxybutynin (Ditropan), flavoxate (Urispas), B&amp;O suppositories</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Relaxes smooth muscle to provide relief of spasms and associated pain.</para></entry></row>
+<row rowsep="1" valign="top">
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+</entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>Propantheline bromide (Pro-Banthine)</para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>Relieves bladder spasms by anticholinergic action. Usually discontinued 24 to 48 hours before anticipated removal of catheter to promote normal bladder contraction.</para></entry></row></tbody></tgroup></table></note>
+<note id="ch0010s0288note0759">
+<title><emphasis role="strong">NURSING DIAGNOSIS: risk for Sexual Dysfunction</emphasis></title>
+<para><emphasis role="strong">Possibly Evidenced By</emphasis></para>
+<para>Perceived sexual limitation; undesired change in sexual function </para>
+<para>Situational crisis&mdash;incontinence/leakage of urine, involvement of genital area </para>
+<para>Vulnerability (e.g., change in health status, threat to self-concept)</para>
+<para><emphasis role="strong">Desired Outcomes/Evaluation Criteria&mdash;Client Will </emphasis></para>
+<para><emphasis role="strong">Sexual Functioning</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnoc.jpg"/></imageobject></inlinemediaobject></para>
+<para>Report understanding of sexual function and alterations that may occur following surgery.</para>
+<para>Discuss concerns about possible changes in body image and sexual functioning with partner/significant other (SO). </para>
+<para>Demonstrate problem-solving skills regarding solutions to difficulties that occur.</para>
+</note>
+<note role="none" id="ch0010s0288note0760">
+<table frame="top" id="ch0010s0288ta0426"><title/>
+<tgroup colsep="0" rowsep="0" cols="2">
+<colspec colnum="1" colname="1" align="left" colsep="0"/>
+<colspec colnum="2" colname="2" align="left" colsep="0"/>
+<thead>
+<row rowsep="1" valign="bottom">
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">ACTIONS/INTERVENTIONS</emphasis></para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">RATIONALE</emphasis></para></entry></row></thead>
+<tbody>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="strong">Sexual Counseling</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnic.jpg"/></imageobject></inlinemediaobject></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="bi">Independent</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Provide openings for client and SO to talk about concerns of incontinence and sexual functioning.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>May have anxieties about the effects of surgery and may be hesitant about asking necessary questions. Anxiety may have affected ability to access information given previously.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Discuss basic anatomy. Be honest in answers to client&rsquo;s questions.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>The nerve plexus that controls erection runs posteriorly to the prostate through the capsule. In procedures that do not involve the prostatic capsule, impotence and sterility are usually not consequences. Surgical procedure may not provide a permanent cure, and hypertrophy may recur.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Give accurate information about expectation of return of sexual function.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Physiological impotence occurs when the perineal nerves are cut during radical procedures; with other approaches, sexual activity can usually be resumed within weeks. If erectile dysfunction persists after healing is complete, client may want to pursue options to restore function&mdash;use of medications such as sildenafil citrate (Viagra). <emphasis>Note:</emphasis> Coincident erectile dysfunction and bladder neck contracture have been reported postoperatively in approximately 2% to 3% of patients following suprapubic prostatectomy (Khera et al, 2015).</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Discuss retrograde ejaculation if transurethral or suprapubic approach is used.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Seminal fluid goes into the bladder and is excreted with the urine. This does not interfere with sexual functioning but will decrease fertility and cause urine to be cloudy. <emphasis>Note: </emphasis>Retrograde ejaculation has been reported in up to 80% to 90% of patients after surgery (Khera et al, 2015).</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Instruct in perineal and pelvic floor exercises and interruption of urinary stream exercises.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Tightening pelvic floor muscles prior to standing, coughing, and sneezing promotes regaining bladder and, perhaps, erectile function.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="bi">Collaborative</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="1" valign="top">
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>Refer to sexual counselor as indicated.</para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>Persistent or unresolved problems may require professional intervention.</para></entry></row></tbody></tgroup></table></note>
+<note id="ch0010s0288note0761">
+<title><emphasis role="strong">NURSING DIAGNOSIS: deficient Knowledge regarding condition, prognosis, treatment, self-care, and discharge needs</emphasis></title>
+<para><emphasis role="strong">May Be Related To</emphasis></para>
+<para>Insufficient information or knowledge of resources; insufficient interests in learning; misinformation presented by others</para>
+<para><emphasis role="strong">Possibly Evidenced By</emphasis></para>
+<para>Insufficient knowledge</para>
+<para>Inaccurate follow-through of instruction; development of preventable complications</para>
+<para><emphasis role="strong">Desired Outcomes/Evaluation Criteria&mdash;Client Will</emphasis></para>
+<para><emphasis role="strong">Knowledge: Disease Process</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnoc.jpg"/></imageobject></inlinemediaobject></para>
+<para>Verbalize understanding of surgical procedure and potential complications. </para>
+<para>Initiate necessary lifestyle changes.</para>
+<para><emphasis role="strong">Knowledge: Treatment Regimen</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnoc.jpg"/></imageobject></inlinemediaobject></para>
+<para>Verbalize understanding of therapeutic needs.</para>
+<para>Correctly perform necessary procedures and explain reasons for actions. </para>
+<para>Participate in therapeutic regimen.</para>
+</note>
+<note role="none" id="ch0010s0288note0762">
+<table frame="top" id="ch0010s0288ta0427"><title/>
+<tgroup colsep="0" rowsep="0" cols="2">
+<colspec colnum="1" colname="1" align="left" colsep="0"/>
+<colspec colnum="2" colname="2" align="left" colsep="0"/>
+<thead>
+<row rowsep="1" valign="bottom">
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">ACTIONS/INTERVENTIONS</emphasis></para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="bottom">
+<para><emphasis role="strong">RATIONALE</emphasis></para></entry></row></thead>
+<tbody>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="strong">Teaching: Disease Process</emphasis>&nbsp;<inlinemediaobject><imageobject><imagedata fileref="pnic.jpg"/></imageobject></inlinemediaobject></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para><emphasis role="bi">Independent</emphasis></para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+</entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Review implications of procedure and future expectations.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Provides knowledge base from which client can make informed choices.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Emphasize necessity of good nutrition; encourage inclusion of fruits and increased fiber in diet.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Promotes healing and prevents constipation, reducing risk of postoperative bleeding.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Advise client to avoid or limit intake of caffeine, citrus juices, carbonated beverages, and spicy foods for first few weeks after surgery.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Acidic substances can lower urine pH, thereby aggravating dysuria.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Discuss initial activity restrictions, such as avoidance of heavy lifting, strenuous exercise, prolonged sitting, long car trips, and climbing more than two flights of stairs at a time.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Increased abdominal pressure and straining places stress on the bladder and prostate, potentiating risk of bleeding.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Encourage continuation of perineal exercises.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Facilitates urinary control and alleviation of incontinence.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Instruct in urinary catheter care if present. Identify source for supplies and support.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Promotes independence and competent self-care. Catheter may be in place only on day of surgery when laser procedure is done or for days to weeks with other procedures.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Instruct client to avoid tub baths after discharge.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Decreases the possibility of introduction of bacteria or undue tension on incision.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Review signs and symptoms requiring medical evaluation: erythema, purulent drainage from wound sites; inability to urinate, changes in character or amount of urine, presence of urgency or frequency; and heavy clots or bright red bleeding, fever, or chills.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Prompt intervention may prevent serious complications. <emphasis>Note:</emphasis> Urine may appear cloudy for several weeks until postoperative healing occurs and may appear cloudy after intercourse because of retrograde ejaculation.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Provide written information to client and SO regarding recovery expectations and home management, as indicated, regarding pain, incision care, and catheter-related problems and care.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Anxiety related to hospitalization, procedure performed, and associated diagnosis, fatigue, and postoperative pain often makes it difficult for client to absorb necessary self-care information.</para></entry></row>
+<row rowsep="0" valign="top">
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Emphasize importance of follow-up care&mdash;evaluation by primary healthcare provider, urologist or oncologist, and laboratory studies.</para></entry>
+<entry rowsep="0" morerows="0" colsep="0" valign="top">
+<para>Monitoring and follow-up can reduce incidence of unaddressed complications. Persistent incontinence and other postoperative issues will require additional evaluation and treatment.</para></entry></row>
+<row rowsep="1" valign="top">
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>Provide information on available community resources, such as home-health services, medical equipment supply company, housekeeping, and support persons.</para></entry>
+<entry rowsep="1" morerows="0" colsep="0" valign="top">
+<para>Can be helpful in assisting client and SO in coping with challenges they are faced with following prostatectomy, whatever the reason for procedure&mdash;BPH, cancer, incontinence, and so forth.</para></entry></row></tbody></tgroup></table></note>
+<note id="ch0010s0288note0763">
+<para><emphasis role="strong">POTENTIAL CONSIDERATIONS </emphasis>following acute hospitalization (dependent on client&rsquo;s age, physical condition, presence of complications, personal resources, and life responsibilities)</para>
+<para><emphasis role="strong">In addition to surgical and cancer concerns:</emphasis></para>
+<itemizedlist mark="&bull;">
+<listitem><para><emphasis role="bi">impaired urinary Elimination</emphasis>&mdash;loss of bladder tone, possible discharge with catheter in place</para></listitem>
+<listitem><para><emphasis role="bi">Sexual Dysfunction</emphasis>&mdash;situational crises (e.g., leakage of urine), altered body function (e.g., erectile dysfunction)</para></listitem></itemizedlist>
+</note>
+</sect2></sect1></chapter>
