@@ -29,12 +29,13 @@ class ManuscriptBase(BaseModel):
 class ManuscriptCreate(ManuscriptBase):
     """Manuscript creation model."""
     user_id: str = Field(..., description="ID of the user who uploaded the manuscript")
-    pdf_s3_key: str = Field(..., description="S3 key for the PDF file")
+    pdf_s3_key: str | None = Field(None, description="S3 key for the PDF file")
+    epub_s3_key: str | None = Field(None, description="S3 key for the EPUB file")
     
     @validator('file_name')
     def validate_file_name(cls, v):
-        if not v.lower().endswith('.pdf'):
-            raise ValueError('File must be a PDF')
+        if not (v.lower().endswith('.pdf') or v.lower().endswith('.epub')):
+            raise ValueError('File must be a PDF or EPUB')
         return v
 
 
@@ -54,7 +55,8 @@ class ManuscriptInDB(ManuscriptBase):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     user_id: PyObjectId = Field(..., description="ID of the user who uploaded the manuscript")
     status: ManuscriptStatus = Field(default=ManuscriptStatus.PENDING, description="Processing status")
-    pdf_s3_key: str = Field(..., description="S3 key for the PDF file")
+    pdf_s3_key: str | None = Field(None, description="S3 key for the PDF file")
+    epub_s3_key: str | None = Field(None, description="S3 key for the EPUB file")
     docx_s3_key: Optional[str] = Field(None, description="S3 key for the converted Word document")
     xml_s3_key: Optional[str] =  Field(None, description="S3 key for the converted XML document")
 
@@ -82,7 +84,8 @@ class Manuscript(ManuscriptBase):
     id: str = Field(..., description="Manuscript ID")
     user_id: str = Field(..., description="ID of the user who uploaded the manuscript")
     status: ManuscriptStatus = Field(..., description="Processing status")
-    pdf_s3_key: str = Field(..., description="S3 key for the PDF file")
+    pdf_s3_key: str | None = Field(None, description="S3 key for the PDF file")
+    epub_s3_key: str | None = Field(None, description="S3 key for the EPUB file")
     docx_s3_key: Optional[str] = Field(None, description="S3 key for the converted Word document")
     xml_s3_key: Optional[str] = Field(None, description="S3 key for the converted XML document")
     
@@ -138,14 +141,15 @@ class UploadUrlRequest(BaseModel):
     
     @validator('file_name')
     def validate_file_name(cls, v):
-        if not v.lower().endswith('.pdf'):
-            raise ValueError('File must be a PDF')
+        if not (v.lower().endswith('.pdf') or v.lower().endswith('.epub')):
+            raise ValueError('File must be a PDF or EPUB')
         return v
     
     @validator('content_type')
     def validate_content_type(cls, v):
-        if v != "application/pdf":
-            raise ValueError('Content type must be application/pdf')
+        allowed = {"application/pdf", "application/epub+zip"}
+        if v not in allowed:
+            raise ValueError('Content type must be application/pdf or application/epub+zip')
         return v
 
 

@@ -23,6 +23,7 @@ from app.models.manuscript import (
 )
 from app.services.manuscript_service import manuscript_service
 from app.services.docbook_conversion_service import docbook_conversion_service
+from app.services.epub_conversion_service import epub_conversion_service
 from app.services.s3_service import s3_service
 from app.services.pdf_conversion_service import ConversionQuality
 from app.models.manuscript import ManuscriptStatus, ManuscriptUpdate
@@ -56,7 +57,8 @@ async def generate_upload_url(
         
         # Generate unique S3 key
         file_extension = request.file_name.split('.')[-1].lower()
-        s3_key = f"manuscripts/{str(current_user.id)}/pdf/{uuid.uuid4()}.{file_extension}"
+        subfolder = 'pdf' if file_extension == 'pdf' else 'epub'
+        s3_key = f"manuscripts/{str(current_user.id)}/{subfolder}/{uuid.uuid4()}.{file_extension}"
         
         # Generate pre-signed upload URL
         upload_url = s3_service.generate_presigned_upload_url(
@@ -72,11 +74,18 @@ async def generate_upload_url(
             )
         
         # Create manuscript record
-        manuscript_data = ManuscriptCreate(
-            user_id=str(current_user.id),  # Convert ObjectId to string
-            file_name=request.file_name,
-            pdf_s3_key=s3_key
-        )
+        if file_extension == 'pdf':
+            manuscript_data = ManuscriptCreate(
+                user_id=str(current_user.id),
+                file_name=request.file_name,
+                pdf_s3_key=s3_key,
+            )
+        else:
+            manuscript_data = ManuscriptCreate(
+                user_id=str(current_user.id),
+                file_name=request.file_name,
+                epub_s3_key=s3_key,
+            )
         
         manuscript = await manuscript_service.create_manuscript(manuscript_data)
         
@@ -278,7 +287,7 @@ async def get_manuscript(
 @router.get("/{manuscript_id}/download-url", response_model=DownloadUrlResponse)
 async def generate_download_url(
     manuscript_id: str,
-    file_type: str = Query("docx", regex="^(pdf|docx|xml)$", description="File type to download"),
+    file_type: str = Query("docx", regex="^(pdf|docx|xml|zip)$", description="File type to download"),
     current_user: User = Depends(get_current_active_user)
 ):
     """
@@ -334,6 +343,20 @@ async def generate_download_url(
             # Change extension to .xml
             base_name = manuscript.file_name.rsplit('.', 1)[0]
             file_name = f"{base_name}.xml"
+        elif file_type == "zip":
+            if not manuscript.xml_s3_key:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Converted package not available"
+                )
+            if manuscript.status != ManuscriptStatus.COMPLETE:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Document conversion not completed"
+                )
+            s3_key = manuscript.xml_s3_key
+            # xml_s3_key now points to .zip; preserve name
+            file_name = Path(s3_key).name
 
         else:
             raise HTTPException(
@@ -502,13 +525,24 @@ async def convert_to_docbook(
         user_id=str(current_user.id),
     )
 
-    # Run PDF -> DOCX (existing) -> DocBook XML (pandoc)
-    xml_s3_key, meta = await docbook_conversion_service.convert_pdf_to_docbook(
-        pdf_s3_key=manuscript.pdf_s3_key,
-        output_filename=f"{manuscript.file_name.rsplit('.',1)[0]}.xml",
-        quality=ConversionQuality.STANDARD,
-        include_metadata=True,
-    )
+    # Branch by input type
+    base_name = manuscript.file_name.rsplit('.',1)[0]
+    if manuscript.pdf_s3_key:
+        # Run PDF -> DOCX (existing) -> DocBook (V4) -> Package ZIP
+        xml_s3_key, meta = await docbook_conversion_service.convert_pdf_to_docbook(
+            pdf_s3_key=manuscript.pdf_s3_key,
+            output_filename=f"{base_name}.xml",
+            quality=ConversionQuality.STANDARD,
+            include_metadata=True,
+        )
+    elif manuscript.epub_s3_key:
+        # Run EPUB -> DocBook (V4) -> Package ZIP
+        xml_s3_key, meta = await epub_conversion_service.convert_epub_to_package(
+            epub_s3_key=manuscript.epub_s3_key,
+            output_basename=f"{base_name}.xml",
+        )
+    else:
+        raise HTTPException(status_code=400, detail="No supported source found for conversion")
 
     # Update manuscript with XML + completion
     await manuscript_service.update_manuscript(

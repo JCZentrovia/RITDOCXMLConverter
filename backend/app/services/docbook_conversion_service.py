@@ -2,11 +2,14 @@
 """
 DocBook XML Conversion Service
 
-PoC approach:
-PDF -> DOCX (existing pdf2docx pipeline) -> DocBook 5 XML (via pandoc)
+Productionized approach:
+PDF -> DOCX (existing pdf2docx pipeline) -> DocBook 4 XML (via pandoc) ->
+DocBook package (book.xml + ch0001.xml + multimedia/*) zipped and uploaded.
 
-This service wraps the existing PDFConversionService to reuse its robust
-PDF->DOCX logic, then converts that DOCX to DocBook XML using pypandoc.
+Also supports EPUB -> DocBook 4 XML -> packaged + zipped.
+
+This matches the example outputs with a DocBook V4 DOCTYPE and ENTITY-based
+chapter includes.
 """
 
 import logging
@@ -21,9 +24,10 @@ import pypandoc
 from app.services.pdf_conversion_service import pdf_conversion_service, ConversionQuality
 from app.services.s3_service import s3_service
 from pathlib import Path
-from app.utils.docbook_postprocess import postprocess_docbook_file
+from app.utils.docbook_packager import DocbookPackager
 
 from lxml import etree
+import shutil
 
 DOCBOOK_NS = "http://docbook.org/ns/docbook"
 DB = "{%s}" % DOCBOOK_NS
@@ -83,15 +87,15 @@ class DocBookConversionService:
         include_metadata: bool = True
     ) -> Tuple[str, Dict[str, Any]]:
         """
-        Convert a PDF (stored in S3) to DocBook 5 XML and upload to S3.
+        Convert a PDF (stored in S3) to a DocBook package zip and upload to S3.
 
         Steps:
           1) Use the existing PDF->DOCX converter to get a temporary .docx
-          2) Use pandoc to convert DOCX->DocBook5 (.xml)
-          3) Upload the XML to S3 and return the S3 key + metadata
+          2) Use pandoc to convert DOCX -> DocBook (V4) (.xml)
+          3) Package into book.xml + ch000X.xml + multimedia/*
+          4) Zip the package and upload to S3
 
-        Returns:
-          (xml_s3_key, metadata_dict)
+        Returns: (xml_zip_s3_key, metadata_dict)
         """
         # 1) Run the existing converter to DOCX into a temp file
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -114,34 +118,50 @@ class DocBookConversionService:
             logger.info(f"[DocBook] Downloading DOCX {docx_s3_key} to {local_docx}")
             s3_service.download_file(docx_s3_key, str(local_docx))
 
-            # 2) Convert DOCX -> DocBook5 XML (pandoc)
+            # 2) Convert DOCX -> DocBook (V4) XML (pandoc)
             local_xml = tmpdir_path / xml_name
-            logger.info(f"[DocBook] Converting DOCX to DocBook5 XML at {local_xml}")
+            logger.info(f"[DocBook] Converting DOCX to DocBook (V4) XML at {local_xml}")
             try:
                 pypandoc.convert_file(
                     source_file=str(local_docx),
-                    to='docbook5',
+                    to='docbook',
                     outputfile=str(local_xml),
                     extra_args=[
-                    '--standalone',                       # <— ensures root element + namespace
-                    '--wrap=none',
-                    '--top-level-division=chapter',       # or 'section' or 'part' (choose what you want your root to be)
-                    f'--metadata=title:{Path(local_docx).stem}',  # gives <info><title>...</title>
-                   ],
+                        '--standalone',
+                        '--wrap=none',
+                        '--top-level-division=chapter',
+                        f'--metadata=title:{Path(local_docx).stem}',
+                        f"--extract-media={str(tmpdir_path / 'extracted_media')}",
+                    ],
                 )
-                # NEW: enforce proper root + namespace (belt-and-suspenders)
-                _ensure_docbook5_root(local_xml, root_tag="article", title=Path(local_docx).stem)
-
             except Exception as e:
-                logger.exception("Pandoc conversion DOCX->DocBook5 failed")
+                logger.exception("Pandoc conversion DOCX->DocBook (V4) failed")
                 raise
 
-            # 3) Upload XML to S3
-            xml_s3_key = docx_s3_key.replace('/docx/', '/xml/').rsplit('.', 1)[0] + '.xml'
-            xml_s3_key = xml_s3_key.replace('manuscripts/', 'manuscripts/')  # placeholder for future path rules
+            # 3) Package into book.xml + ch000X.xml + multimedia/*
+            packager = DocbookPackager(logger=logger)
+            package_root = tmpdir_path / "package"
+            # Derive ISBN from filename if present (digits only heuristic)
+            base_stem = Path(output_filename).stem
+            isbn_guess = ''.join([c for c in base_stem if c.isdigit()]) or None
 
-            logger.info(f"[DocBook] Uploading XML {local_xml} to S3 at {xml_s3_key}")
-            s3_service.upload_file(str(local_xml), xml_s3_key, content_type='application/xml')
+            book_xml_path, chapters = packager.package(
+                combined_docbook_xml=local_xml,
+                output_dir=package_root,
+                package_root_folder=None,
+                title=Path(local_docx).stem,
+                media_extracted_dir=(tmpdir_path / 'extracted_media'),
+                isbn=isbn_guess,
+            )
+
+            # 4) Zip and upload package to S3
+            root_dir = book_xml_path.parent
+            zip_base = tmpdir_path / Path(output_filename).with_suffix('').name
+            zip_file_path = Path(shutil.make_archive(str(zip_base), 'zip', root_dir))
+
+            xml_s3_key = docx_s3_key.replace('/docx/', '/xml/').rsplit('.', 1)[0] + '.zip'
+            logger.info(f"[DocBook] Uploading package ZIP {zip_file_path} to S3 at {xml_s3_key}")
+            s3_service.upload_file(str(zip_file_path), xml_s3_key, content_type='application/zip')
 
             # Build metadata
             metadata: Dict[str, Any] = {
@@ -149,11 +169,81 @@ class DocBookConversionService:
                 "intermediate_docx_s3_key": docx_s3_key,
                 "xml_s3_key": xml_s3_key,
                 "conversion_quality": quality,
-                "tool": "pandoc (docx->docbook5)",
-                "include_metadata": include_metadata
+                "tool": "pandoc (docx->docbook) + packaging",
+                "include_metadata": include_metadata,
+                # Surface pdf/docx conversion metadata for downstream metrics
+                **docx_meta,
+                "package_chapter_count": len(chapters),
             }
 
             logger.info(f"[DocBook] Completed conversion -> {xml_s3_key}")
+            return xml_s3_key, metadata
+
+    async def convert_epub_to_docbook_package(
+        self,
+        epub_s3_key: str,
+        output_filename: str,
+    ) -> Tuple[str, Dict[str, Any]]:
+        """
+        Convert an EPUB (stored in S3) to a DocBook package (.zip) and upload to S3.
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir_path = Path(tmpdir)
+            local_epub = tmpdir_path / Path(output_filename).with_suffix('.epub').name
+            # Download EPUB
+            logger.info(f"[DocBook] Downloading EPUB {epub_s3_key} to {local_epub}")
+            s3_service.download_file(epub_s3_key, str(local_epub))
+
+            # Convert EPUB -> DocBook (V4)
+            local_xml = tmpdir_path / Path(output_filename).with_suffix('.xml').name
+            try:
+                pypandoc.convert_file(
+                    source_file=str(local_epub),
+                    to='docbook',
+                    outputfile=str(local_xml),
+                    extra_args=[
+                        '--standalone',
+                        '--wrap=none',
+                        '--top-level-division=chapter',
+                        f'--metadata=title:{Path(local_epub).stem}',
+                        f"--extract-media={str(tmpdir_path / 'extracted_media')}",
+                    ],
+                )
+            except Exception:
+                logger.exception("Pandoc conversion EPUB->DocBook (V4) failed")
+                raise
+
+            # Package
+            packager = DocbookPackager(logger=logger)
+            package_root = tmpdir_path / "package"
+            base_stem = Path(output_filename).stem
+            isbn_guess = ''.join([c for c in base_stem if c.isdigit()]) or None
+
+            book_xml_path, chapters = packager.package(
+                combined_docbook_xml=local_xml,
+                output_dir=package_root,
+                package_root_folder=None,
+                title=Path(local_epub).stem,
+                media_extracted_dir=(tmpdir_path / 'extracted_media'),
+                isbn=isbn_guess,
+            )
+
+            # Zip and upload
+            root_dir = book_xml_path.parent
+            zip_base = tmpdir_path / Path(output_filename).with_suffix('').name
+            zip_file_path = Path(shutil.make_archive(str(zip_base), 'zip', root_dir))
+
+            # Derive target key
+            xml_s3_key = f"converted/{Path(output_filename).with_suffix('.zip').name}"
+            logger.info(f"[DocBook] Uploading EPUB package ZIP {zip_file_path} to S3 at {xml_s3_key}")
+            s3_service.upload_file(str(zip_file_path), xml_s3_key, content_type='application/zip')
+
+            metadata: Dict[str, Any] = {
+                "source_epub_s3_key": epub_s3_key,
+                "xml_s3_key": xml_s3_key,
+                "tool": "pandoc (epub->docbook) + packaging",
+                "package_chapter_count": len(chapters),
+            }
             return xml_s3_key, metadata
 
 

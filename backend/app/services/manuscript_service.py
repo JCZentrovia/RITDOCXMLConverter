@@ -56,6 +56,7 @@ class ManuscriptService:
                 "user_id": user_object_id,
                 "file_name": manuscript_data.file_name,
                 "pdf_s3_key": manuscript_data.pdf_s3_key,
+                "epub_s3_key": manuscript_data.epub_s3_key,
                 "status": ManuscriptStatus.PENDING,
                 "upload_date": datetime.utcnow(),
                 "content_type": "application/pdf",
