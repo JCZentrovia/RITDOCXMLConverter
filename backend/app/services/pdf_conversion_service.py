@@ -16,6 +16,7 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
 from pdf2docx import Converter
+import pypandoc
 import fitz  # PyMuPDF for PDF validation
 
 from app.core.config import settings
@@ -159,12 +160,26 @@ class PDFConversionService:
             
             # Step 3: Convert PDF to DOCX
             logger.info(f"Converting PDF to DOCX with quality: {quality}")
-            conversion_stats = await self._convert_pdf_to_docx_async(
-                pdf_temp_path, 
-                docx_temp_path, 
-                quality,
-                include_metadata
-            )
+            # Choose chunked conversion for very large PDFs to reduce memory usage
+            if pdf_info.get("pages", 0) and pdf_info["pages"] > 200:
+                logger.info(
+                    f"Large PDF detected ({pdf_info['pages']} pages). Using chunked conversion."
+                )
+                conversion_stats = await self._convert_pdf_to_docx_chunked_async(
+                    pdf_temp_path,
+                    docx_temp_path,
+                    pdf_info["pages"],
+                    quality,
+                    include_metadata,
+                    pages_per_chunk=50,
+                )
+            else:
+                conversion_stats = await self._convert_pdf_to_docx_async(
+                    pdf_temp_path, 
+                    docx_temp_path, 
+                    quality,
+                    include_metadata
+                )
             
             # Step 4: Upload DOCX to S3
             docx_s3_key = f"converted/{uuid.uuid4()}-{output_filename}"
@@ -283,10 +298,8 @@ class PDFConversionService:
             if page_count == 0:
                 doc.close()
                 raise ConversionError("PDF has no pages")
-            
-            if page_count > 100:  # Configurable limit
-                doc.close()
-                raise ConversionError(f"PDF has too many pages ({page_count}). Maximum allowed: 100")
+
+            # Do not enforce a maximum page limit; allow very large PDFs
             
             # Get file size
             file_size = pdf_path.stat().st_size
@@ -393,6 +406,128 @@ class PDFConversionService:
         except Exception as e:
             raise ConversionError(f"pdf2docx conversion failed: {str(e)}") from e
 
+    async def _convert_pdf_to_docx_chunked_async(
+        self,
+        pdf_path: Path,
+        docx_path: Path,
+        total_pages: int,
+        quality: str,
+        include_metadata: bool,
+        pages_per_chunk: int = 50,
+    ) -> Dict[str, Any]:
+        """Convert a very large PDF to DOCX by processing fixed-size page chunks and merging outputs."""
+        try:
+            loop = asyncio.get_event_loop()
+            return await loop.run_in_executor(
+                self.executor,
+                self._convert_pdf_to_docx_chunked_sync,
+                pdf_path,
+                docx_path,
+                total_pages,
+                quality,
+                include_metadata,
+                pages_per_chunk,
+            )
+        except Exception as e:
+            raise ConversionError(f"Chunked PDF to DOCX conversion failed: {str(e)}") from e
+
+    def _convert_pdf_to_docx_chunked_sync(
+        self,
+        pdf_path: Path,
+        docx_path: Path,
+        total_pages: int,
+        quality: str,
+        include_metadata: bool,
+        pages_per_chunk: int = 50,
+    ) -> Dict[str, Any]:
+        """Synchronous chunked conversion and merge using pdf2docx + pandoc."""
+        conversion_start = datetime.utcnow()
+
+        # Configure parameters similar to non-chunked path
+        if quality == ConversionQuality.HIGH:
+            converter_params = {
+                "start": 0,
+                "end": None,
+                "pages": None,
+                "password": None,
+                "multi_processing": False,
+                "cpu_count": 1,
+            }
+        else:
+            converter_params = {
+                "start": 0,
+                "end": None,
+                "pages": None,
+                "password": None,
+                "multi_processing": False,
+                "cpu_count": 1,
+            }
+
+        chunk_docx_paths: list[str] = []
+        try:
+            # Produce chunk DOCX files
+            for chunk_start in range(0, total_pages, pages_per_chunk):
+                chunk_end_exclusive = min(chunk_start + pages_per_chunk, total_pages)
+                # pdf2docx expects 0-based page indices
+                pages_indices = list(range(chunk_start, chunk_end_exclusive))
+                chunk_docx = docx_path.with_name(f"{docx_path.stem}_part_{chunk_start+1:05d}-{chunk_end_exclusive:05d}.docx")
+
+                logger.info(
+                    f"Converting pages {chunk_start+1}-{chunk_end_exclusive} to temporary DOCX: {chunk_docx.name}"
+                )
+
+                try:
+                    converter = Converter(str(pdf_path))
+                    # Use explicit pages list to restrict conversion to the chunk
+                    converter.convert(str(chunk_docx), image=False, pages=pages_indices)
+                    converter.close()
+                except Exception as chunk_err:
+                    # Ensure converter is closed if partially created
+                    try:
+                        converter.close()  # type: ignore
+                    except Exception:
+                        pass
+                    raise ConversionError(
+                        f"Chunk conversion failed for pages {chunk_start+1}-{chunk_end_exclusive}: {chunk_err}"
+                    ) from chunk_err
+
+                chunk_docx_paths.append(str(chunk_docx))
+
+            # Merge chunk DOCX files into final output using pandoc
+            logger.info(
+                f"Merging {len(chunk_docx_paths)} DOCX chunks into final output: {docx_path.name}"
+            )
+            pypandoc.convert_file(
+                chunk_docx_paths,
+                to="docx",
+                outputfile=str(docx_path),
+                extra_args=["--standalone", "--wrap=none"],
+            )
+
+            conversion_end = datetime.utcnow()
+            conversion_duration = (conversion_end - conversion_start).total_seconds()
+
+            output_size = docx_path.stat().st_size
+            output_size_mb = output_size / (1024 * 1024)
+
+            return {
+                "conversion_duration_seconds": conversion_duration,
+                "output_size_bytes": output_size,
+                "output_size_mb": output_size_mb,
+                "quality": quality,
+                "include_metadata": include_metadata,
+                "converter_params": {**converter_params, "pages_per_chunk": pages_per_chunk},
+                "chunked": True,
+                "chunks_count": len(chunk_docx_paths),
+            }
+        finally:
+            # Cleanup chunk files
+            for p in chunk_docx_paths:
+                try:
+                    Path(p).unlink(missing_ok=True)
+                except Exception:
+                    pass
+
     async def _cleanup_temp_files(self, file_paths: list[Path]) -> None:
         """Clean up temporary files."""
         for file_path in file_paths:
@@ -408,7 +543,8 @@ class PDFConversionService:
         return {
             "supported_input_formats": ["pdf"],
             "supported_output_formats": ["docx"],
-            "max_pages": 100,
+            # No hard page limit; large books supported
+            "max_pages": None,
             "max_file_size_mb": 50,
             "quality_options": [ConversionQuality.STANDARD, ConversionQuality.HIGH],
             "features": {

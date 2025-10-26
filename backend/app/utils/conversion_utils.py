@@ -226,18 +226,18 @@ class ConversionUtils:
 
     @staticmethod
     def validate_conversion_limits(file_size_mb: float, page_count: int) -> Dict[str, Any]:
-        """Validate file against conversion limits."""
-        # Define limits
+        """Validate file characteristics and emit warnings; do not hard-fail on page count."""
+        # Define advisory thresholds
         MAX_FILE_SIZE_MB = 50
-        MAX_PAGE_COUNT = 100
-        
+        ADVISORY_PAGE_THRESHOLD = 100
+
         validation_result = {
             "valid": True,
             "errors": [],
             "warnings": []
         }
-        
-        # Check file size
+
+        # Check file size (retain hard cap to protect infra)
         if file_size_mb > MAX_FILE_SIZE_MB:
             validation_result["valid"] = False
             validation_result["errors"].append(
@@ -247,18 +247,13 @@ class ConversionUtils:
             validation_result["warnings"].append(
                 f"File size ({file_size_mb:.2f} MB) is close to the maximum limit ({MAX_FILE_SIZE_MB} MB)"
             )
-        
-        # Check page count
-        if page_count > MAX_PAGE_COUNT:
-            validation_result["valid"] = False
-            validation_result["errors"].append(
-                f"Page count ({page_count}) exceeds maximum allowed pages ({MAX_PAGE_COUNT})"
-            )
-        elif page_count > MAX_PAGE_COUNT * 0.8:  # 80% of limit
+
+        # Page count is advisory only; never mark invalid due to pages
+        if page_count > ADVISORY_PAGE_THRESHOLD:
             validation_result["warnings"].append(
-                f"Page count ({page_count}) is close to the maximum limit ({MAX_PAGE_COUNT})"
+                f"Large document detected: {page_count} pages. Processing may take longer."
             )
-        
+
         return validation_result
 
 class ConversionMetrics:
