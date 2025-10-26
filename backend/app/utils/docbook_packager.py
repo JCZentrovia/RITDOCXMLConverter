@@ -126,6 +126,7 @@ class DocbookPackager:
         media_root: Path,
         multimedia_dir: Path,
         chapter_index: int,
+        isbn: str | None = None,
     ) -> int:
         """
         Move/copy images referenced by imagedata fileref into multimedia/ while
@@ -150,8 +151,13 @@ class DocbookPackager:
                     continue
 
             count += 1
-            # Prefer original filename to mirror samples
-            new_name = src_path.name
+            # Naming: prefer ISBN-prefixed naming if provided
+            if isbn:
+                ext = src_path.suffix.lower() or ".jpg"
+                new_name = f"{isbn}.ch{self._zero_pad(chapter_index)}.f{str(count).zfill(2)}{ext}"
+            else:
+                # Fall back to original filename
+                new_name = src_path.name
             dst_path = multimedia_dir / new_name
             multimedia_dir.mkdir(parents=True, exist_ok=True)
             if src_path.resolve() != dst_path.resolve():
@@ -169,6 +175,7 @@ class DocbookPackager:
         package_root_folder: str | None = None,
         title: str | None = None,
         media_extracted_dir: Path | None = None,
+        isbn: str | None = None,
     ) -> Tuple[Path, List[ChapterInfo]]:
         """
         Build a DocBook package structure from a combined DocBook XML file.
@@ -208,10 +215,13 @@ class DocbookPackager:
                 media_root=media_root,
                 multimedia_dir=multimedia_dir,
                 chapter_index=idx,
+                isbn=isbn,
             )
 
             # Write chapter file
-            ch_filename = f"ch{self._zero_pad(idx)}.xml"
+            ch_filename = (
+                f"{isbn}.ch{self._zero_pad(idx)}.xml" if isbn else f"ch{self._zero_pad(idx)}.xml"
+            )
             chapter_infos.append(ChapterInfo(index=idx, file_name=ch_filename, id_value=ch_id))
 
             ch_tree = etree.ElementTree(ch)
@@ -257,7 +267,7 @@ class DocbookPackager:
 
         book_xml_str += book_body_without_close + "\n" + chapters_entities + "</book>\n"
 
-        book_xml_path = root_dir / "book.xml"
+        book_xml_path = root_dir / (f"{isbn}.book.xml" if isbn else "book.xml")
         book_xml_path.write_text(book_xml_str, encoding="utf-8")
 
         self._log(f"Wrote book.xml and {len(chapter_infos)} chapters to {root_dir}")

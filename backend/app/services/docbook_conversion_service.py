@@ -141,12 +141,17 @@ class DocBookConversionService:
             # 3) Package into book.xml + ch000X.xml + multimedia/*
             packager = DocbookPackager(logger=logger)
             package_root = tmpdir_path / "package"
+            # Derive ISBN from filename if present (digits only heuristic)
+            base_stem = Path(output_filename).stem
+            isbn_guess = ''.join([c for c in base_stem if c.isdigit()]) or None
+
             book_xml_path, chapters = packager.package(
                 combined_docbook_xml=local_xml,
                 output_dir=package_root,
                 package_root_folder=None,
                 title=Path(local_docx).stem,
                 media_extracted_dir=(tmpdir_path / 'extracted_media'),
+                isbn=isbn_guess,
             )
 
             # 4) Zip and upload package to S3
@@ -211,12 +216,16 @@ class DocBookConversionService:
             # Package
             packager = DocbookPackager(logger=logger)
             package_root = tmpdir_path / "package"
+            base_stem = Path(output_filename).stem
+            isbn_guess = ''.join([c for c in base_stem if c.isdigit()]) or None
+
             book_xml_path, chapters = packager.package(
                 combined_docbook_xml=local_xml,
                 output_dir=package_root,
                 package_root_folder=None,
                 title=Path(local_epub).stem,
                 media_extracted_dir=(tmpdir_path / 'extracted_media'),
+                isbn=isbn_guess,
             )
 
             # Zip and upload
