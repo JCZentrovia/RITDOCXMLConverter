@@ -175,6 +175,48 @@ class ValidationError(ApplicationError):
             **kwargs
         )
 
+class PageLimitExceededError(ApplicationError):
+    """Validation error for files exceeding maximum page limits."""
+
+    def __init__(
+        self,
+        message: str = "PDF exceeds maximum allowed page count",
+        *,
+        page_count: int | None = None,
+        max_pages: int | None = None,
+        user_message: str | None = None,
+        **kwargs
+    ):
+        details = kwargs.pop('details', {})
+        if page_count is not None:
+            details['page_count'] = page_count
+        if max_pages is not None:
+            details['max_pages'] = max_pages
+
+        # Provide a clear user-facing message if not explicitly given
+        final_user_message = user_message
+        if final_user_message is None:
+            if page_count is not None and max_pages is not None:
+                final_user_message = (
+                    f"Your PDF has {page_count} pages; the maximum allowed is {max_pages}. "
+                    "Please upload a smaller PDF or split it into parts."
+                )
+            else:
+                final_user_message = (
+                    "Your PDF exceeds the maximum allowed pages. Please upload a smaller file or split it."
+                )
+
+        super().__init__(
+            message=message,
+            error_code="PAGE_LIMIT_EXCEEDED",
+            category=ErrorCategory.VALIDATION,
+            severity=ErrorSeverity.MEDIUM,
+            recovery_strategy=RecoveryStrategy.MANUAL_INTERVENTION,
+            user_message=final_user_message,
+            details=details,
+            **kwargs
+        )
+
 class ConversionError(ApplicationError):
     """PDF conversion error."""
     
