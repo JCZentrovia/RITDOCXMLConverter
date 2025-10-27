@@ -28,7 +28,7 @@ from app.models.conversion import (
 )
 from app.models.manuscript import ManuscriptInDB, ManuscriptStatus, ManuscriptUpdate
 from app.services.pdf_conversion_service import pdf_conversion_service
-from app.core.error_handling import ConversionError
+from app.core.error_handling import ConversionError, PageLimitExceededError
 from app.services.docbook_conversion_service import docbook_conversion_service
 from app.services.manuscript_service import manuscript_service
 
@@ -336,6 +336,42 @@ class ConversionService:
                     )
                     
                 except Exception as e:
+                    # Detect page-limit validation errors from underlying services
+                    lower_msg = str(e).lower()
+                    if (
+                        "too many pages" in lower_msg
+                        or "exceeds maximum allowed pages" in lower_msg
+                        or "maximum allowed" in lower_msg and "pages" in lower_msg
+                    ):
+                        import re
+                        page_count = None
+                        max_pages = None
+                        # Try to extract numbers from common message formats
+                        m = re.search(r"too many pages\s*\((\d+)\).*?maximum allowed:\s*(\d+)", lower_msg, re.IGNORECASE)
+                        if m:
+                            try:
+                                page_count = int(m.group(1))
+                                max_pages = int(m.group(2))
+                            except Exception:
+                                page_count = page_count
+                                max_pages = max_pages
+                        else:
+                            m2 = re.search(r"page count\s*\((\d+)\)\s*exceeds\s*maximum\s*allowed\s*pages\s*\((\d+)\)", lower_msg, re.IGNORECASE)
+                            if m2:
+                                try:
+                                    page_count = int(m2.group(1))
+                                    max_pages = int(m2.group(2))
+                                except Exception:
+                                    page_count = page_count
+                                    max_pages = max_pages
+
+                        raise PageLimitExceededError(
+                            page_count=page_count,
+                            max_pages=max_pages,
+                            context=error_context,
+                            cause=e
+                        )
+                    # Fallback to generic conversion error
                     raise ConversionError(
                         message=f"PDF to XML conversion failed",
                         conversion_id=task_id,
@@ -495,7 +531,7 @@ class ConversionService:
                     # Update task with permanent failure
                     await self.update_conversion_task(task_id, ConversionTaskUpdate(
                         status=ConversionStatus.FAILED,
-                        error_message=app_error.message,
+                        error_message=app_error.user_message,
                         processing_completed_at=datetime.utcnow(),
                         retry_count=task.retry_count + 1
                     ))
@@ -506,7 +542,7 @@ class ConversionService:
                             task.manuscript_id, 
                             ManuscriptUpdate(
                                 status=ManuscriptStatus.FAILED,
-                                error_message=app_error.message,
+                                error_message=app_error.user_message,
                                 processing_completed_at=datetime.utcnow()
                             )
                         )
@@ -518,7 +554,7 @@ class ConversionService:
                     task_id=task_id,
                     manuscript_id=task.manuscript_id,
                     status=ConversionStatus.FAILED if not should_retry else ConversionStatus.PENDING,
-                    error_message=app_error.message,
+                    error_message=app_error.user_message,
                     processing_time_seconds=processing_time_seconds,
                     input_file_size_mb=0,
                     quality=task.quality,

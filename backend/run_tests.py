@@ -64,7 +64,7 @@ def run_command(command, description=""):
 def run_unit_tests():
     """Run unit tests."""
     command = [
-        "python", "-m", "pytest",
+        sys.executable, "-m", "pytest",
         "tests/test_api_auth.py",
         "tests/test_api_manuscripts.py",
         "tests/test_scheduler_service.py",
@@ -82,7 +82,7 @@ def run_unit_tests():
 def run_integration_tests():
     """Run integration tests."""
     command = [
-        "python", "-m", "pytest",
+        sys.executable, "-m", "pytest",
         "tests/test_database_integration.py",
         "-v",
         "--tb=short",
@@ -98,7 +98,7 @@ def run_integration_tests():
 def run_s3_tests():
     """Run S3 integration tests."""
     command = [
-        "python", "-m", "pytest",
+        sys.executable, "-m", "pytest",
         "tests/test_s3_integration.py",
         "-v",
         "--tb=short",
@@ -114,7 +114,7 @@ def run_s3_tests():
 def run_all_tests():
     """Run all tests with combined coverage."""
     command = [
-        "python", "-m", "pytest",
+        sys.executable, "-m", "pytest",
         "tests/",
         "-v",
         "--tb=short",
@@ -130,7 +130,7 @@ def run_all_tests():
 def run_specific_test_file(test_file):
     """Run a specific test file."""
     command = [
-        "python", "-m", "pytest",
+        sys.executable, "-m", "pytest",
         f"tests/{test_file}",
         "-v",
         "--tb=long",
@@ -143,7 +143,7 @@ def run_specific_test_file(test_file):
 def run_test_by_marker(marker):
     """Run tests by marker."""
     command = [
-        "python", "-m", "pytest",
+        sys.executable, "-m", "pytest",
         "tests/",
         "-v",
         "--tb=short",
