@@ -49,7 +49,18 @@ class DocbookPackager:
     @staticmethod
     def _read_xml(xml_path: Path) -> etree._ElementTree:
         parser = etree.XMLParser(remove_blank_text=False, resolve_entities=False)
-        return etree.parse(str(xml_path), parser)
+        tree = etree.parse(str(xml_path), parser)
+        # Normalize namespaces away to simplify downstream processing (DocBook 5 -> non-namespaced)
+        DocbookPackager._strip_namespaces(tree)
+        return tree
+
+    @staticmethod
+    def _strip_namespaces(tree: etree._ElementTree) -> None:
+        """Remove XML namespaces from all elements in-place for easier tag matching."""
+        root = tree.getroot()
+        for elem in root.iter():
+            if isinstance(elem.tag, str) and elem.tag.startswith('{'):
+                elem.tag = elem.tag.split('}', 1)[1]
 
     @staticmethod
     def _write_xml(tree: etree._ElementTree, out_path: Path):
@@ -66,27 +77,39 @@ class DocbookPackager:
                 t.text = title
             return tree
 
-        # Create a new <book> and wrap the existing content
+        # Create a new <book> and wrap the existing content, attempting to split by top-level sections
         book = etree.Element("book")
         if title:
             t = etree.SubElement(book, "title")
             t.text = title
 
-        # If the existing root is an article/section/etc, attempt to convert to a chapter
-        chapter = etree.Element("chapter")
-        # Move children from old root into a container chapter
-        # Also move a <title> if exists into chapter.title
-        old_title = root.find("title")
-        if old_title is not None:
-            ch_title = etree.SubElement(chapter, "title")
-            ch_title.text = (old_title.text or "").strip()
-        for child in list(root):
-            # Skip the original title as we copied it
-            if child is old_title:
-                continue
-            chapter.append(child)
+        # Detect existing chapter/section elements at the current root
+        children = list(root)
+        top_level_chapters = [c for c in children if c.tag == "chapter"]
+        top_level_sections = [c for c in children if c.tag in {"section", "sect1"}]
 
-        book.append(chapter)
+        if top_level_chapters:
+            # Move chapters directly under the new book element
+            for ch in top_level_chapters:
+                book.append(ch)
+        elif top_level_sections:
+            # Convert each top-level section into a chapter for downstream packaging
+            for sec in top_level_sections:
+                sec.tag = "chapter"
+                book.append(sec)
+        else:
+            # Fallback: synthesize a single chapter that contains everything except <title>/<bookinfo>/<info>
+            chapter = etree.Element("chapter")
+            old_title = root.find("title")
+            if old_title is not None:
+                ch_title = etree.SubElement(chapter, "title")
+                ch_title.text = (old_title.text or "").strip()
+            for child in list(root):
+                if child.tag in {"title", "bookinfo", "info"}:
+                    continue
+                chapter.append(child)
+            book.append(chapter)
+
         return etree.ElementTree(book)
 
     @staticmethod
@@ -119,12 +142,13 @@ class DocbookPackager:
 
     @staticmethod
     def _enumerate_imagedata_paths(elem: etree._Element) -> List[etree._Element]:
+        # After stripping namespaces, a simple search suffices
         return list(elem.iterfind(".//imagedata"))
 
     def _rewrite_images_to_media(
         self,
         chapter_elem: etree._Element,
-        media_root: Path,
+        media_roots: List[Path],
         media_dir: Path,
         chapter_index: int,
     ) -> int:
@@ -138,16 +162,27 @@ class DocbookPackager:
             src = (img.get("fileref") or "").strip()
             if not src:
                 continue
-
-            src_path = (media_root / src).resolve() if not Path(src).is_absolute() else Path(src)
-            if not src_path.exists():
-                # Try relative filenames (pandoc sometimes stores just the basename)
-                alt = media_root / Path(src).name
-                if alt.exists():
-                    src_path = alt
-                else:
-                    # Leave as-is if not found
-                    continue
+            src_path: Path | None = None
+            # Try across provided roots and a few fallbacks
+            for root in media_roots:
+                candidates = [
+                    (root / src),
+                    (root / Path(src).name),
+                    (root.parent / src),
+                    (root.parent / Path(src).name),
+                ]
+                for cand in candidates:
+                    try:
+                        if cand.exists():
+                            src_path = cand
+                            break
+                    except Exception:
+                        continue
+                if src_path is not None:
+                    break
+            if src_path is None:
+                # Leave as-is if not found
+                continue
 
             count += 1
             # Naming: ch0001f01, ch0001f02, ...
@@ -194,7 +229,11 @@ class DocbookPackager:
 
         # Prepare Media dir and rewrite images per chapter
         media_dir = root_dir / "Media"
-        media_root = media_extracted_dir or combined_docbook_xml.parent
+        primary_root = media_extracted_dir or combined_docbook_xml.parent
+        media_roots: List[Path] = [primary_root]
+        # Add the XML file directory as a secondary search root if different
+        if combined_docbook_xml.parent != primary_root:
+            media_roots.append(combined_docbook_xml.parent)
 
         chapter_infos: List[ChapterInfo] = []
         for idx, ch in enumerate(chapters, start=1):
@@ -207,7 +246,7 @@ class DocbookPackager:
             # Rewrite images into Media/
             self._rewrite_images_to_media(
                 ch,
-                media_root=media_root,
+                media_roots=media_roots,
                 media_dir=media_dir,
                 chapter_index=idx,
             )
