@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../shared/services/auth.service';
 import { ErrorHandlerService } from '../../shared/services/error-handler.service';
 
@@ -76,6 +76,7 @@ export class LoginComponent {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
+    private route: ActivatedRoute,
     private errorHandler: ErrorHandlerService
   ) {
     this.loginForm = this.fb.group({
@@ -91,7 +92,8 @@ export class LoginComponent {
       this.authService.login(this.loginForm.value).subscribe({
         next: (user) => {
           this.errorHandler.showSuccess(`Welcome back, ${user.email}!`);
-          this.router.navigate(['/dashboard']);
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+          this.router.navigate([returnUrl || '/dashboard']);
         },
         error: (error) => {
           this.errorHandler.showError(error);
