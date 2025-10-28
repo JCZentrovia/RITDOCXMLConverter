@@ -1,7 +1,6 @@
 # Use Python 3.11 slim image as base
 FROM python:3.11-slim
 
-
 # System deps (image/crypto/fonts sometimes help pdf libs)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl ghostscript fonts-dejavu-core && \
@@ -28,13 +27,10 @@ RUN apt-get update && apt-get install -y \
     g++ \
     # For downloading files
     curl \
+    # For document conversion
+    pandoc \
     # Clean up
     && rm -rf /var/lib/apt/lists/*
-
-# System deps (image/crypto/fonts sometimes help pdf libs)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl ghostscript fonts-dejavu-core && \
-    rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better Docker layer caching
 COPY requirements.txt .
