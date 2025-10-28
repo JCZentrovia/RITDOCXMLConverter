@@ -145,22 +145,22 @@ class DocBookConversionService:
             try:
                 # Ensure pandoc is present before invoking pypandoc
                 self._ensure_pandoc_available()
+                extra_args = [
+                    '--standalone',
+                    '--wrap=none',
+                    '--top-level-division=chapter',
+                    f'--metadata=title:{Path(local_docx).stem}',
+                    f"--extract-media={str(tmpdir_path / 'extracted_media')}",
+                ]
+                logger.debug("[DocBook] Invoking pandoc for DOCX->docbook4: extra_args=%s", extra_args)
                 pypandoc.convert_file(
                     source_file=str(local_docx),
-                    to='docbook',
+                    to='docbook4',
                     outputfile=str(local_xml),
-                    extra_args=[
-                        '--standalone',
-                        '--wrap=none',
-                        '--top-level-division=chapter',
-                        '--section-divs',
-                        '--atx-headers',
-                        f'--metadata=title:{Path(local_docx).stem}',
-                        f"--extract-media={str(tmpdir_path / 'extracted_media')}",
-                    ],
+                    extra_args=extra_args,
                 )
             except Exception as e:
-                logger.exception("Pandoc conversion DOCX->DocBook (V4) failed")
+                logger.exception("Pandoc conversion DOCX->DocBook (V4) failed: %s", e)
                 raise
 
             # Attempt to extract ISBN early from combined XML text (fallback to filename digits)
@@ -218,19 +218,19 @@ class DocBookConversionService:
                     s3_service.download_file(ai_docx_s3_key, str(local_docx))
                     # Re-convert to DocBook XML
                     self._ensure_pandoc_available()
+                    extra_args = [
+                        '--standalone',
+                        '--wrap=none',
+                        '--top-level-division=chapter',
+                        f'--metadata=title:{Path(local_docx).stem}',
+                        f"--extract-media={str(tmpdir_path / 'extracted_media')}",
+                    ]
+                    logger.debug("[DocBook] Invoking pandoc (AI retry) DOCX->docbook4: extra_args=%s", extra_args)
                     pypandoc.convert_file(
                         source_file=str(local_docx),
-                        to='docbook',
+                        to='docbook4',
                         outputfile=str(local_xml),
-                        extra_args=[
-                            '--standalone',
-                            '--wrap=none',
-                            '--top-level-division=chapter',
-                            '--section-divs',
-                            '--atx-headers',
-                            f'--metadata=title:{Path(local_docx).stem}',
-                            f"--extract-media={str(tmpdir_path / 'extracted_media')}",
-                        ],
+                        extra_args=extra_args,
                     )
                     # Re-detect ISBN if necessary
                     try:
@@ -300,17 +300,19 @@ class DocBookConversionService:
             local_xml = tmpdir_path / Path(output_filename).with_suffix('.xml').name
             try:
                 self._ensure_pandoc_available()
+                extra_args = [
+                    '--standalone',
+                    '--wrap=none',
+                    '--top-level-division=chapter',
+                    f'--metadata=title:{Path(local_epub).stem}',
+                    f"--extract-media={str(tmpdir_path / 'extracted_media')}",
+                ]
+                logger.debug("[DocBook] Invoking pandoc for EPUB->docbook4: extra_args=%s", extra_args)
                 pypandoc.convert_file(
                     source_file=str(local_epub),
-                    to='docbook',
+                    to='docbook4',
                     outputfile=str(local_xml),
-                    extra_args=[
-                        '--standalone',
-                        '--wrap=none',
-                        '--top-level-division=chapter',
-                        f'--metadata=title:{Path(local_epub).stem}',
-                        f"--extract-media={str(tmpdir_path / 'extracted_media')}",
-                    ],
+                    extra_args=extra_args,
                 )
             except Exception:
                 logger.exception("Pandoc conversion EPUB->DocBook (V4) failed")
