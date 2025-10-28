@@ -4,7 +4,7 @@ DocBook XML Conversion Service
 
 Productionized approach:
 PDF -> DOCX (existing pdf2docx pipeline) -> DocBook 4 XML (via pandoc) ->
-DocBook package (book.xml + ch0001.xml + multimedia/*) zipped and uploaded.
+DocBook package (Book.xml + ch0001.xml + Media/*) zipped and uploaded.
 
 Also supports EPUB -> DocBook 4 XML -> packaged + zipped.
 
@@ -138,28 +138,101 @@ class DocBookConversionService:
                 logger.exception("Pandoc conversion DOCX->DocBook (V4) failed")
                 raise
 
-            # 3) Package into book.xml + ch000X.xml + multimedia/*
+            # Attempt to extract ISBN early from combined XML text (fallback to filename digits)
+            def _extract_isbn_from_text(text: str) -> Optional[str]:
+                import re
+                # Prefer 13-digit starting with 97x
+                m13 = re.search(r"\b97[89]\d{10}\b", text)
+                if m13:
+                    return m13.group(0)
+                # Else 10-digit with possible X
+                m10 = re.search(r"\b\d{9}[\dXx]\b", text)
+                if m10:
+                    return m10.group(0).upper()
+                return None
+
+            combined_text = ""
+            try:
+                combined_text = (tmpdir_path / xml_name).read_text(encoding="utf-8", errors="ignore")
+            except Exception:
+                pass
+            isbn_detected = _extract_isbn_from_text(combined_text) if combined_text else None
+            if not isbn_detected:
+                # Derive ISBN from filename if present (digits only heuristic)
+                base_stem = Path(output_filename).stem
+                digits = ''.join([c for c in base_stem if c.isdigit()])
+                isbn_detected = digits if len(digits) >= 10 else None
+
+            # 3) Package into Book.xml + ch000X.xml + Media/*
             packager = DocbookPackager(logger=logger)
             package_root = tmpdir_path / "package"
-            # Derive ISBN from filename if present (digits only heuristic)
-            base_stem = Path(output_filename).stem
-            isbn_guess = ''.join([c for c in base_stem if c.isdigit()]) or None
 
             book_xml_path, chapters = packager.package(
                 combined_docbook_xml=local_xml,
                 output_dir=package_root,
-                package_root_folder=None,
+                package_root_folder=isbn_detected,
                 title=Path(local_docx).stem,
                 media_extracted_dir=(tmpdir_path / 'extracted_media'),
-                isbn=isbn_guess,
+                isbn=isbn_detected,
             )
+
+            # Fallback: if we failed to split into chapters, retry using AI conversion path to improve structure
+            if len(chapters) < 2:
+                try:
+                    logger.info("[DocBook] Only one chapter detected; retrying via AI DOCX path for better ToC splitting")
+                    from app.services.pdf_conversion_service import pdf_conversion_service as pdfsvc
+                    from app.services.ai_pdf_conversion_service import ai_pdf_conversion_service as ai_pdfsvc  # noqa: F401
+                    # Re-run AI conversion to DOCX
+                    ai_docx_s3_key, _ = await pdfsvc.convert_pdf_to_docx_ai(
+                        pdf_s3_key=pdf_s3_key,
+                        output_filename=docx_name,
+                        quality=quality,
+                        include_metadata=include_metadata,
+                    )
+                    # Download AI DOCX
+                    s3_service.download_file(ai_docx_s3_key, str(local_docx))
+                    # Re-convert to DocBook XML
+                    pypandoc.convert_file(
+                        source_file=str(local_docx),
+                        to='docbook',
+                        outputfile=str(local_xml),
+                        extra_args=[
+                            '--standalone',
+                            '--wrap=none',
+                            '--top-level-division=chapter',
+                            f'--metadata=title:{Path(local_docx).stem}',
+                            f"--extract-media={str(tmpdir_path / 'extracted_media')}",
+                        ],
+                    )
+                    # Re-detect ISBN if necessary
+                    try:
+                        combined_text = (tmpdir_path / xml_name).read_text(encoding="utf-8", errors="ignore")
+                        isbn_retry = _extract_isbn_from_text(combined_text)
+                        if isbn_retry:
+                            isbn_detected = isbn_retry
+                    except Exception:
+                        pass
+                    # Re-package
+                    package_root = tmpdir_path / "package_ai"
+                    book_xml_path, chapters = packager.package(
+                        combined_docbook_xml=local_xml,
+                        output_dir=package_root,
+                        package_root_folder=isbn_detected,
+                        title=Path(local_docx).stem,
+                        media_extracted_dir=(tmpdir_path / 'extracted_media'),
+                        isbn=isbn_detected,
+                    )
+                except Exception:
+                    logger.exception("[DocBook] AI fallback packaging failed; proceeding with initial package")
 
             # 4) Zip and upload package to S3
             root_dir = book_xml_path.parent
-            zip_base = tmpdir_path / Path(output_filename).with_suffix('').name
+            zip_basename = isbn_detected or Path(output_filename).with_suffix('').name
+            zip_base = tmpdir_path / zip_basename
             zip_file_path = Path(shutil.make_archive(str(zip_base), 'zip', root_dir))
 
-            xml_s3_key = docx_s3_key.replace('/docx/', '/xml/').rsplit('.', 1)[0] + '.zip'
+            # Place under converted/ with ISBN-based name when available
+            xml_s3_key = f"converted/{zip_basename}.zip"
             logger.info(f"[DocBook] Uploading package ZIP {zip_file_path} to S3 at {xml_s3_key}")
             s3_service.upload_file(str(zip_file_path), xml_s3_key, content_type='application/zip')
 
@@ -174,6 +247,7 @@ class DocBookConversionService:
                 # Surface pdf/docx conversion metadata for downstream metrics
                 **docx_meta,
                 "package_chapter_count": len(chapters),
+                "isbn": isbn_detected,
             }
 
             logger.info(f"[DocBook] Completed conversion -> {xml_s3_key}")
@@ -213,28 +287,49 @@ class DocBookConversionService:
                 logger.exception("Pandoc conversion EPUB->DocBook (V4) failed")
                 raise
 
+            # Detect ISBN from XML content or filename
+            def _extract_isbn_from_text(text: str) -> Optional[str]:
+                import re
+                m13 = re.search(r"\b97[89]\d{10}\b", text)
+                if m13:
+                    return m13.group(0)
+                m10 = re.search(r"\b\d{9}[\dXx]\b", text)
+                if m10:
+                    return m10.group(0).upper()
+                return None
+
+            isbn_detected: Optional[str] = None
+            try:
+                combined_text = local_xml.read_text(encoding="utf-8", errors="ignore")
+                isbn_detected = _extract_isbn_from_text(combined_text)
+            except Exception:
+                pass
+            if not isbn_detected:
+                base_stem = Path(output_filename).stem
+                digits = ''.join([c for c in base_stem if c.isdigit()])
+                isbn_detected = digits if len(digits) >= 10 else None
+
             # Package
             packager = DocbookPackager(logger=logger)
             package_root = tmpdir_path / "package"
-            base_stem = Path(output_filename).stem
-            isbn_guess = ''.join([c for c in base_stem if c.isdigit()]) or None
 
             book_xml_path, chapters = packager.package(
                 combined_docbook_xml=local_xml,
                 output_dir=package_root,
-                package_root_folder=None,
+                package_root_folder=isbn_detected,
                 title=Path(local_epub).stem,
                 media_extracted_dir=(tmpdir_path / 'extracted_media'),
-                isbn=isbn_guess,
+                isbn=isbn_detected,
             )
 
             # Zip and upload
             root_dir = book_xml_path.parent
-            zip_base = tmpdir_path / Path(output_filename).with_suffix('').name
+            zip_basename = isbn_detected or Path(output_filename).with_suffix('').name
+            zip_base = tmpdir_path / zip_basename
             zip_file_path = Path(shutil.make_archive(str(zip_base), 'zip', root_dir))
 
             # Derive target key
-            xml_s3_key = f"converted/{Path(output_filename).with_suffix('.zip').name}"
+            xml_s3_key = f"converted/{zip_basename}.zip"
             logger.info(f"[DocBook] Uploading EPUB package ZIP {zip_file_path} to S3 at {xml_s3_key}")
             s3_service.upload_file(str(zip_file_path), xml_s3_key, content_type='application/zip')
 
@@ -243,6 +338,7 @@ class DocBookConversionService:
                 "xml_s3_key": xml_s3_key,
                 "tool": "pandoc (epub->docbook) + packaging",
                 "package_chapter_count": len(chapters),
+                "isbn": isbn_detected,
             }
             return xml_s3_key, metadata
 
