@@ -14,6 +14,8 @@ from pathlib import Path
 from typing import Optional, Dict, Any, Tuple
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+import subprocess
+import shutil
 
 from pdf2docx import Converter
 import pypandoc
@@ -158,6 +160,11 @@ class PDFConversionService:
             pdf_info = await self._validate_pdf(pdf_temp_path)
             logger.info(f"PDF validation successful: {pdf_info['pages']} pages, {pdf_info['size_mb']:.2f} MB")
             
+            # Step 2.5: Normalize PDF colorspace to sRGB to avoid PNG CMYK errors during conversion
+            # Some PDFs contain CMYK or other colorspaces that are unsupported when saving to PNG.
+            # We proactively convert all color content to sRGB using Ghostscript if available.
+            processing_pdf_path = await self._preprocess_pdf_colorspace(pdf_temp_path)
+
             # Step 3: Convert PDF to DOCX
             logger.info(f"Converting PDF to DOCX with quality: {quality}")
             # Choose chunked conversion for very large PDFs to reduce memory usage
@@ -166,7 +173,7 @@ class PDFConversionService:
                     f"Large PDF detected ({pdf_info['pages']} pages). Using chunked conversion."
                 )
                 conversion_stats = await self._convert_pdf_to_docx_chunked_async(
-                    pdf_temp_path,
+                    processing_pdf_path,
                     docx_temp_path,
                     pdf_info["pages"],
                     quality,
@@ -175,7 +182,7 @@ class PDFConversionService:
                 )
             else:
                 conversion_stats = await self._convert_pdf_to_docx_async(
-                    pdf_temp_path, 
+                    processing_pdf_path, 
                     docx_temp_path, 
                     quality,
                     include_metadata
@@ -236,7 +243,13 @@ class PDFConversionService:
             
         finally:
             # Cleanup temporary files
-            await self._cleanup_temp_files([pdf_temp_path, docx_temp_path])
+            try:
+                # Attempt to also cleanup a potential RGB-normalized PDF if it exists
+                processing_pdf_candidate = pdf_temp_path.with_name(f"{pdf_temp_path.stem}_rgb.pdf")
+                additional = [processing_pdf_candidate] if processing_pdf_candidate.exists() else []
+            except Exception:
+                additional = []
+            await self._cleanup_temp_files([pdf_temp_path, docx_temp_path, *additional])
 
     async def _download_from_s3(self, s3_key: str, local_path: Path) -> None:
         """Download a file from S3 to local path."""
@@ -537,6 +550,67 @@ class PDFConversionService:
                     Path(p).unlink(missing_ok=True)
                 except Exception:
                     pass
+
+    async def _preprocess_pdf_colorspace(self, pdf_path: Path) -> Path:
+        """Ensure PDF color content is in sRGB colorspace using Ghostscript if available.
+
+        Returns a path to an sRGB-normalized PDF if conversion succeeds; otherwise returns the original path.
+        """
+        try:
+            loop = asyncio.get_event_loop()
+            return await loop.run_in_executor(self.executor, self._preprocess_pdf_colorspace_sync, pdf_path)
+        except Exception as e:
+            logger.warning(f"Colorspace preprocessing failed unexpectedly; continuing without it: {e}")
+            return pdf_path
+
+    def _preprocess_pdf_colorspace_sync(self, pdf_path: Path) -> Path:
+        """Synchronous colorspace normalization via Ghostscript to sRGB.
+
+        This converts any CMYK or non-RGB content to sRGB so downstream PNG/JPEG exports do not fail
+        with 'unsupported colorspace'. If Ghostscript is unavailable or conversion fails, the original
+        path is returned unchanged.
+        """
+        try:
+            gs_executable = shutil.which("gs") or "gs"
+            output_path = pdf_path.with_name(f"{pdf_path.stem}_rgb.pdf")
+
+            # If we already produced an RGB version earlier, reuse it
+            if output_path.exists() and output_path.stat().st_size > 0:
+                return output_path
+
+            cmd = [
+                gs_executable,
+                "-dSAFER",
+                "-dBATCH",
+                "-dNOPAUSE",
+                "-sDEVICE=pdfwrite",
+                "-dCompatibilityLevel=1.7",
+                "-sProcessColorModel=DeviceRGB",
+                "-sColorConversionStrategy=sRGB",
+                "-dConvertCMYKImagesToRGB=true",
+                "-dAutoRotatePages=/None",
+                "-o",
+                str(output_path),
+                str(pdf_path),
+            ]
+
+            result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if result.returncode == 0 and output_path.exists() and output_path.stat().st_size > 0:
+                logger.info(f"Colorspace normalized PDF created: {output_path.name}")
+                return output_path
+            else:
+                stderr_preview = (result.stderr or b"").decode(errors="ignore")[0:300]
+                logger.warning(
+                    f"Ghostscript colorspace conversion failed (rc={result.returncode}); proceeding without it. stderr: {stderr_preview}"
+                )
+                return pdf_path
+        except FileNotFoundError:
+            # Ghostscript not installed
+            logger.info("Ghostscript not found; skipping colorspace normalization")
+            return pdf_path
+        except Exception as e:
+            logger.warning(f"Ghostscript conversion error; skipping colorspace normalization: {e}")
+            return pdf_path
 
     async def _cleanup_temp_files(self, file_paths: list[Path]) -> None:
         """Clean up temporary files."""
