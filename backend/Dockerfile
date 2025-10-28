@@ -22,6 +22,8 @@ RUN apt-get update && apt-get install -y \
     # For potential image processing
     libjpeg-dev \
     libpng-dev \
+    # For document format conversions
+    pandoc \
     # For building Python packages
     gcc \
     g++ \

@@ -49,6 +49,21 @@ class PDFConversionService:
         
         logger.info(f"PDF Conversion Service initialized with temp dir: {self.temp_dir}")
 
+    def _ensure_pandoc_available(self) -> None:
+        """Ensure pandoc is available for operations that require it (e.g., merging DOCX chunks)."""
+        try:
+            _ = pypandoc.get_pandoc_version()
+            return
+        except Exception as initial_error:
+            try:
+                logger.info("[PDF] Pandoc not found; attempting download via pypandoc...")
+                pypandoc.download_pandoc()
+                _ = pypandoc.get_pandoc_version()
+                logger.info("[PDF] Pandoc downloaded and available")
+                return
+            except Exception:
+                raise initial_error
+
     async def convert_pdf_to_docx_ai(
         self,
         pdf_s3_key: str,
@@ -520,6 +535,8 @@ class PDFConversionService:
             logger.info(
                 f"Merging {len(chunk_docx_paths)} DOCX chunks into final output: {docx_path.name}"
             )
+            # Ensure pandoc present for merge
+            self._ensure_pandoc_available()
             pypandoc.convert_file(
                 chunk_docx_paths,
                 to="docx",
