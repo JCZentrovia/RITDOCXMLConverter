@@ -23,7 +23,6 @@ import pypandoc
 
 from app.services.pdf_conversion_service import pdf_conversion_service, ConversionQuality
 from app.services.s3_service import s3_service
-from pathlib import Path
 from app.utils.docbook_packager import DocbookPackager
 
 from lxml import etree
@@ -79,6 +78,28 @@ class DocBookConversionService:
     def __init__(self):
         pass
 
+    def _ensure_pandoc_available(self) -> None:
+        """Ensure a working pandoc is available for pypandoc.
+
+        Tries system pandoc first; if not found, attempts to download a
+        bundled pandoc via pypandoc. Raises the encountered exception if
+        neither is available.
+        """
+        try:
+            # Fast path when system pandoc is installed
+            _ = pypandoc.get_pandoc_version()
+            return
+        except Exception as initial_error:
+            try:
+                logger.info("[DocBook] Pandoc not found; downloading via pypandoc...")
+                pypandoc.download_pandoc()
+                _ = pypandoc.get_pandoc_version()
+                logger.info("[DocBook] Pandoc downloaded and initialized")
+                return
+            except Exception:
+                # Re-raise the original error for clearer context
+                raise initial_error
+
     async def convert_pdf_to_docbook(
         self,
         pdf_s3_key: str,
@@ -122,6 +143,8 @@ class DocBookConversionService:
             local_xml = tmpdir_path / xml_name
             logger.info(f"[DocBook] Converting DOCX to DocBook (V4) XML at {local_xml}")
             try:
+                # Ensure pandoc is present before invoking pypandoc
+                self._ensure_pandoc_available()
                 pypandoc.convert_file(
                     source_file=str(local_docx),
                     to='docbook',
@@ -194,6 +217,7 @@ class DocBookConversionService:
                     # Download AI DOCX
                     s3_service.download_file(ai_docx_s3_key, str(local_docx))
                     # Re-convert to DocBook XML
+                    self._ensure_pandoc_available()
                     pypandoc.convert_file(
                         source_file=str(local_docx),
                         to='docbook',
@@ -275,6 +299,7 @@ class DocBookConversionService:
             # Convert EPUB -> DocBook (V4)
             local_xml = tmpdir_path / Path(output_filename).with_suffix('.xml').name
             try:
+                self._ensure_pandoc_available()
                 pypandoc.convert_file(
                     source_file=str(local_epub),
                     to='docbook',
