@@ -338,6 +338,18 @@ class ConversionService:
                 except Exception as e:
                     # Detect page-limit validation errors from underlying services
                     lower_msg = str(e).lower()
+                    # Surface pandoc-not-found with a clearer message
+                    if "pandoc" in lower_msg and ("not found" in lower_msg or "no such file" in lower_msg or "executable" in lower_msg):
+                        raise ConversionError(
+                            message=(
+                                "Pandoc is unavailable in the conversion environment. "
+                                "Please contact support; the system is missing a required dependency."
+                            ),
+                            conversion_id=task_id,
+                            manuscript_id=task.manuscript_id,
+                            context=error_context,
+                            cause=e,
+                        )
                     if (
                         "too many pages" in lower_msg
                         or "exceeds maximum allowed pages" in lower_msg
