@@ -293,7 +293,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   showUploadModal = false;
   
   uploadConfig: FileUploadConfig = {
-    maxFileSize: 10 * 1024 * 1024, // 10MB
+    maxFileSize: 100 * 1024 * 1024, // 100MB
     allowedTypes: ['application/pdf'],
     multiple: false,
     dragAndDrop: true,

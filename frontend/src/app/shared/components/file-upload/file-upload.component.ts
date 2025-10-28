@@ -300,7 +300,7 @@ export interface UploadedFile {
 })
 export class FileUploadComponent implements OnInit, OnDestroy {
   @Input() config: FileUploadConfig = {
-    maxFileSize: 10 * 1024 * 1024, // 10MB
+    maxFileSize: 100 * 1024 * 1024, // 100MB
     allowedTypes: ['application/pdf'],
     multiple: false,
     dragAndDrop: true,
@@ -331,7 +331,7 @@ export class FileUploadComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Set default config values
     this.config = {
-      maxFileSize: 10 * 1024 * 1024, // 10MB
+      maxFileSize: 100 * 1024 * 1024, // 100MB
       allowedTypes: ['application/pdf'],
       multiple: false,
       dragAndDrop: true,

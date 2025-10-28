@@ -307,16 +307,28 @@ class AIPDFConversionService:
             # Create a synchronous OpenAI client for threading
             import openai
             sync_client = openai.OpenAI(api_key=self.openai_client.api_key)
-            
-            # Call OpenAI API with structured output
-            response = sync_client.chat.completions.create(
-                model="gpt-4o",  # Use GPT-4 Vision model
-                messages=messages,
-                tools=PromptManager.get_tool_schema(),
-                tool_choice={"type": "function", "function": {"name": "generate_markdown"}},
-                max_tokens=4000,
-                temperature=0.1
-            )
+
+            # Call OpenAI API with structured output and retries
+            last_error: Optional[Exception] = None
+            for attempt in range(1, 4):
+                try:
+                    response = sync_client.chat.completions.create(
+                        model="gpt-4o",
+                        messages=messages,
+                        tools=PromptManager.get_tool_schema(),
+                        tool_choice={"type": "function", "function": {"name": "generate_markdown"}},
+                        max_tokens=4000,
+                        temperature=0.1,
+                        timeout=60
+                    )
+                    break
+                except Exception as api_err:
+                    last_error = api_err
+                    logger.info(f"Retrying OpenAI request for page {page_number} (attempt {attempt}/3) due to: {api_err}")
+                    import time as _time
+                    _time.sleep(min(2 ** attempt, 5))
+            else:
+                raise last_error or Exception("OpenAI request failed")
             
             # Extract the structured response
             tool_call = response.choices[0].message.tool_calls[0]
@@ -376,14 +388,15 @@ class AIPDFConversionService:
                 }
             ]
             
-            # Call OpenAI API with structured output
+            # Call OpenAI API with structured output and timeouts
             response = await self.openai_client.chat.completions.create(
-                model="gpt-4o",  # Use GPT-4 Vision model
+                model="gpt-4o",
                 messages=messages,
                 tools=PromptManager.get_tool_schema(),
                 tool_choice={"type": "function", "function": {"name": "generate_markdown"}},
                 max_tokens=4000,
-                temperature=0.1
+                temperature=0.1,
+                timeout=60
             )
             
             # Extract the structured response
@@ -460,6 +473,8 @@ class AIPDFConversionService:
                     # Handle successful result
                     index, result = task_result
                     results[index] = result
+                    if isinstance(result, dict) and result.get("markdown", "").startswith("# Error Processing"):
+                        logger.error(f"Error converting page {index + 1} to markdown: {result.get('reasoning', 'unknown error')}")
                     logger.info(f"Completed page {index + 1}/{len(image_paths)}")
         
         logger.info(f"Completed all {len(image_paths)} images with threading")
@@ -597,6 +612,10 @@ class AIPDFConversionService:
             # Step 3: Convert images to markdown using OpenAI with threading
             logger.info("Step 3: Converting images to markdown using OpenAI with 5 threads...")
             markdown_results = await self.convert_images_to_markdown_threaded(image_paths, max_workers=5)
+
+            # If all pages failed due to connection or API errors, stop early with a clear error
+            if all(isinstance(r, dict) and r.get("score", 0) <= 0 and "Error Processing" in r.get("markdown", "") for r in markdown_results):
+                return False, "OpenAI Vision conversion failed for all pages (connection/API errors)", {}
             
             # Step 4: Combine markdown files
             logger.info("Step 4: Combining markdown content...")

@@ -22,6 +22,7 @@ from app.models.manuscript import (
     ManuscriptStatus
 )
 from app.services.manuscript_service import manuscript_service
+from app.core.config import settings
 from app.services.docbook_conversion_service import docbook_conversion_service
 from app.services.epub_conversion_service import epub_conversion_service
 from app.services.s3_service import s3_service
@@ -47,12 +48,13 @@ async def generate_upload_url(
     that the client can use to upload the file directly to S3.
     """
     try:
-        # Validate file size (10MB limit)
-        max_file_size = 10 * 1024 * 1024  # 10MB in bytes
+        # Validate file size (configurable limit; defaults to 10MB previously)
+        configured_limit_mb = getattr(settings, "max_upload_size_mb", 10)
+        max_file_size = configured_limit_mb * 1024 * 1024
         if request.file_size and request.file_size > max_file_size:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"File size exceeds maximum limit of {max_file_size // (1024 * 1024)}MB"
+                detail=f"File size exceeds maximum limit of {configured_limit_mb}MB"
             )
         
         # Generate unique S3 key
