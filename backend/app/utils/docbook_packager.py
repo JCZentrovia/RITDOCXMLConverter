@@ -1,10 +1,11 @@
 """
 Utilities to transform a single DocBook XML (DocBook 4.x preferred) into a
-publisher-compliant package that mirrors the provided examples:
+publisher-compliant package that mirrors the provided examples and the
+requirements:
 
-- book.xml with a specific DOCTYPE and internal ENTITY declarations
-- chapter files split as ch0001.xml, ch0002.xml, ... containing <chapter/>
-- multimedia/ directory with images referenced by <imagedata fileref="..."/>
+- Book.xml with a specific DOCTYPE and internal ENTITY declarations
+- Chapter files split as ch0001.xml, ch0002.xml, ... containing <chapter/>
+- Media/ directory with images; image filenames follow ch0001f01, ch0001f02, ...
 
 This module is intentionally conservative and focuses on predictable structure
 over perfect semantic fidelity. It supports inputs produced by pandoc
@@ -12,8 +13,8 @@ over perfect semantic fidelity. It supports inputs produced by pandoc
   1) Ensure a <book> root if missing
   2) Split the document into chapters (existing <chapter> elements preferred; if
      none, the whole document becomes a single chapter)
-  3) Normalize image paths into multimedia/ and rewrite fileref attributes
-  4) Emit a book.xml with the required DOCTYPE + chapter ENTITY references and
+  3) Normalize image paths into Media/ and rewrite fileref attributes
+  4) Emit a Book.xml with the required DOCTYPE + chapter ENTITY references and
      &chXXXX; entity usages in document order
 """
 
@@ -120,18 +121,16 @@ class DocbookPackager:
     def _enumerate_imagedata_paths(elem: etree._Element) -> List[etree._Element]:
         return list(elem.iterfind(".//imagedata"))
 
-    def _rewrite_images_to_multimedia(
+    def _rewrite_images_to_media(
         self,
         chapter_elem: etree._Element,
         media_root: Path,
-        multimedia_dir: Path,
+        media_dir: Path,
         chapter_index: int,
-        isbn: str | None = None,
     ) -> int:
         """
-        Move/copy images referenced by imagedata fileref into multimedia/ while
-        preserving the original filename when possible. The fileref is rewritten
-        to the bare filename (no 'multimedia/' prefix) to mirror examples.
+        Move/copy images referenced by imagedata fileref into Media/.
+        The fileref is rewritten to the bare filename (no 'Media/' prefix).
         Returns number of images handled.
         """
         count = 0
@@ -151,19 +150,15 @@ class DocbookPackager:
                     continue
 
             count += 1
-            # Naming: prefer ISBN-prefixed naming if provided
-            if isbn:
-                ext = src_path.suffix.lower() or ".jpg"
-                new_name = f"{isbn}.ch{self._zero_pad(chapter_index)}.f{str(count).zfill(2)}{ext}"
-            else:
-                # Fall back to original filename
-                new_name = src_path.name
-            dst_path = multimedia_dir / new_name
-            multimedia_dir.mkdir(parents=True, exist_ok=True)
+            # Naming: ch0001f01, ch0001f02, ...
+            ext = src_path.suffix.lower() or ".jpg"
+            new_name = f"ch{self._zero_pad(chapter_index)}f{str(count).zfill(2)}{ext}"
+            dst_path = media_dir / new_name
+            media_dir.mkdir(parents=True, exist_ok=True)
             if src_path.resolve() != dst_path.resolve():
                 dst_path.write_bytes(src_path.read_bytes())
 
-            # Rewrite fileref to just the filename (examples omit the folder)
+            # Rewrite fileref to just the filename (omit folder)
             img.set("fileref", new_name)
 
         return count
@@ -197,8 +192,8 @@ class DocbookPackager:
         # Normalize chapters
         chapters = self._collect_chapters(book_root)
 
-        # Prepare multimedia dir and rewrite images per chapter
-        multimedia_dir = root_dir / "multimedia"
+        # Prepare Media dir and rewrite images per chapter
+        media_dir = root_dir / "Media"
         media_root = media_extracted_dir or combined_docbook_xml.parent
 
         chapter_infos: List[ChapterInfo] = []
@@ -209,19 +204,16 @@ class DocbookPackager:
             if ch.get("label") is None:
                 ch.set("label", str(idx))
 
-            # Rewrite images into multimedia/
-            self._rewrite_images_to_multimedia(
+            # Rewrite images into Media/
+            self._rewrite_images_to_media(
                 ch,
                 media_root=media_root,
-                multimedia_dir=multimedia_dir,
+                media_dir=media_dir,
                 chapter_index=idx,
-                isbn=isbn,
             )
 
             # Write chapter file
-            ch_filename = (
-                f"{isbn}.ch{self._zero_pad(idx)}.xml" if isbn else f"ch{self._zero_pad(idx)}.xml"
-            )
+            ch_filename = f"ch{self._zero_pad(idx)}.xml"
             chapter_infos.append(ChapterInfo(index=idx, file_name=ch_filename, id_value=ch_id))
 
             ch_tree = etree.ElementTree(ch)
@@ -267,8 +259,9 @@ class DocbookPackager:
 
         book_xml_str += book_body_without_close + "\n" + chapters_entities + "</book>\n"
 
-        book_xml_path = root_dir / (f"{isbn}.book.xml" if isbn else "book.xml")
+        # Always emit Book.xml (capital B)
+        book_xml_path = root_dir / "Book.xml"
         book_xml_path.write_text(book_xml_str, encoding="utf-8")
 
-        self._log(f"Wrote book.xml and {len(chapter_infos)} chapters to {root_dir}")
+        self._log(f"Wrote Book.xml and {len(chapter_infos)} chapters to {root_dir}")
         return book_xml_path, chapter_infos

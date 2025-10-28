@@ -30,15 +30,15 @@ def test_packager_creates_book_and_chapters(tmp_path: Path):
         media_extracted_dir=tmp_path,
     )
 
-    # book.xml exists
+    # Book.xml exists
     assert book_xml_path.exists()
     # Chapters written
     for ci in chapters:
         assert (book_xml_path.parent / ci.file_name).exists()
-    # Multimedia exists
-    assert (book_xml_path.parent / "multimedia").exists()
+    # Media exists
+    assert (book_xml_path.parent / "Media").exists()
 
-    # book.xml has DOCTYPE and entities
+    # Book.xml has DOCTYPE and entities
     raw = book_xml_path.read_text(encoding="utf-8")
     assert "<!DOCTYPE book PUBLIC" in raw
     assert "<!ENTITY ch0001" in raw
@@ -78,9 +78,10 @@ def test_packager_zip_contains_multimedia_images(tmp_path: Path):
     zip_base = tmp_path / "package"
     zip_path = shutil.make_archive(str(zip_base), "zip", root_dir)
 
-    # Verify zip contains multimedia folder and the image file
+    # Verify zip contains Media folder and the image file
     with zipfile.ZipFile(zip_path, "r") as zf:
         names = zf.namelist()
-        assert any(n.endswith("multimedia/") or n.endswith("multimedia") for n in names), "multimedia folder missing in ZIP"
-        assert any(n.endswith("multimedia/imgA.jpg") for n in names), "image not found in multimedia/ within ZIP"
-        assert any(n.endswith("book.xml") for n in names), "book.xml missing in ZIP"
+        assert any(n.endswith("Media/") or n.endswith("Media") for n in names), "Media folder missing in ZIP"
+        # new naming pattern: ch0001f01.jpg
+        assert any(n.endswith("Media/ch0001f01.jpg") for n in names), "image not found in Media/ within ZIP"
+        assert any(n.endswith("Book.xml") for n in names), "Book.xml missing in ZIP"
