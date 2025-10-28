@@ -66,7 +66,7 @@ export interface UploadedFile {
               {{ config.dragAndDrop ? 'Drag and drop files here, or click to browse' : 'Click to browse files' }}
             </p>
             <p class="text-xs text-gray-400 mt-2">
-              Maximum file size: {{ formatFileSize(config.maxFileSize || 10485760) }}
+              Large files are supported. Upload time depends on your network.
             </p>
           </div>
 
@@ -300,7 +300,7 @@ export interface UploadedFile {
 })
 export class FileUploadComponent implements OnInit, OnDestroy {
   @Input() config: FileUploadConfig = {
-    maxFileSize: 10 * 1024 * 1024, // 10MB
+    maxFileSize: 100 * 1024 * 1024, // 100MB
     allowedTypes: ['application/pdf'],
     multiple: false,
     dragAndDrop: true,
@@ -331,7 +331,7 @@ export class FileUploadComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Set default config values
     this.config = {
-      maxFileSize: 10 * 1024 * 1024, // 10MB
+      maxFileSize: 100 * 1024 * 1024, // 100MB
       allowedTypes: ['application/pdf'],
       multiple: false,
       dragAndDrop: true,
@@ -434,10 +434,12 @@ export class FileUploadComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    // Check file size
-    if (this.config.maxFileSize && file.size > this.config.maxFileSize) {
-      this.errorHandler.showError(`File size ${this.formatFileSize(file.size)} exceeds maximum allowed size of ${this.formatFileSize(this.config.maxFileSize)}`);
-      return false;
+    // No hard client-side size cap; warn if very large
+    const veryLargeThreshold = 500 * 1024 * 1024; // 500MB
+    if (file.size > veryLargeThreshold) {
+      this.errorHandler.showWarning(
+        `Large file detected (${this.formatFileSize(file.size)}). Upload may take a while depending on your network.`
+      );
     }
 
     // Check if file already exists

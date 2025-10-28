@@ -32,6 +32,8 @@ class Settings(BaseSettings):
     debug: bool = True
     host: str = "0.0.0.0"
     port: int = 8000
+    # Maximum allowed upload size (in MB) for presigned uploads
+    max_upload_size_mb: int = 100
     
     # Scheduler Configuration
     scheduler_interval_seconds: int = 10

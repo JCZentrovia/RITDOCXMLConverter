@@ -161,6 +161,10 @@ export class ManuscriptService {
     // Use XMLHttpRequest directly for better S3 compatibility
     return new Observable<UploadProgress>(observer => {
       const xhr = new XMLHttpRequest();
+
+      // Ensure large files have ample time to upload
+      xhr.timeout = 15 * 60 * 1000; // 15 minutes
+      xhr.withCredentials = false; // S3 presigned URLs should not send credentials
       
       xhr.upload.addEventListener('progress', (event) => {
         if (event.lengthComputable) {
@@ -178,6 +182,18 @@ export class ManuscriptService {
         }
       });
       
+      xhr.addEventListener('timeout', () => {
+        observer.error(new Error('Upload timed out. Please try again.'));
+      });
+
+      xhr.addEventListener('abort', () => {
+        observer.error(new Error('Upload was aborted.'));
+      });
+
+      xhr.addEventListener('error', () => {
+        observer.error(new Error('Upload failed due to network error'));
+      });
+
       xhr.addEventListener('error', () => {
         observer.error(new Error('Upload failed due to network error'));
       });
