@@ -14,6 +14,7 @@ from .extractors.poppler_text import pdftotext_pages
 from .ocr.ocrmypdf_runner import ocr_pages
 from .package import make_file_fetcher, package_docbook
 from .structure.classifier import classify_blocks
+from .structure.docbook import build_docbook_tree
 from .structure.heuristics import label_blocks
 from .validators.counters import compute_metrics
 from .validators.dtd_validator import validate_dtd
@@ -58,14 +59,6 @@ def _image_only_pages(pages_a: List[PageText], pages_b: List[PageText]) -> List[
             continue
         result.append(page.page_num)
     return result
-
-
-def _build_block_document(blocks: List[dict]) -> etree._Element:
-    root = etree.Element("document")
-    for block in blocks:
-        element = etree.SubElement(root, "block", label=block.get("classifier_label") or block.get("label", "para"))
-        element.text = block.get("text", "")
-    return root
 
 
 def _write_docbook(tree: etree._ElementTree, root_name: str, dtd_system: str, out_path: Path) -> None:
@@ -137,12 +130,8 @@ def convert_pdf(
                 for block in blocks
             ]
 
-        intermediate = _build_block_document(blocks)
-        xslt_path = Path(__file__).parent / "transform" / "pdfxml_to_docbook.xsl"
-        transform = etree.XSLT(etree.parse(str(xslt_path)))
         root_name = config.get("docbook", {}).get("root", "book")
-        result_tree = transform(intermediate, **{"root-element": etree.XSLT.strparam(root_name)})
-        docbook_tree = result_tree.getroot()
+        docbook_tree = build_docbook_tree(blocks, root_name)
 
         tmp_doc = tmp / "full_book.xml"
         dtd_system = config.get("docbook", {}).get("dtd_system", "dtd/v1.1/docbookx.dtd")
