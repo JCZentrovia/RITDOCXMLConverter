@@ -60,55 +60,31 @@ def _write_reports(metrics: Dict, source: str, report_dir: Path) -> None:
                 ]
             )
 
-    rows = []
-    for page in metrics.get("pages", []):
-        flags = page.get("flags", [])
-        rows.append(
-            "            <tr>\n"
-            f"                <td>{html.escape(str(page['page']))}</td>\n"
-            f"                <td>{html.escape(str(page['chars_in']))}</td>\n"
-            f"                <td>{html.escape(str(page['chars_out']))}</td>\n"
-            f"                <td>{html.escape(str(page['words_in']))}</td>\n"
-            f"                <td>{html.escape(str(page['words_out']))}</td>\n"
-            f"                <td>{html.escape(str(page['checksum_in']))}</td>\n"
-            f"                <td>{html.escape(str(page['checksum_out']))}</td>\n"
-            f"                <td>{html.escape(';'.join(flags))}</td>\n"
-            f"                <td>{'yes' if page.get('has_ocr') else 'no'}</td>\n"
-            "            </tr>"
-        )
-
-    report_html = (
-        "<!DOCTYPE html>\n"
-        "<html lang=\"en\">\n"
-        "  <head>\n"
-        "    <meta charset=\"utf-8\">\n"
-        f"    <title>{html.escape(source)} QA Report</title>\n"
-        "    <style>table {border-collapse: collapse;} th, td {border: 1px solid #999; padding: 0.3em; text-align: left;} th {background: #eee;}</style>\n"
-        "  </head>\n"
-        "  <body>\n"
-        f"    <h1>QA Report for {html.escape(source)}</h1>\n"
-        "    <table>\n"
-        "      <thead>\n"
-        "        <tr>\n"
-        "          <th>Page</th>\n"
-        "          <th>Chars In</th>\n"
-        "          <th>Chars Out</th>\n"
-        "          <th>Words In</th>\n"
-        "          <th>Words Out</th>\n"
-        "          <th>Checksum In</th>\n"
-        "          <th>Checksum Out</th>\n"
-        "          <th>Flags</th>\n"
-        "          <th>Has OCR</th>\n"
-        "        </tr>\n"
-        "      </thead>\n"
-        "      <tbody>\n"
-        + ("\n".join(rows) if rows else "        <tr><td colspan=\"9\">No pages processed</td></tr>")
-        + "\n      </tbody>\n"
-        "    </table>\n"
-        "  </body>\n"
-        "</html>\n"
+    env = Environment(
+        loader=FileSystemLoader("reports/templates"),
+        autoescape=select_autoescape(["html", "xml"]),
     )
-    html_path.write_text(report_html, encoding="utf-8")
+    template = env.get_template("qa_report.html.j2")
+    files = [
+        {
+            "name": source,
+            "pages": [
+                {
+                    "number": page["page"],
+                    "chars_in": page["chars_in"],
+                    "chars_out": page["chars_out"],
+                    "words_in": page["words_in"],
+                    "words_out": page["words_out"],
+                    "checksum_in": page["checksum_in"],
+                    "checksum_out": page["checksum_out"],
+                    "flags": page.get("flags", []),
+                    "mismatch": bool(page.get("flags")),
+                }
+                for page in metrics.get("pages", [])
+            ],
+        }
+    ]
+    html_path.write_text(template.render(files=files), encoding="utf-8")
 
 
 def _existing_file(path_str: str) -> Path:
