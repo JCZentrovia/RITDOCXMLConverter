@@ -151,6 +151,7 @@ def _body_font_size(lines: Sequence[Line]) -> float:
 
 
 CHAPTER_RE = re.compile(r"^(chapter|chap\.|unit|lesson|module)\b", re.IGNORECASE)
+TOC_RE = re.compile(r"^table of contents$", re.IGNORECASE)
 SECTION_RE = re.compile(r"^(section|sec\.|part)\b", re.IGNORECASE)
 CAPTION_RE = re.compile(r"^(figure|fig\.|table)\s+\d+", re.IGNORECASE)
 ORDERED_LIST_RE = re.compile(r"^(?:\(?\d+[\.\)]|[A-Za-z][\.)])\s+")
@@ -212,18 +213,55 @@ def _collect_multiline_book_title(
     return heading_lines, lookahead_idx
 
 
+def _has_heading_font(line: Line, body_size: float) -> bool:
+    if not line.font_size:
+        return False
+    return line.font_size >= body_size + 2.0
+
+
 def _looks_like_chapter_heading(line: Line, body_size: float) -> bool:
     text = line.text.strip()
     if not text:
         return False
     if CHAPTER_RE.match(text):
+        return _has_heading_font(line, body_size)
+    if not _has_heading_font(line, body_size):
+        return False
+    if line.page_height and line.top <= line.page_height * 0.45:
         return True
-    if line.font_size >= body_size + 3:
-        if line.page_height and line.top <= line.page_height * 0.45:
-            return True
-        if len(text.split()) <= 10:
-            return True
+    if len(text.split()) <= 10:
+        return True
     return False
+
+
+def _collect_multiline_heading(
+    entries: Sequence[dict], start_idx: int, body_size: float
+) -> tuple[list[Line], int]:
+    first_entry = entries[start_idx]
+    assert first_entry["kind"] == "line"
+    first_line = first_entry["line"]
+    base_font = first_line.font_size
+    heading_lines = [first_line]
+    lookahead_idx = start_idx + 1
+
+    while lookahead_idx < len(entries):
+        next_entry = entries[lookahead_idx]
+        if next_entry["kind"] != "line":
+            break
+        next_line = next_entry["line"]
+        if _is_header_footer(next_line):
+            break
+        text = next_line.text.strip()
+        if not text:
+            break
+        if base_font and next_line.font_size:
+            if abs(next_line.font_size - base_font) <= HEADING_FONT_TOLERANCE:
+                heading_lines.append(next_line)
+                lookahead_idx += 1
+                continue
+        break
+
+    return heading_lines, lookahead_idx
 
 
 def _looks_like_section_heading(line: Line, body_size: float) -> bool:
@@ -454,6 +492,44 @@ def label_blocks(pdfxml_path: str, mapping: dict) -> List[dict]:
         text = line.text.strip()
         list_match, list_type, list_text = _is_list_item(text, mapping)
 
+        if TOC_RE.match(text.lower()) and _has_heading_font(line, body_size):
+            if current_para:
+                blocks.append(_finalize_paragraph(current_para))
+                current_para = []
+
+            heading_lines, next_idx = _collect_multiline_heading(entries, idx, body_size)
+            combined_text = " ".join(
+                heading_line.text.strip()
+                for heading_line in heading_lines
+                if heading_line.text.strip()
+            )
+            left = min(heading_line.left for heading_line in heading_lines)
+            right = max(heading_line.right for heading_line in heading_lines)
+            top = heading_lines[0].top
+            bottom = max(
+                heading_line.top + heading_line.height for heading_line in heading_lines
+            )
+            blocks.append(
+                {
+                    "label": "toc",
+                    "text": combined_text,
+                    "page_num": heading_lines[0].page_num,
+                    "bbox": {
+                        "top": top,
+                        "left": left,
+                        "width": right - left,
+                        "height": bottom - top,
+                    },
+                    "font_size": max(
+                        heading_line.font_size
+                        for heading_line in heading_lines
+                        if heading_line.font_size
+                    ),
+                }
+            )
+            idx = next_idx
+            continue
+
         if not saw_book_title and _looks_like_book_title(line, body_size):
             if current_para:
                 blocks.append(_finalize_paragraph(current_para))
@@ -496,19 +572,9 @@ def label_blocks(pdfxml_path: str, mapping: dict) -> List[dict]:
                 blocks.append(_finalize_paragraph(current_para))
                 current_para = []
 
-            heading_lines = [line]
-            lookahead_idx = idx + 1
-            while lookahead_idx < len(entries):
-                next_entry = entries[lookahead_idx]
-                if next_entry["kind"] != "line":
-                    break
-                next_line = next_entry["line"]
-                if _is_header_footer(next_line):
-                    break
-                if not _looks_like_chapter_heading(next_line, body_size):
-                    break
-                heading_lines.append(next_line)
-                lookahead_idx += 1
+            heading_lines, lookahead_idx = _collect_multiline_heading(
+                entries, idx, body_size
+            )
 
             combined_text = " ".join(
                 heading_line.text.strip() for heading_line in heading_lines if heading_line.text.strip()
