@@ -1,3 +1,4 @@
+
 ## Manuscript Processor
 
 Full‑stack app to process PDFs into structured XML/DocBook with a FastAPI backend and Angular frontend.
@@ -121,4 +122,8 @@ npm run test:e2e:open
 - Port in use: change `PORT` in backend `.env` or `npm start -- --port 4300` for the frontend.
 - Mongo not running: start with the Docker command above.
 - CORS: backend allows all origins in dev; if you customize, ensure `http://localhost:4200` is allowed.
+
+=======
+# RITDOCXMLConverter
+PDF and ePub to RIT DOC XML CONVERTER
 
