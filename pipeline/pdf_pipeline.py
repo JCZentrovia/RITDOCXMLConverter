@@ -12,6 +12,7 @@ from .extractors.pdfminer_text import pdfminer_pages
 from .extractors.poppler_pdfxml import pdftohtml_xml
 from .extractors.poppler_text import pdftotext_pages
 from .ocr.ocrmypdf_runner import ocr_pages
+from .package import make_file_fetcher, package_docbook
 from .structure.classifier import classify_blocks
 from .structure.heuristics import label_blocks
 from .validators.counters import compute_metrics
@@ -142,10 +143,15 @@ def convert_pdf(
         root_name = config.get("docbook", {}).get("root", "book")
         result_tree = transform(intermediate, **{"root-element": etree.XSLT.strparam(root_name)})
         docbook_tree = result_tree.getroot()
-        out_file = Path(out_path)
-        _write_docbook(docbook_tree, root_name, config.get("docbook", {}).get("dtd_system", "dtd/v1.1/docbookx.dtd"), out_file)
 
-        validate_dtd(str(out_file), config.get("docbook", {}).get("dtd_system", "dtd/v1.1/docbookx.dtd"), catalog)
+        tmp_doc = tmp / "full_book.xml"
+        dtd_system = config.get("docbook", {}).get("dtd_system", "dtd/v1.1/docbookx.dtd")
+        _write_docbook(docbook_tree, root_name, dtd_system, tmp_doc)
+
+        validate_dtd(str(tmp_doc), dtd_system, catalog)
+
+        media_fetcher = make_file_fetcher([tmp, pdf_path_obj.parent])
+        zip_path = package_docbook(docbook_tree, root_name, dtd_system, out_path, media_fetcher=media_fetcher)
 
         post_pages = [
             PageText(
@@ -160,4 +166,5 @@ def convert_pdf(
         metrics = compute_metrics(poppler_pages, post_pages)
         metrics["mismatches"] = mismatches
         metrics["image_only_pages"] = image_pages
+        metrics["output_path"] = str(zip_path)
         return metrics
