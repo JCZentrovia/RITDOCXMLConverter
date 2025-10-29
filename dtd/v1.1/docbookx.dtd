@@ -1,0 +1,14 @@
+<!ELEMENT book (title?, (para | itemizedlist | orderedlist | mediaobject | caption | footnote)*)>
+<!ELEMENT article (title?, (para | itemizedlist | orderedlist | mediaobject | caption | footnote)*)>
+<!ELEMENT title (#PCDATA)>
+<!ELEMENT para (#PCDATA)>
+<!ATTLIST para role CDATA #IMPLIED>
+<!ELEMENT itemizedlist (listitem*)>
+<!ELEMENT orderedlist (listitem*)>
+<!ELEMENT listitem (para*)>
+<!ELEMENT mediaobject (imageobject, caption?)>
+<!ELEMENT imageobject (imagedata)>
+<!ELEMENT imagedata EMPTY>
+<!ATTLIST imagedata fileref CDATA #REQUIRED>
+<!ELEMENT caption (#PCDATA)>
+<!ELEMENT footnote (para*)>

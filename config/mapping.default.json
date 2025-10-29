@@ -1,0 +1,29 @@
+{
+  "normalization": {
+    "collapse_internal_whitespace": true,
+    "preserve_ligatures": true,
+    "dehyphenate_line_endings": "safe",
+    "log_every_change": true
+  },
+  "pdf": {
+    "heading_fonts": {
+      "H1": [{"family": "Times", "min_size": 20, "weight": "bold"}],
+      "H2": [{"family": "Times", "min_size": 16, "weight": "bold"}]
+    },
+    "paragraph_fonts": [{"family": "Times", "max_size": 13}],
+    "list_markers": ["•", "-", "—", "–"]
+  },
+  "classifier": {
+    "enabled": false,
+    "threshold": 0.85,
+    "abstain_label": "abstain"
+  },
+  "docbook": {
+    "root": "book",
+    "dtd_system": "dtd/v1.1/docbookx.dtd"
+  },
+  "tolerances": {
+    "char_diff_per_page": 0,
+    "word_diff_percent": 0.1
+  }
+}

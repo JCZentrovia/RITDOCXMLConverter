@@ -1,0 +1,12 @@
+{
+  "pdf": {
+    "heading_fonts": {
+      "H1": [{"family": "Helvetica", "min_size": 18, "weight": "bold"}],
+      "H2": [{"family": "Helvetica", "min_size": 16, "weight": "bold"}]
+    },
+    "paragraph_fonts": [{"family": "Helvetica", "max_size": 12}]
+  },
+  "docbook": {
+    "root": "article"
+  }
+}
