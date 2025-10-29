@@ -4,4 +4,4 @@ if [ "$#" -ne 1 ]; then
   echo "Usage: $0 <xml-file>" >&2
   exit 1
 fi
-xmllint --noout --catalogs --valid --dtdvalid dtd/v1.1/docbookx.dtd "$1"
+xmllint --noout --catalogs --valid --dtdvalid RITTDOCdtd/v1.1/RittDocBook.dtd "$1"

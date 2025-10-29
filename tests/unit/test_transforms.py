@@ -1,5 +1,7 @@
 from lxml import etree
 
+from pipeline.transform import transform_docbook_to_rittdoc
+
 
 def test_pdf_transform_para(tmp_path):
     doc = etree.Element("document")
@@ -22,3 +24,16 @@ def test_epub_transform_basic():
     doc = etree.fromstring(etree.tostring(result))
     paras = doc.findall("para")
     assert paras and paras[0].text == "Para"
+
+
+def test_transform_docbook_to_rittdoc_injects_bookinfo():
+    root = etree.Element("book")
+    etree.SubElement(root, "title").text = "Sample Book"
+    chapter = etree.SubElement(root, "chapter")
+    etree.SubElement(chapter, "title").text = "Chapter"
+
+    transformed = transform_docbook_to_rittdoc(root)
+
+    bookinfo = transformed.find("bookinfo")
+    assert bookinfo is not None
+    assert bookinfo.findtext("title") == "Sample Book"
