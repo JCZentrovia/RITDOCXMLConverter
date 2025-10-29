@@ -1,14 +1,217 @@
-<!ELEMENT book (title?, (para | itemizedlist | orderedlist | mediaobject | caption | footnote)*)>
-<!ELEMENT article (title?, (para | itemizedlist | orderedlist | mediaobject | caption | footnote)*)>
-<!ELEMENT title (#PCDATA)>
-<!ELEMENT para (#PCDATA)>
-<!ATTLIST para role CDATA #IMPLIED>
-<!ELEMENT itemizedlist (listitem*)>
-<!ELEMENT orderedlist (listitem*)>
-<!ELEMENT listitem (para*)>
-<!ELEMENT mediaobject (imageobject, caption?)>
+<!ENTITY % inline "(#PCDATA | emphasis | subscript | superscript | link | ulink | inlinemediaobject)">
+<!ENTITY nbsp "&#160;">
+<!ENTITY mdash "&#8212;">
+<!ENTITY ndash "&#8211;">
+<!ENTITY ldquo "&#8220;">
+<!ENTITY rdquo "&#8221;">
+<!ENTITY lsquo "&#8216;">
+<!ENTITY rsquo "&#8217;">
+<!ENTITY hellip "&#8230;">
+<!ENTITY bull "&#8226;">
+<!ENTITY copy "&#169;">
+<!ENTITY reg "&#174;">
+<!ENTITY trade "&#8482;">
+<!ENTITY deg "&#176;">
+<!ENTITY minus "&#8722;">
+<!ENTITY divide "&#247;">
+<!ENTITY le "&#8804;">
+<!ENTITY ge "&#8805;">
+<!ENTITY alpha "&#945;">
+<!ENTITY beta "&#946;">
+<!ENTITY mu "&#956;">
+<!ENTITY Auml "&#196;">
+<!ENTITY auml "&#228;">
+<!ENTITY agrave "&#224;">
+<!ENTITY aacute "&#225;">
+<!ENTITY eacute "&#233;">
+<!ENTITY euml "&#235;">
+<!ENTITY iacute "&#237;">
+<!ENTITY iuml "&#239;">
+<!ENTITY oacute "&#243;">
+<!ENTITY ouml "&#246;">
+<!ENTITY uuml "&#252;">
+<!ENTITY sect "&#167;">
+
+<!ENTITY % block "(para | itemizedlist | orderedlist | note | table | figure | mediaobject | footnote | bibliography | bibliodiv | bibliomixed | bibliomisc | bibliosource)">
+
+<!ELEMENT book (bookinfo?, dedication?, preface*, chapter*, appendix*, bibliography*, legalnotice*, %block;*)>
+<!ATTLIST book
+    id ID #IMPLIED
+    lang CDATA #IMPLIED>
+
+<!ELEMENT bookinfo ANY>
+<!ELEMENT dedication (%block;*)>
+<!ELEMENT preface (title?, subtitle?, (%block; | sect1 | sect2 | sect3)*)>
+<!ATTLIST preface id ID #IMPLIED>
+
+<!ELEMENT appendix (title?, subtitle?, (%block; | sect1 | sect2 | sect3)*)>
+<!ATTLIST appendix id ID #IMPLIED label CDATA #IMPLIED>
+
+<!ELEMENT chapter (title?, subtitle?, (%block; | sect1 | sect2 | sect3)*)>
+<!ATTLIST chapter id ID #IMPLIED label CDATA #IMPLIED>
+
+<!ELEMENT sect1 (title?, subtitle?, (%block; | sect2 | sect3)*)>
+<!ATTLIST sect1 id ID #IMPLIED>
+
+<!ELEMENT sect2 (title?, subtitle?, (%block; | sect3)*)>
+<!ATTLIST sect2 id ID #IMPLIED>
+
+<!ELEMENT sect3 (title?, subtitle?, (%block;)*)>
+<!ATTLIST sect3 id ID #IMPLIED>
+
+<!ELEMENT subtitle %inline;*>
+
+<!ELEMENT title %inline;*>
+
+<!ELEMENT para %inline;*>
+<!ATTLIST para
+    role CDATA #IMPLIED
+    id ID #IMPLIED>
+
+<!ELEMENT emphasis %inline;*>
+<!ATTLIST emphasis role CDATA #IMPLIED>
+
+<!ELEMENT subscript %inline;*>
+<!ELEMENT superscript %inline;*>
+
+<!ELEMENT itemizedlist (title?, listitem+)>
+<!ATTLIST itemizedlist
+    mark CDATA #IMPLIED
+    spacing CDATA #IMPLIED
+    inheritnum CDATA #IMPLIED>
+
+<!ELEMENT orderedlist (title?, listitem+)>
+<!ATTLIST orderedlist
+    numeration CDATA #IMPLIED
+    inheritnum CDATA #IMPLIED
+    continuation CDATA #IMPLIED
+    spacing CDATA #IMPLIED>
+
+<!ELEMENT listitem ((%block; | orderedlist | itemizedlist)*)>
+
+<!ELEMENT note (title?, (%block; | orderedlist | itemizedlist | sect1 | sect2 | sect3)*)>
+<!ATTLIST note
+    id ID #IMPLIED
+    role CDATA #IMPLIED>
+
+<!ELEMENT figure (title?, mediaobject+, caption?)>
+<!ATTLIST figure id ID #IMPLIED>
+
+<!ELEMENT mediaobject (imageobject+, caption?)>
+
+<!ELEMENT inlinemediaobject (imageobject+, caption?)>
+<!ATTLIST inlinemediaobject role CDATA #IMPLIED>
+
 <!ELEMENT imageobject (imagedata)>
+
 <!ELEMENT imagedata EMPTY>
-<!ATTLIST imagedata fileref CDATA #REQUIRED>
-<!ELEMENT caption (#PCDATA)>
-<!ELEMENT footnote (para*)>
+<!ATTLIST imagedata
+    fileref CDATA #REQUIRED
+    width CDATA #IMPLIED
+    depth CDATA #IMPLIED
+    format CDATA #IMPLIED>
+
+<!ELEMENT caption %inline;*>
+
+<!ELEMENT table (title?, tgroup+)>
+<!ATTLIST table
+    id ID #IMPLIED
+    frame CDATA #IMPLIED
+    role CDATA #IMPLIED>
+
+<!ELEMENT tgroup (colspec*, spanspec*, thead?, tbody+)>
+<!ATTLIST tgroup
+    cols CDATA #REQUIRED
+    colsep CDATA #IMPLIED
+    rowsep CDATA #IMPLIED
+    align CDATA #IMPLIED>
+
+<!ELEMENT thead (row+)>
+<!ATTLIST thead
+    valign CDATA #IMPLIED
+    align CDATA #IMPLIED>
+
+<!ELEMENT tbody (row+)>
+<!ATTLIST tbody
+    valign CDATA #IMPLIED
+    align CDATA #IMPLIED>
+
+<!ELEMENT row (entry+)>
+<!ATTLIST row
+    rowsep CDATA #IMPLIED
+    colsep CDATA #IMPLIED
+    valign CDATA #IMPLIED>
+
+<!ELEMENT entry ((%block; | %inline; | orderedlist | itemizedlist | table)*)>
+<!ATTLIST entry
+    namest CDATA #IMPLIED
+    nameend CDATA #IMPLIED
+    spanname CDATA #IMPLIED
+    morerows CDATA #IMPLIED
+    rowsep CDATA #IMPLIED
+    colsep CDATA #IMPLIED
+    valign CDATA #IMPLIED>
+
+<!ELEMENT colspec EMPTY>
+<!ATTLIST colspec
+    colnum CDATA #IMPLIED
+    colname CDATA #IMPLIED
+    colwidth CDATA #IMPLIED
+    colsep CDATA #IMPLIED
+    rowsep CDATA #IMPLIED
+    align CDATA #IMPLIED>
+
+<!ELEMENT spanspec EMPTY>
+<!ATTLIST spanspec
+    namest CDATA #REQUIRED
+    nameend CDATA #REQUIRED
+    spanname CDATA #IMPLIED
+    colsep CDATA #IMPLIED
+    rowsep CDATA #IMPLIED
+    align CDATA #IMPLIED>
+
+<!ELEMENT link %inline;*>
+<!ATTLIST link linkend CDATA #REQUIRED>
+
+<!ELEMENT ulink %inline;*>
+<!ATTLIST ulink url CDATA #REQUIRED>
+
+<!ELEMENT footnote (%block;*)>
+<!ATTLIST footnote id ID #IMPLIED>
+
+<!ELEMENT bibliography (title?, (%block; | bibliodiv | bibliomixed | bibliomisc)*)>
+<!ELEMENT bibliodiv (title?, (%block; | bibliomixed | bibliomisc)*)>
+<!ELEMENT bibliomixed %inline;*>
+<!ELEMENT bibliomisc %inline;*>
+<!ELEMENT bibliosource %inline;*>
+
+<!ELEMENT authorgroup ANY>
+<!ELEMENT author ANY>
+<!ELEMENT editor ANY>
+<!ELEMENT personname ANY>
+<!ELEMENT firstname %inline;*>
+<!ELEMENT othername %inline;*>
+<!ELEMENT surname %inline;*>
+<!ELEMENT lineage %inline;*>
+<!ELEMENT jobtitle %inline;*>
+<!ELEMENT affiliation ANY>
+<!ELEMENT orgname %inline;*>
+<!ELEMENT address ANY>
+<!ELEMENT city %inline;*>
+<!ELEMENT state %inline;*>
+<!ELEMENT country %inline;*>
+
+<!ELEMENT publisher ANY>
+<!ELEMENT publishername %inline;*>
+<!ELEMENT pubdate %inline;*>
+<!ELEMENT year %inline;*>
+<!ELEMENT edition %inline;*>
+<!ELEMENT isbn %inline;*>
+<!ELEMENT volumenum %inline;*>
+<!ELEMENT artpagenums %inline;*>
+<!ELEMENT copyright ANY>
+<!ELEMENT holder %inline;*>
+<!ELEMENT legalnotice (%block;*)>
+
+<!ELEMENT article (title?, (%block; | sect1 | sect2 | sect3)*)>
+<!ATTLIST article id ID #IMPLIED>
