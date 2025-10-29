@@ -32,6 +32,18 @@ def _module_available(module: str) -> bool:
             return True
     return False
 
+def _module_available(module: str) -> bool:
+    """Return True if *module* can be imported without executing it."""
+
+    if importlib.util.find_spec(module):
+        return True
+    if "." in module:
+        root = module.split(".")[0]
+        if importlib.util.find_spec(root):
+            return True
+    return False
+
+
 def _verify_runtime_dependencies(modules: Iterable[str]) -> None:
     missing: List[str] = []
     for module in modules:
