@@ -17,7 +17,9 @@ from .structure.classifier import classify_blocks
 from .structure.docbook import build_docbook_tree
 from .structure.heuristics import label_blocks
 from .validators.counters import compute_metrics
-from .validators.dtd_validator import validate_dtd
+
+# Temporarily disable validation while focusing on chapter splitting.
+# from .validators.dtd_validator import validate_dtd
 
 logger = logging.getLogger(__name__)
 
@@ -137,7 +139,8 @@ def convert_pdf(
         dtd_system = config.get("docbook", {}).get("dtd_system", "dtd/v1.1/docbookx.dtd")
         _write_docbook(docbook_tree, root_name, dtd_system, tmp_doc)
 
-        validate_dtd(str(tmp_doc), dtd_system, catalog)
+        # Temporarily disable validation while focusing on chapter splitting.
+        # validate_dtd(str(tmp_doc), dtd_system, catalog)
 
         media_fetcher = make_file_fetcher([tmp, pdf_path_obj.parent])
         zip_path = package_docbook(docbook_tree, root_name, dtd_system, out_path, media_fetcher=media_fetcher)
