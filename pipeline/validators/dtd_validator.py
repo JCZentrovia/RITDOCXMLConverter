@@ -57,11 +57,16 @@ def validate_dtd(xml_path: str, dtd_path: str, catalog: str) -> None:
     xml = Path(xml_path)
     if not xml.exists():
         raise FileNotFoundError(xml)
-    env = {}
+    env: dict[str, str] = {}
     resolved_catalog: Path | None = None
     if catalog:
         resolved_catalog = resolve_catalog_path(catalog).resolve()
         env["XML_CATALOG_FILES"] = str(resolved_catalog)
+        # ``xmllint`` historically consulted ``SGML_CATALOG_FILES`` while
+        # ``XML_CATALOG_FILES`` is honoured by newer builds.  Some platform
+        # distributions continue to depend on the older variable being set,
+        # so mirror the catalog path into both to keep validation portable.
+        env.setdefault("SGML_CATALOG_FILES", str(resolved_catalog))
     resolved_dtd = resolve_dtd_path(dtd_path)
 
     args = [
