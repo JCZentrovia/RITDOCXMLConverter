@@ -150,6 +150,7 @@ def _body_font_size(lines: Sequence[Line]) -> float:
     return float(median(samples))
 
 
+CHAPTER_KEYWORD_RE = re.compile(r"\bchapter\b", re.IGNORECASE)
 CHAPTER_RE = re.compile(r"^(chapter|chap\.|unit|lesson|module)\b", re.IGNORECASE)
 TOC_RE = re.compile(r"^table of contents$", re.IGNORECASE)
 INDEX_RE = re.compile(r"^index\b", re.IGNORECASE)
@@ -224,6 +225,8 @@ def _looks_like_chapter_heading(line: Line, body_size: float) -> bool:
     text = line.text.strip()
     if not text:
         return False
+    if CHAPTER_KEYWORD_RE.search(text):
+        return _has_heading_font(line, body_size)
     if CHAPTER_RE.match(text):
         return _has_heading_font(line, body_size)
     if not _has_heading_font(line, body_size):
@@ -447,7 +450,14 @@ def label_blocks(pdfxml_path: str, mapping: dict) -> List[dict]:
     blocks: List[dict] = []
     current_para: List[Line] = []
     saw_book_title = False
+    enforce_chapter_keyword = False
     in_index_section = False
+    should_enforce_chapter_keyword = any(
+        line_entry["kind"] == "line"
+        and CHAPTER_KEYWORD_RE.search(line_entry["line"].text.strip())
+        and _has_heading_font(line_entry["line"], body_size)
+        for line_entry in entries
+    )
     idx = 0
     while idx < len(entries):
         entry = entries[idx]
@@ -643,6 +653,38 @@ def label_blocks(pdfxml_path: str, mapping: dict) -> List[dict]:
             combined_text = " ".join(
                 heading_line.text.strip() for heading_line in heading_lines if heading_line.text.strip()
             )
+            contains_chapter_keyword = any(
+                CHAPTER_KEYWORD_RE.search(heading_line.text.strip())
+                for heading_line in heading_lines
+                if heading_line.text.strip()
+            )
+            if (
+                should_enforce_chapter_keyword
+                and enforce_chapter_keyword
+                and not contains_chapter_keyword
+            ):
+                blocks.append(
+                    {
+                        "label": "section",
+                        "text": combined_text,
+                        "page_num": heading_lines[0].page_num,
+                        "bbox": {
+                            "top": heading_lines[0].top,
+                            "left": min(heading_line.left for heading_line in heading_lines),
+                            "width": max(heading_line.right for heading_line in heading_lines)
+                            - min(heading_line.left for heading_line in heading_lines),
+                            "height": max(
+                                heading_line.top + heading_line.height for heading_line in heading_lines
+                            )
+                            - heading_lines[0].top,
+                        },
+                        "font_size": max(
+                            heading_line.font_size for heading_line in heading_lines if heading_line.font_size
+                        ),
+                    }
+                )
+                idx = lookahead_idx
+                continue
             left = min(heading_line.left for heading_line in heading_lines)
             right = max(heading_line.right for heading_line in heading_lines)
             top = heading_lines[0].top
@@ -661,6 +703,8 @@ def label_blocks(pdfxml_path: str, mapping: dict) -> List[dict]:
                     "font_size": max(heading_line.font_size for heading_line in heading_lines),
                 }
             )
+            if contains_chapter_keyword:
+                enforce_chapter_keyword = True
             idx = lookahead_idx
             continue
 
