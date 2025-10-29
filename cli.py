@@ -2,13 +2,12 @@ from __future__ import annotations
 
 import argparse
 import csv
+import html
 import json
 import logging
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional
-
-from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from pipeline.epub_pipeline import convert_epub
 from pipeline.pdf_pipeline import convert_pdf
