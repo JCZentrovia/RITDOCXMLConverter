@@ -437,21 +437,43 @@ def label_blocks(pdfxml_path: str, mapping: dict) -> List[dict]:
             if current_para:
                 blocks.append(_finalize_paragraph(current_para))
                 current_para = []
+
+            heading_lines = [line]
+            lookahead_idx = idx + 1
+            while lookahead_idx < len(entries):
+                next_entry = entries[lookahead_idx]
+                if next_entry["kind"] != "line":
+                    break
+                next_line = next_entry["line"]
+                if _is_header_footer(next_line):
+                    break
+                if not _looks_like_chapter_heading(next_line, body_size):
+                    break
+                heading_lines.append(next_line)
+                lookahead_idx += 1
+
+            combined_text = " ".join(
+                heading_line.text.strip() for heading_line in heading_lines if heading_line.text.strip()
+            )
+            left = min(heading_line.left for heading_line in heading_lines)
+            right = max(heading_line.right for heading_line in heading_lines)
+            top = heading_lines[0].top
+            bottom = max(heading_line.top + heading_line.height for heading_line in heading_lines)
             blocks.append(
                 {
                     "label": "chapter",
-                    "text": text,
-                    "page_num": line.page_num,
+                    "text": combined_text,
+                    "page_num": heading_lines[0].page_num,
                     "bbox": {
-                        "top": line.top,
-                        "left": line.left,
-                        "width": line.right - line.left,
-                        "height": line.height,
+                        "top": top,
+                        "left": left,
+                        "width": right - left,
+                        "height": bottom - top,
                     },
-                    "font_size": line.font_size,
+                    "font_size": max(heading_line.font_size for heading_line in heading_lines),
                 }
             )
-            idx += 1
+            idx = lookahead_idx
             continue
 
         if _looks_like_section_heading(line, body_size):
