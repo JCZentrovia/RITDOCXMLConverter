@@ -146,12 +146,16 @@ def convert_pdf(
 
         tmp_doc = tmp / "full_book.xml"
         dtd_system = config.get("docbook", {}).get("dtd_system", "dtd/v1.1/docbookx.dtd")
-        _write_docbook(docbook_tree, root_name, dtd_system, tmp_doc)
+        # Convert relative paths to absolute paths
+        dtd_system_abs = str(Path(dtd_system).resolve())
+        catalog_abs = str(Path(catalog).resolve())
+        _write_docbook(docbook_tree, root_name, dtd_system_abs, tmp_doc)
+        validate_dtd(str(tmp_doc), dtd_system_abs, catalog_abs)
 
-        validate_dtd(str(tmp_doc), dtd_system, catalog)
+
 
         media_fetcher = make_file_fetcher([tmp, pdf_path_obj.parent])
-        zip_path = package_docbook(docbook_tree, root_name, dtd_system, out_path, media_fetcher=media_fetcher)
+        zip_path = package_docbook(docbook_tree, root_name, dtd_system_abs, out_path, media_fetcher=media_fetcher)
 
         post_pages = [
             PageText(
