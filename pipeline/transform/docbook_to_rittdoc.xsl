@@ -1,6 +1,16 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:output method="xml" indent="yes" encoding="UTF-8"/>
   <xsl:param name="default-title" select="'Untitled Book'"/>
+  <xsl:param name="stylesheet-href" select="'rittdoc.css'"/>
+
+  <xsl:template match="/">
+    <xsl:processing-instruction name="xml-stylesheet">
+      <xsl:text>type="text/css" href="</xsl:text>
+      <xsl:value-of select="$stylesheet-href"/>
+      <xsl:text>"</xsl:text>
+    </xsl:processing-instruction>
+    <xsl:apply-templates select="node()"/>
+  </xsl:template>
 
   <xsl:template match="@*|node()">
     <xsl:copy>

@@ -468,8 +468,12 @@ def _write_book_xml(
     root_name: str,
     dtd_system: str,
     fragments: Sequence[ChapterFragment],
+    *,
+    processing_instructions: Sequence[Tuple[str, str]] = (),
 ) -> None:
     header = ["<?xml version=\"1.0\" encoding=\"UTF-8\"?>"]
+    for target_name, data in processing_instructions:
+        header.append(f"<?{target_name} {data}?>")
     header.append(f"<!DOCTYPE {root_name} SYSTEM \"{dtd_system}\"[")
     for fragment in fragments:
         header.append(f"        <!ENTITY {fragment.entity} SYSTEM \"{fragment.filename}\">")
@@ -486,6 +490,8 @@ def package_docbook(
     dtd_system: str,
     out_path: str,
     *,
+    processing_instructions: Sequence[Tuple[str, str]] = (),
+    assets: Sequence[Tuple[str, Path]] = (),
     media_fetcher: Optional[MediaFetcher] = None,
 ) -> Path:
     """Package the DocBook tree into a chapterised ZIP bundle."""
@@ -507,6 +513,22 @@ def package_docbook(
         chapters_dir.mkdir(parents=True, exist_ok=True)
         shared_dir.mkdir(parents=True, exist_ok=True)
         metadata_dir.mkdir(parents=True, exist_ok=True)
+
+        asset_paths: List[Tuple[str, Path]] = []
+        for href, source in assets:
+            try:
+                data = Path(source).read_bytes()
+            except OSError as exc:
+                logger.warning("Failed to read stylesheet asset %s: %s", source, exc)
+                continue
+            target_path = (tmp_path / href).resolve()
+            try:
+                target_path.parent.mkdir(parents=True, exist_ok=True)
+            except OSError as exc:
+                logger.warning("Failed to create directory for stylesheet %s: %s", href, exc)
+                continue
+            target_path.write_bytes(data)
+            asset_paths.append((href, target_path))
 
         chapter_paths: List[Tuple[ChapterFragment, Path]] = []
         toc_fragment = next((fragment for fragment in fragments if fragment.kind == "toc"), None)
@@ -687,7 +709,14 @@ def package_docbook(
                 _handle_decorative_image(image_node, shared_dir, shared_cache, media_fetcher)
 
         _write_metadata_files(metadata_dir, metadata_entries)
-        _write_book_xml(book_path, book_root, root_name, dtd_system, fragments)
+        _write_book_xml(
+            book_path,
+            book_root,
+            root_name,
+            dtd_system,
+            fragments,
+            processing_instructions=processing_instructions,
+        )
 
         zip_path.parent.mkdir(parents=True, exist_ok=True)
         with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
@@ -701,6 +730,9 @@ def package_docbook(
                     continue
                 rel_path = media_file.relative_to(tmp_path)
                 zf.write(media_file, str(rel_path))
+            for href, asset_path in asset_paths:
+                arcname = Path(href).as_posix()
+                zf.write(asset_path, arcname)
 
     return zip_path
 
