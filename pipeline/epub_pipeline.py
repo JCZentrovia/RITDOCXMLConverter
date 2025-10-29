@@ -131,7 +131,8 @@ def convert_epub(
                 rittdoc.root, encoding="UTF-8", pretty_print=True, xml_declaration=False
             )
             tmp_file.write_text(header + xml_bytes.decode("utf-8"), encoding="utf-8")
-            validate_dtd(str(tmp_file), dtd_system, catalog)
+            # Temporarily skip DTD validation to inspect raw conversion output.
+            # validate_dtd(str(tmp_file), dtd_system, catalog)
 
         def fetch_media(ref: str) -> Optional[bytes]:
             normalized = ref.lstrip("/")

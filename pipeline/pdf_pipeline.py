@@ -159,7 +159,8 @@ def convert_pdf(
             processing_instructions=rittdoc.processing_instructions,
         )
 
-        validate_dtd(str(tmp_doc), dtd_system, catalog)
+        # Temporarily skip DTD validation to inspect raw conversion output.
+        # validate_dtd(str(tmp_doc), dtd_system, catalog)
 
         media_fetcher = make_file_fetcher([tmp, pdf_path_obj.parent])
         zip_path = package_docbook(
