@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import logging
+import tempfile
 import zipfile
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from lxml import etree
 
 from .common import PageText, checksum, load_mapping, normalize_text
+from .package import package_docbook
 from .validators.counters import compute_metrics
 from .validators.dtd_validator import validate_dtd
 
@@ -54,6 +56,12 @@ def _aggregate_html(zf: zipfile.ZipFile, opf_path: str, manifest: Dict[str, str]
             continue
         item_path = str((base / href).as_posix())
         doc = etree.fromstring(zf.read(item_path))
+        doc_dir = Path(item_path).parent
+        for img in doc.xpath("//html:img", namespaces=EPUB_NS):
+            src = img.get("src")
+            if src:
+                resolved = (doc_dir / src).as_posix()
+                img.set("src", resolved)
         for child in doc.xpath("//html:body/*", namespaces=EPUB_NS):
             body.append(child)
     return html_root
@@ -107,12 +115,26 @@ def convert_epub(
         result_tree = transform(html_root, **{"root-element": etree.XSLT.strparam(root_name)})
         docbook_root = result_tree.getroot()
 
-        out_file = Path(out_path)
-        header = f"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE {root_name} SYSTEM \"{config.get('docbook', {}).get('dtd_system', 'dtd/v1.1/docbookx.dtd')}\">\n"
-        xml_bytes = etree.tostring(docbook_root, encoding="UTF-8", pretty_print=True, xml_declaration=False)
-        out_file.write_text(header + xml_bytes.decode("utf-8"), encoding="utf-8")
+        dtd_system = config.get("docbook", {}).get("dtd_system", "dtd/v1.1/docbookx.dtd")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_file = Path(tmpdir) / "full_book.xml"
+            header = f"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE {root_name} SYSTEM \"{dtd_system}\">\n"
+            xml_bytes = etree.tostring(docbook_root, encoding="UTF-8", pretty_print=True, xml_declaration=False)
+            tmp_file.write_text(header + xml_bytes.decode("utf-8"), encoding="utf-8")
+            validate_dtd(str(tmp_file), dtd_system, catalog)
 
-        validate_dtd(str(out_file), config.get("docbook", {}).get("dtd_system", "dtd/v1.1/docbookx.dtd"), catalog)
+        def fetch_media(ref: str) -> Optional[bytes]:
+            normalized = ref.lstrip("/")
+            try:
+                return zf.read(normalized)
+            except KeyError:
+                try:
+                    return zf.read(ref)
+                except KeyError:
+                    logger.warning("Missing media resource in EPUB: %s", ref)
+                    return None
+
+        zip_path = package_docbook(docbook_root, root_name, dtd_system, out_path, media_fetcher=fetch_media)
 
         post_pages = [
             PageText(
@@ -124,4 +146,5 @@ def convert_epub(
             for page in pages
         ]
         metrics = compute_metrics(pages, post_pages)
+        metrics["output_path"] = str(zip_path)
         return metrics

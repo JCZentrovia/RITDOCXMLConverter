@@ -120,7 +120,7 @@ def pdf(ctx: click.Context, input_path: str, out_path: str, publisher: str, ocr_
     if strict and metrics.get("mismatches"):
         logger.error("Extractor mismatches detected in strict mode: %s", metrics["mismatches"])
         sys.exit(1)
-    click.echo(out_path)
+    click.echo(metrics.get("output_path", out_path))
 
 
 @cli.command()
@@ -140,7 +140,7 @@ def epub(ctx: click.Context, input_path: str, out_path: str, publisher: str, str
         strict=strict,
     )
     _write_reports(metrics, input_path, Path(ctx.obj["report_dir"]))
-    click.echo(out_path)
+    click.echo(metrics.get("output_path", out_path))
 
 
 def _load_manifest(manifest_path: Path) -> List[Dict[str, str]]:
