@@ -1,1 +1,0 @@
-"""Manuscript Processor Backend Application."""
