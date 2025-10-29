@@ -428,6 +428,12 @@ def _write_metadata_files(metadata_dir: Path, entries: List[ImageMetadata]) -> N
             )
 
 
+def _remove_image_node(image_node: etree._Element) -> None:
+    parent = image_node.getparent()
+    if parent is not None:
+        parent.remove(image_node)
+
+
 def _handle_decorative_image(
     image_node: etree._Element,
     shared_dir: Path,
@@ -442,13 +448,16 @@ def _handle_decorative_image(
     target_path = shared_cache.get(filename)
     if target_path is None:
         target_path = shared_dir / filename
-        shared_cache[filename] = target_path
         data = media_fetcher(original) if media_fetcher else None
-        if data is None:
-            logger.warning("Missing decorative media asset for %s; creating placeholder", original)
-            target_path.touch(exist_ok=True)
-        else:
-            target_path.write_bytes(data)
+        if not data:
+            if data is None:
+                logger.warning("Missing decorative media asset for %s; skipping", original)
+            else:
+                logger.warning("Skipping decorative image %s because it is empty", original)
+            _remove_image_node(image_node)
+            return
+        target_path.write_bytes(data)
+        shared_cache[filename] = target_path
     image_node.set("fileref", f"media/Book_Images/Shared/{filename}")
 
 def _write_book_xml(
@@ -544,20 +553,20 @@ def package_docbook(
                     new_filename = f"{chapter_code}f{current_index:02d}{letter}{suffix}"
                     target_path = chapters_dir / new_filename
                     data = media_fetcher(original) if media_fetcher else None
-                    if data is None:
-                        logger.warning("Missing media asset for %s; creating placeholder", original)
-                        target_path.touch(exist_ok=True)
-                        width = height = 0
-                        fmt = suffix.lstrip(".").upper()
-                        file_size = "0B"
-                    else:
-                        target_path.write_bytes(data)
-                        width, height, fmt = _inspect_image_bytes(data, suffix)
-                        file_size = _format_file_size(len(data))
-                        if width and height and (width < 72 or height < 72):
-                            logger.warning(
-                                "Low resolution image %s detected (%dx%d)", original, width, height
-                            )
+                    if not data:
+                        if data is None:
+                            logger.warning("Missing media asset for %s; skipping", original)
+                        else:
+                            logger.warning("Skipping media asset for %s because it is empty", original)
+                        _remove_image_node(image_node)
+                        continue
+                    target_path.write_bytes(data)
+                    width, height, fmt = _inspect_image_bytes(data, suffix)
+                    file_size = _format_file_size(len(data))
+                    if width and height and (width < 72 or height < 72):
+                        logger.warning(
+                            "Low resolution image %s detected (%dx%d)", original, width, height
+                        )
                     alt_text = _extract_alt_text(image_node)
                     if not alt_text:
                         logger.warning("Missing alt text for image %s", original)
@@ -606,20 +615,20 @@ def package_docbook(
                 new_filename = f"{chapter_code}f{current_index:02d}{suffix}"
                 target_path = chapters_dir / new_filename
                 data = media_fetcher(original) if media_fetcher else None
-                if data is None:
-                    logger.warning("Missing media asset for %s; creating placeholder", original)
-                    target_path.touch(exist_ok=True)
-                    width = height = 0
-                    fmt = suffix.lstrip(".").upper()
-                    file_size = "0B"
-                else:
-                    target_path.write_bytes(data)
-                    width, height, fmt = _inspect_image_bytes(data, suffix)
-                    file_size = _format_file_size(len(data))
-                    if width and height and (width < 72 or height < 72):
-                        logger.warning(
-                            "Low resolution image %s detected (%dx%d)", original, width, height
-                        )
+                if not data:
+                    if data is None:
+                        logger.warning("Missing media asset for %s; skipping", original)
+                    else:
+                        logger.warning("Skipping media asset for %s because it is empty", original)
+                    _remove_image_node(image_node)
+                    continue
+                target_path.write_bytes(data)
+                width, height, fmt = _inspect_image_bytes(data, suffix)
+                file_size = _format_file_size(len(data))
+                if width and height and (width < 72 or height < 72):
+                    logger.warning(
+                        "Low resolution image %s detected (%dx%d)", original, width, height
+                    )
                 alt_text = _extract_alt_text(image_node)
                 if not alt_text:
                     logger.warning("Missing alt text for image %s", original)
