@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import csv
 import html
-import importlib
+import importlib.util
 import json
 import logging
 import sys
@@ -22,13 +22,23 @@ _DEPENDENCY_HINTS = {
 }
 
 
+def _module_available(module: str) -> bool:
+    """Return True if *module* can be imported without executing it."""
+
+    if importlib.util.find_spec(module):
+        return True
+    if "." in module:
+        root = module.split(".")[0]
+        if importlib.util.find_spec(root):
+            return True
+    return False
+
+
 def _verify_runtime_dependencies(modules: Iterable[str]) -> None:
     missing: List[str] = []
     for module in modules:
-        try:
-            importlib.import_module(module)
-        except ModuleNotFoundError as exc:
-            missing.append(exc.name or module)
+        if not _module_available(module):
+            missing.append(module)
     if not missing:
         return
 
