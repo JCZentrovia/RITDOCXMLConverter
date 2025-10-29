@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import tempfile
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Sequence, Tuple
 
 from lxml import etree
 
@@ -16,11 +16,9 @@ from .package import make_file_fetcher, package_docbook
 from .structure.classifier import classify_blocks
 from .structure.docbook import build_docbook_tree
 from .structure.heuristics import label_blocks
-from .transform import transform_docbook_to_rittdoc
+from .transform import RittDocTransformResult, transform_docbook_to_rittdoc
 from .validators.counters import compute_metrics
-
-# Temporarily disable validation while focusing on chapter splitting.
-# from .validators.dtd_validator import validate_dtd
+from .validators.dtd_validator import validate_dtd
 
 logger = logging.getLogger(__name__)
 
@@ -64,9 +62,20 @@ def _image_only_pages(pages_a: List[PageText], pages_b: List[PageText]) -> List[
     return result
 
 
-def _write_docbook(tree: etree._ElementTree, root_name: str, dtd_system: str, out_path: Path) -> None:
+def _write_docbook(
+    tree: etree._ElementTree,
+    root_name: str,
+    dtd_system: str,
+    out_path: Path,
+    *,
+    processing_instructions: Sequence[Tuple[str, str]] = (),
+) -> None:
     xml_bytes = etree.tostring(tree, encoding="UTF-8", pretty_print=True, xml_declaration=False)
-    header = f"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE {root_name} SYSTEM \"{dtd_system}\">\n"
+    header_lines = ["<?xml version=\"1.0\" encoding=\"UTF-8\"?>"]
+    for target, data in processing_instructions:
+        header_lines.append(f"<?{target} {data}?>")
+    header_lines.append(f"<!DOCTYPE {root_name} SYSTEM \"{dtd_system}\">")
+    header = "\n".join(header_lines) + "\n"
     out_path.write_text(header + xml_bytes.decode("utf-8"), encoding="utf-8")
 
 
@@ -135,20 +144,33 @@ def convert_pdf(
 
         root_name = config.get("docbook", {}).get("root", "book")
         docbook_tree = build_docbook_tree(blocks, root_name)
-        rittdoc_root = transform_docbook_to_rittdoc(docbook_tree)
-        rittdoc_tree = etree.ElementTree(rittdoc_root)
+        rittdoc: RittDocTransformResult = transform_docbook_to_rittdoc(docbook_tree)
+        rittdoc_tree = etree.ElementTree(rittdoc.root)
 
         tmp_doc = tmp / "full_book.xml"
         dtd_system = config.get("docbook", {}).get(
             "dtd_system", "RITTDOCdtd/v1.1/RittDocBook.dtd"
         )
-        _write_docbook(rittdoc_tree, root_name, dtd_system, tmp_doc)
+        _write_docbook(
+            rittdoc_tree,
+            root_name,
+            dtd_system,
+            tmp_doc,
+            processing_instructions=rittdoc.processing_instructions,
+        )
 
-        # Temporarily disable validation while focusing on chapter splitting.
-        # validate_dtd(str(tmp_doc), dtd_system, catalog)
+        validate_dtd(str(tmp_doc), dtd_system, catalog)
 
         media_fetcher = make_file_fetcher([tmp, pdf_path_obj.parent])
-        zip_path = package_docbook(rittdoc_root, root_name, dtd_system, out_path, media_fetcher=media_fetcher)
+        zip_path = package_docbook(
+            rittdoc.root,
+            root_name,
+            dtd_system,
+            out_path,
+            processing_instructions=rittdoc.processing_instructions,
+            assets=rittdoc.assets,
+            media_fetcher=media_fetcher,
+        )
 
         post_pages = [
             PageText(

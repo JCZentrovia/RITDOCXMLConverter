@@ -1,0 +1,87 @@
+/* Default styling for RIT DocBook previews */
+book {
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  display: block;
+  margin: 2rem;
+  color: #1f2933;
+}
+
+book > title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  display: block;
+}
+
+chapter,
+appendix,
+preface,
+section,
+sect1,
+article {
+  display: block;
+  margin-top: 1.75rem;
+}
+
+chapter > title,
+appendix > title,
+preface > title,
+section > title,
+sect1 > title,
+article > title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: block;
+  color: #0b62a4;
+}
+
+para,
+simpara,
+listitem,
+footnote {
+  display: block;
+  line-height: 1.5;
+  margin: 0.6rem 0;
+}
+
+itemizedlist,
+orderedlist {
+  margin: 0.8rem 0 0.8rem 1.5rem;
+}
+
+informaltable {
+  display: block;
+  border: 1px solid #d4dde5;
+  margin: 1rem 0;
+  border-collapse: collapse;
+}
+
+informaltable row {
+  display: table-row;
+}
+
+informaltable entry {
+  display: table-cell;
+  border: 1px solid #d4dde5;
+  padding: 0.4rem 0.6rem;
+}
+
+figure {
+  display: block;
+  border: 1px solid #e2e8f0;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  background: #f8fafc;
+}
+
+figure caption {
+  font-style: italic;
+  margin-top: 0.5rem;
+  display: block;
+}
+
+mediaobject imagedata {
+  display: block;
+  margin: 0.5rem 0;
+}

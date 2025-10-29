@@ -95,9 +95,12 @@ def _write_reports(metrics: Dict, source: str, report_dir: Path) -> None:
                 "checksum_out",
                 "flags",
                 "has_ocr",
+                "status",
             ]
         )
         for page in metrics.get("pages", []):
+            flags = page.get("flags", [])
+            discrepancy = bool(flags)
             writer.writerow(
                 [
                     source,
@@ -108,16 +111,19 @@ def _write_reports(metrics: Dict, source: str, report_dir: Path) -> None:
                     page["words_out"],
                     page["checksum_in"],
                     page["checksum_out"],
-                    ";".join(page.get("flags", [])),
+                    ";".join(flags),
                     "yes" if page.get("has_ocr") else "no",
+                    "discrepancy" if discrepancy else "ok",
                 ]
             )
 
     rows = []
     for page in metrics.get("pages", []):
         flags = page.get("flags", [])
+        discrepancy = bool(flags)
+        row_class = " class=\"has-discrepancy\"" if discrepancy else ""
         rows.append(
-            "            <tr>\n"
+            f"            <tr{row_class}>\n"
             f"                <td>{html.escape(str(page['page']))}</td>\n"
             f"                <td>{html.escape(str(page['chars_in']))}</td>\n"
             f"                <td>{html.escape(str(page['chars_out']))}</td>\n"
@@ -136,7 +142,7 @@ def _write_reports(metrics: Dict, source: str, report_dir: Path) -> None:
         "  <head>\n"
         "    <meta charset=\"utf-8\">\n"
         f"    <title>{html.escape(source)} QA Report</title>\n"
-        "    <style>table {border-collapse: collapse;} th, td {border: 1px solid #999; padding: 0.3em; text-align: left;} th {background: #eee;}</style>\n"
+        "    <style>table {border-collapse: collapse;} th, td {border: 1px solid #999; padding: 0.3em; text-align: left;} th {background: #eee;} .has-discrepancy {background: #fde8e8;}</style>\n"
         "  </head>\n"
         "  <body>\n"
         f"    <h1>QA Report for {html.escape(source)}</h1>\n"

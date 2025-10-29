@@ -4,6 +4,8 @@ import struct
 import zipfile
 import zlib
 
+from pathlib import Path
+
 from lxml import etree
 
 from pipeline.package import package_docbook
@@ -225,3 +227,25 @@ def test_package_docbook_reuses_shared_media(tmp_path):
         assert book_xml.count("media/Book_Images/Shared/logo.png") >= 1
         chapter_xml = zf.read("Ch001.xml").decode("utf-8")
         assert chapter_xml.count("media/Book_Images/Shared/logo.png") == 1
+
+
+def test_package_docbook_includes_stylesheet_assets(tmp_path):
+    root = etree.Element("book")
+    etree.SubElement(root, "title").text = "Styled"
+    processing_instructions = [("xml-stylesheet", 'type="text/css" href="rittdoc.css"')]
+    css_source = Path("pipeline/transform/rittdoc.css").resolve()
+
+    target = tmp_path / "output.xml"
+    zip_path = package_docbook(
+        root,
+        "book",
+        "RITTDOCdtd/v1.1/RittDocBook.dtd",
+        str(target),
+        processing_instructions=processing_instructions,
+        assets=[("rittdoc.css", css_source)],
+    )
+
+    with zipfile.ZipFile(zip_path, "r") as zf:
+        assert "rittdoc.css" in zf.namelist()
+        book_xml = zf.read("Book.xml").decode("utf-8")
+        assert "xml-stylesheet" in book_xml

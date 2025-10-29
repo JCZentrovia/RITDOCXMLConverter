@@ -1,6 +1,6 @@
 from lxml import etree
 
-from pipeline.transform import transform_docbook_to_rittdoc
+from pipeline.transform import RittDocTransformResult, transform_docbook_to_rittdoc
 
 
 def test_pdf_transform_para(tmp_path):
@@ -34,6 +34,21 @@ def test_transform_docbook_to_rittdoc_injects_bookinfo():
 
     transformed = transform_docbook_to_rittdoc(root)
 
-    bookinfo = transformed.find("bookinfo")
+    bookinfo = transformed.root.find("bookinfo")
     assert bookinfo is not None
     assert bookinfo.findtext("title") == "Sample Book"
+
+
+def test_transform_docbook_to_rittdoc_emits_stylesheet():
+    root = etree.Element("book")
+    etree.SubElement(root, "title").text = "Styled"
+
+    result = transform_docbook_to_rittdoc(root)
+
+    assert isinstance(result, RittDocTransformResult)
+    assert any(
+        target == "xml-stylesheet" and "rittdoc.css" in (data or "")
+        for target, data in result.processing_instructions
+    )
+    hrefs = {href for href, _ in result.assets}
+    assert "rittdoc.css" in hrefs
