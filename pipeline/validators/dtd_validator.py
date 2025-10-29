@@ -72,7 +72,25 @@ def validate_dtd(xml_path: str, dtd_path: str, catalog: str) -> None:
         str(resolved_dtd),
     ]
     if resolved_catalog is not None:
-        args.extend(["--catalog", str(resolved_catalog)])
+        args.extend(["--catalogs", str(resolved_catalog)])
     args.append(str(xml))
     logger.info("Validating %s against %s", xml, resolved_dtd)
-    run_cmd(args, env=env)
+
+    try:
+        run_cmd(args, env=env)
+        return
+    except RuntimeError as exc:
+        if not (
+            resolved_catalog is not None
+            and "--catalogs" in args
+            and "Unknown option --catalogs" in str(exc)
+        ):
+            raise
+
+        logger.warning(
+            "xmllint does not support --catalogs; retrying validation relying on XML_CATALOG_FILES"
+        )
+        args_without_catalog = list(args)
+        idx = args_without_catalog.index("--catalogs")
+        del args_without_catalog[idx : idx + 2]
+        run_cmd(args_without_catalog, env=env)
