@@ -64,6 +64,16 @@ def build_docbook_tree(blocks: List[dict], root_name: str) -> etree._Element:
             state["last_structure"] = root
             continue
 
+        if label == "toc" and text:
+            chapter = etree.SubElement(root, "chapter")
+            chapter.set("role", "toc")
+            _ensure_title(chapter, text)
+            state["current_chapter"] = chapter
+            state["current_section"] = None
+            _close_list(state)
+            state["last_structure"] = chapter
+            continue
+
         if label == "chapter" and text:
             chapter = etree.SubElement(root, "chapter")
             _ensure_title(chapter, text)
