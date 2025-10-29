@@ -329,7 +329,7 @@ def _should_merge(prev_line: Line, next_line: Line, body_size: float) -> bool:
 
 
 def _finalize_paragraph(lines: Sequence[Line]) -> dict:
-    text = " ".join(line.text.strip() for line in lines).strip()
+    text = "\n".join(line.text.strip() for line in lines).strip()
     left = min(line.left for line in lines)
     top = lines[0].top
     right = max(line.right for line in lines)
@@ -534,7 +534,7 @@ def label_blocks(pdfxml_path: str, mapping: dict) -> List[dict]:
                 current_para = []
 
             heading_lines, next_idx = _collect_multiline_heading(entries, idx, body_size)
-            combined_text = " ".join(
+            combined_text = "\n".join(
                 heading_line.text.strip()
                 for heading_line in heading_lines
                 if heading_line.text.strip()
@@ -572,7 +572,7 @@ def label_blocks(pdfxml_path: str, mapping: dict) -> List[dict]:
                 current_para = []
 
             heading_lines, next_idx = _collect_multiline_heading(entries, idx, body_size)
-            combined_text = " ".join(
+            combined_text = "\n".join(
                 heading_line.text.strip()
                 for heading_line in heading_lines
                 if heading_line.text.strip()
@@ -610,7 +610,7 @@ def label_blocks(pdfxml_path: str, mapping: dict) -> List[dict]:
                 current_para = []
 
             heading_lines, next_idx = _collect_multiline_book_title(entries, idx, body_size)
-            combined_text = " ".join(
+            combined_text = "\n".join(
                 heading_line.text.strip()
                 for heading_line in heading_lines
                 if heading_line.text.strip()
@@ -650,7 +650,7 @@ def label_blocks(pdfxml_path: str, mapping: dict) -> List[dict]:
                 entries, idx, body_size
             )
 
-            combined_text = " ".join(
+            combined_text = "\n".join(
                 heading_line.text.strip() for heading_line in heading_lines if heading_line.text.strip()
             )
             contains_chapter_keyword = any(
