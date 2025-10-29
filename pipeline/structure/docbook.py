@@ -76,6 +76,9 @@ def build_docbook_tree(blocks: List[dict], root_name: str) -> etree._Element:
 
         if label == "chapter" and text:
             chapter = etree.SubElement(root, "chapter")
+            role = block.get("chapter_role")
+            if role:
+                chapter.set("role", role)
             _ensure_title(chapter, text)
             state["current_chapter"] = chapter
             state["current_section"] = None

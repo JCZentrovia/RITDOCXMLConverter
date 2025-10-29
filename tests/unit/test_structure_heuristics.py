@@ -1,7 +1,10 @@
+from textwrap import dedent
+
 from pipeline.structure.heuristics import (
     Line,
     TextSegment,
     _collect_multiline_book_title,
+    label_blocks,
 )
 
 
@@ -59,3 +62,47 @@ def test_collect_multiline_book_title_requires_similar_font():
 
     assert [line.text for line in collected] == ["Science 101"]
     assert next_idx == 1
+
+
+def test_label_blocks_groups_index_section(tmp_path):
+    pdf_xml = dedent(
+        """
+        <pdf2xml>
+          <fontspec id="f1" size="28" family="Heading" />
+          <fontspec id="f2" size="12" family="Body" />
+          <page number="1" width="600" height="800">
+            <text top="60" left="100" width="240" height="35" font="f1">Sample Book</text>
+            <text top="110" left="110" width="300" height="20" font="f2">An engaging introduction to testing heuristics.</text>
+          </page>
+          <page number="2" width="600" height="800">
+            <text top="100" left="100" width="220" height="30" font="f1">Chapter 1</text>
+            <text top="140" left="110" width="320" height="20" font="f2">This is some body text used to estimate the base font size.</text>
+          </page>
+          <page number="3" width="600" height="800">
+            <text top="100" left="100" width="200" height="30" font="f1">Index</text>
+            <text top="140" left="110" width="200" height="20" font="f2">Apple ........ 10</text>
+            <text top="170" left="110" width="200" height="25" font="f1">A</text>
+            <text top="200" left="110" width="200" height="20" font="f2">Ant ........ 12</text>
+          </page>
+          <page number="4" width="600" height="800">
+            <text top="100" left="100" width="220" height="30" font="f1">Chapter 7</text>
+            <text top="140" left="110" width="200" height="20" font="f2">Next section text</text>
+          </page>
+        </pdf2xml>
+        """
+    ).strip()
+    pdf_path = tmp_path / "sample.xml"
+    pdf_path.write_text(pdf_xml, encoding="utf-8")
+
+    blocks = label_blocks(str(pdf_path), mapping={})
+
+    assert any(
+        block["label"] == "chapter"
+        and block["text"].strip().lower() == "index"
+        and block.get("chapter_role") == "index"
+        for block in blocks
+    )
+
+    assert any(block["label"] == "para" and block["text"].strip() == "A" for block in blocks)
+
+    assert any(block["label"] == "chapter" and block["text"].startswith("Chapter 7") for block in blocks)

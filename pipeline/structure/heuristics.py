@@ -152,6 +152,7 @@ def _body_font_size(lines: Sequence[Line]) -> float:
 
 CHAPTER_RE = re.compile(r"^(chapter|chap\.|unit|lesson|module)\b", re.IGNORECASE)
 TOC_RE = re.compile(r"^table of contents$", re.IGNORECASE)
+INDEX_RE = re.compile(r"^index\b", re.IGNORECASE)
 SECTION_RE = re.compile(r"^(section|sec\.|part)\b", re.IGNORECASE)
 CAPTION_RE = re.compile(r"^(figure|fig\.|table)\s+\d+", re.IGNORECASE)
 ORDERED_LIST_RE = re.compile(r"^(?:\(?\d+[\.\)]|[A-Za-z][\.)])\s+")
@@ -262,6 +263,15 @@ def _collect_multiline_heading(
         break
 
     return heading_lines, lookahead_idx
+
+
+def _is_index_heading(line: Line, body_size: float) -> bool:
+    text = line.text.strip()
+    if not text:
+        return False
+    if not INDEX_RE.match(text):
+        return False
+    return _has_heading_font(line, body_size)
 
 
 def _looks_like_section_heading(line: Line, body_size: float) -> bool:
@@ -437,6 +447,7 @@ def label_blocks(pdfxml_path: str, mapping: dict) -> List[dict]:
     blocks: List[dict] = []
     current_para: List[Line] = []
     saw_book_title = False
+    in_index_section = False
     idx = 0
     while idx < len(entries):
         entry = entries[idx]
@@ -467,6 +478,22 @@ def label_blocks(pdfxml_path: str, mapping: dict) -> List[dict]:
             idx += 1
             continue
 
+        text = line.text.strip()
+        if in_index_section and _has_heading_font(line, body_size):
+            if _is_index_heading(line, body_size):
+                # Stay within the index section without duplicating the heading.
+                idx += 1
+                continue
+            if len(text) > 1:
+                in_index_section = False
+                continue
+            if current_para:
+                blocks.append(_finalize_paragraph(current_para))
+                current_para = []
+            blocks.append(_finalize_paragraph([line]))
+            idx += 1
+            continue
+
         # Table detection works on the contiguous run of lines
         remaining_lines = [item["line"] for item in entries[idx:] if item["kind"] == "line"]
         if remaining_lines:
@@ -489,8 +516,45 @@ def label_blocks(pdfxml_path: str, mapping: dict) -> List[dict]:
             idx += advanced
             continue
 
-        text = line.text.strip()
         list_match, list_type, list_text = _is_list_item(text, mapping)
+
+        if _is_index_heading(line, body_size):
+            if current_para:
+                blocks.append(_finalize_paragraph(current_para))
+                current_para = []
+
+            heading_lines, next_idx = _collect_multiline_heading(entries, idx, body_size)
+            combined_text = " ".join(
+                heading_line.text.strip()
+                for heading_line in heading_lines
+                if heading_line.text.strip()
+            )
+            left = min(heading_line.left for heading_line in heading_lines)
+            right = max(heading_line.right for heading_line in heading_lines)
+            top = heading_lines[0].top
+            bottom = max(
+                heading_line.top + heading_line.height for heading_line in heading_lines
+            )
+            blocks.append(
+                {
+                    "label": "chapter",
+                    "text": combined_text,
+                    "page_num": heading_lines[0].page_num,
+                    "bbox": {
+                        "top": top,
+                        "left": left,
+                        "width": right - left,
+                        "height": bottom - top,
+                    },
+                    "font_size": max(
+                        heading_line.font_size for heading_line in heading_lines if heading_line.font_size
+                    ),
+                    "chapter_role": "index",
+                }
+            )
+            in_index_section = True
+            idx = next_idx
+            continue
 
         if TOC_RE.match(text.lower()) and _has_heading_font(line, body_size):
             if current_para:
