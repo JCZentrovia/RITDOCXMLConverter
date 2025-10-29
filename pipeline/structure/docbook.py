@@ -250,7 +250,9 @@ def build_docbook_tree(blocks: List[dict], root_name: str) -> etree._Element:
                 if _handle_index_para(block, state):
                     state["last_structure"] = state.get("current_index")
                     continue
-            container = state.get("current_chapter") or root
+            container = state.get("current_chapter")
+            if container is None:
+                container = root
             section = etree.SubElement(container, "sect1")
             _ensure_title(section, text)
             state["current_section"] = section
