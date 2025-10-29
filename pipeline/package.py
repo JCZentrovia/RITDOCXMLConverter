@@ -114,10 +114,25 @@ def _split_root(root: etree._Element) -> Tuple[etree._Element, List[ChapterFragm
             continue
 
         if _is_chapter_node(child):
-            chapter_index += 1
-            entity_id = f"Ch{chapter_index:03d}"
-            filename = f"{entity_id}.xml"
-            title = _extract_title_text(child)
+            is_index_chapter = False
+            if _local_name(child) == "chapter":
+                role = (child.get("role") or "").lower()
+                if role == "index":
+                    is_index_chapter = True
+                else:
+                    title_text = _extract_title_text(child).strip().lower()
+                    if title_text == "index":
+                        is_index_chapter = True
+
+            if is_index_chapter:
+                entity_id = "Index"
+                filename = "Index.xml"
+                title = _extract_title_text(child) or "Index"
+            else:
+                chapter_index += 1
+                entity_id = f"Ch{chapter_index:03d}"
+                filename = f"{entity_id}.xml"
+                title = _extract_title_text(child)
             fragments.append(
                 ChapterFragment(entity_id, filename, deepcopy(child), kind="chapter", title=title)
             )
