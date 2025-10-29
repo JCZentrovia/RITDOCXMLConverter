@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>QA Report</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 2rem; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
+    th { background: #f0f0f0; }
+    .mismatch { background: #ffe5e5; }
+  </style>
+</head>
+<body>
+  <h1>QA Report</h1>
+  {% for file in files %}
+  <h2>{{ file.name }}</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Page</th>
+        <th>Chars In</th>
+        <th>Chars Out</th>
+        <th>Words In</th>
+        <th>Words Out</th>
+        <th>Checksum In</th>
+        <th>Checksum Out</th>
+        <th>Flags</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for page in file.pages %}
+      <tr class="{% if page.mismatch %}mismatch{% endif %}">
+        <td>{{ page.number }}</td>
+        <td>{{ page.chars_in }}</td>
+        <td>{{ page.chars_out }}</td>
+        <td>{{ page.words_in }}</td>
+        <td>{{ page.words_out }}</td>
+        <td>{{ page.checksum_in }}</td>
+        <td>{{ page.checksum_out }}</td>
+        <td>{{ page.flags|join(', ') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endfor %}
+</body>
+</html>

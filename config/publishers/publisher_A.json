@@ -1,0 +1,14 @@
+{
+  "normalization": {
+    "collapse_internal_whitespace": true,
+    "dehyphenate_line_endings": "safe"
+  },
+  "pdf": {
+    "heading_fonts": {
+      "H1": [{"family": "Garamond", "min_size": 22, "weight": "bold"}]
+    }
+  },
+  "docbook": {
+    "root": "book"
+  }
+}
