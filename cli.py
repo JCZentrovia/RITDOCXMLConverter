@@ -1,13 +1,13 @@
 from __future__ import annotations
 
+import argparse
 import csv
 import json
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
-import click
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from pipeline.epub_pipeline import convert_epub
@@ -88,59 +88,39 @@ def _write_reports(metrics: Dict, source: str, report_dir: Path) -> None:
     html_path.write_text(template.render(files=files), encoding="utf-8")
 
 
-@click.group()
-@click.option("--config-dir", default="config", type=click.Path(file_okay=False, path_type=Path))
-@click.option("--report-dir", default="out/reports", type=click.Path(file_okay=False, path_type=Path))
-@click.pass_context
-def cli(ctx: click.Context, config_dir: Path, report_dir: Path) -> None:
-    ctx.ensure_object(dict)
-    ctx.obj["config_dir"] = config_dir
-    ctx.obj["report_dir"] = report_dir
+def _existing_file(path_str: str) -> Path:
+    path = Path(path_str)
+    if not path.is_file():
+        raise argparse.ArgumentTypeError(f"{path} is not an existing file")
+    return path
 
 
-@cli.command()
-@click.option("--input", "input_path", required=True, type=click.Path(exists=True, dir_okay=False))
-@click.option("--out", "out_path", required=True, type=click.Path(dir_okay=False))
-@click.option("--publisher", required=True)
-@click.option("--ocr-on-image-only", is_flag=True, default=False)
-@click.option("--strict", is_flag=True, default=False)
-@click.pass_context
-def pdf(ctx: click.Context, input_path: str, out_path: str, publisher: str, ocr_on_image_only: bool, strict: bool) -> None:
-    """Convert a PDF to DocBook XML."""
-
-    metrics = convert_pdf(
-        input_path,
-        out_path,
-        publisher,
-        config_dir=str(ctx.obj["config_dir"]),
-        ocr_on_image_only=ocr_on_image_only,
-        strict=strict,
-    )
-    _write_reports(metrics, input_path, Path(ctx.obj["report_dir"]))
-    if strict and metrics.get("mismatches"):
-        logger.error("Extractor mismatches detected in strict mode: %s", metrics["mismatches"])
-        sys.exit(1)
-    click.echo(metrics.get("output_path", out_path))
+def _directory(path_str: str) -> Path:
+    path = Path(path_str)
+    if path.exists() and not path.is_dir():
+        raise argparse.ArgumentTypeError(f"{path} is not a directory")
+    return path
 
 
-@cli.command()
-@click.option("--input", "input_path", required=True, type=click.Path(exists=True, dir_okay=False))
-@click.option("--out", "out_path", required=True, type=click.Path(dir_okay=False))
-@click.option("--publisher", required=True)
-@click.option("--strict", is_flag=True, default=False)
-@click.pass_context
-def epub(ctx: click.Context, input_path: str, out_path: str, publisher: str, strict: bool) -> None:
-    """Convert an EPUB to DocBook XML."""
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="RIT DocBook converter CLI")
+    parser.add_argument("--config-dir", default=Path("config"), type=_directory)
+    parser.add_argument("--report-dir", default=Path("out/reports"), type=_directory)
 
-    metrics = convert_epub(
-        input_path,
-        out_path,
-        publisher,
-        config_dir=str(ctx.obj["config_dir"]),
-        strict=strict,
-    )
-    _write_reports(metrics, input_path, Path(ctx.obj["report_dir"]))
-    click.echo(metrics.get("output_path", out_path))
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    pdf_parser = subparsers.add_parser("pdf", help="Convert a PDF to DocBook XML")
+    pdf_parser.add_argument("--input", dest="input_path", required=True, type=_existing_file)
+    pdf_parser.add_argument("--out", dest="out_path", required=True)
+    pdf_parser.add_argument("--publisher", required=True)
+    pdf_parser.add_argument("--ocr-on-image-only", action="store_true")
+    pdf_parser.add_argument("--strict", action="store_true")
+
+    epub_parser = subparsers.add_parser("epub", help="Convert an EPUB to DocBook XML")
+    epub_parser.add_argument("--input", dest="input_path", required=True, type=_existing_file)
+    epub_parser.add_argument("--out", dest="out_path", required=True)
+    epub_parser.add_argument("--publisher", required=True)
+    epub_parser.add_argument("--strict", action="store_true")
 
 
 def _load_manifest(manifest_path: Path) -> List[Dict[str, str]]:
@@ -157,18 +137,53 @@ def _load_manifest(manifest_path: Path) -> List[Dict[str, str]]:
     return rows
 
 
-@cli.command()
-@click.option("--manifest", "manifest_path", required=True, type=click.Path(exists=True, dir_okay=False))
-@click.option("--parallel", default=1, show_default=True)
-@click.option("--strict", is_flag=True, default=False)
-@click.pass_context
-def batch(ctx: click.Context, manifest_path: str, parallel: int, strict: bool) -> None:
-    """Run batch conversions from a manifest."""
+    batch_parser = subparsers.add_parser("batch", help="Run batch conversions from a manifest")
+    batch_parser.add_argument("--manifest", dest="manifest_path", required=True, type=_existing_file)
+    batch_parser.add_argument("--parallel", type=int, default=1)
+    batch_parser.add_argument("--strict", action="store_true")
 
-    if parallel > 1:
+    validate_parser = subparsers.add_parser("validate", help="Validate a DocBook XML file")
+    validate_parser.add_argument("--input", dest="input_path", required=True, type=_existing_file)
+    validate_parser.add_argument("--catalog", default="validation/catalog.xml")
+
+    return parser
+
+
+def _handle_pdf(args: argparse.Namespace, config_dir: Path, report_dir: Path) -> int:
+    metrics = convert_pdf(
+        str(args.input_path),
+        args.out_path,
+        args.publisher,
+        config_dir=str(config_dir),
+        ocr_on_image_only=args.ocr_on_image_only,
+        strict=args.strict,
+    )
+    _write_reports(metrics, str(args.input_path), report_dir)
+    if args.strict and metrics.get("mismatches"):
+        logger.error("Extractor mismatches detected in strict mode: %s", metrics["mismatches"])
+        return 1
+    print(metrics.get("output_path", args.out_path))
+    return 0
+
+
+def _handle_epub(args: argparse.Namespace, config_dir: Path, report_dir: Path) -> int:
+    metrics = convert_epub(
+        str(args.input_path),
+        args.out_path,
+        args.publisher,
+        config_dir=str(config_dir),
+        strict=args.strict,
+    )
+    _write_reports(metrics, str(args.input_path), report_dir)
+    print(metrics.get("output_path", args.out_path))
+    return 0
+
+
+def _handle_batch(args: argparse.Namespace, config_dir: Path) -> int:
+    if args.parallel > 1:
         logger.warning("Parallel processing not implemented; running sequentially.")
 
-    jobs = _load_manifest(Path(manifest_path))
+    jobs = _load_manifest(args.manifest_path)
     success = True
     for job in jobs:
         job_type = job.get("type")
@@ -178,38 +193,51 @@ def batch(ctx: click.Context, manifest_path: str, parallel: int, strict: bool) -
                     job["input"],
                     job["out"],
                     job["publisher"],
-                    config_dir=str(ctx.obj["config_dir"]),
+                    config_dir=str(config_dir),
                     ocr_on_image_only=job.get("ocr_on_image_only", "false").lower() == "true",
-                    strict=strict,
+                    strict=args.strict,
                 )
             elif job_type == "epub":
                 convert_epub(
                     job["input"],
                     job["out"],
                     job["publisher"],
-                    config_dir=str(ctx.obj["config_dir"]),
-                    strict=strict,
+                    config_dir=str(config_dir),
+                    strict=args.strict,
                 )
             else:
                 raise ValueError(f"Unknown job type: {job_type}")
-        except Exception as exc:  # noqa: BLE001
+        except Exception:  # noqa: BLE001
             logger.exception("Failed job %s", job)
             success = False
-    if not success:
-        sys.exit(1)
+    return 0 if success else 1
 
 
-@cli.command()
-@click.option("--input", "input_path", required=True, type=click.Path(exists=True, dir_okay=False))
-@click.option("--catalog", default="validation/catalog.xml", show_default=True)
-@click.pass_context
-def validate(ctx: click.Context, input_path: str, catalog: str) -> None:
-    config_dir = Path(ctx.obj["config_dir"])
+def _handle_validate(args: argparse.Namespace, config_dir: Path) -> int:
     default_mapping = json.loads((config_dir / "mapping.default.json").read_text(encoding="utf-8"))
     dtd_path = default_mapping.get("docbook", {}).get("dtd_system", "dtd/v1.1/docbookx.dtd")
-    validate_dtd(input_path, dtd_path, catalog)
-    click.echo("valid")
+    validate_dtd(str(args.input_path), dtd_path, args.catalog)
+    print("valid")
+    return 0
+
+
+def main(argv: Optional[List[str]] = None) -> int:
+    parser = _build_parser()
+    args = parser.parse_args(argv)
+    config_dir = args.config_dir
+    report_dir = args.report_dir
+
+    if args.command == "pdf":
+        return _handle_pdf(args, config_dir, report_dir)
+    if args.command == "epub":
+        return _handle_epub(args, config_dir, report_dir)
+    if args.command == "batch":
+        return _handle_batch(args, config_dir)
+    if args.command == "validate":
+        return _handle_validate(args, config_dir)
+    parser.error("Unknown command")
+    return 2
 
 
 if __name__ == "__main__":
-    cli()
+    sys.exit(main())
