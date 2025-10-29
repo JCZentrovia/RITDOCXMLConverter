@@ -47,6 +47,7 @@ def _is_chapter_node(element: etree._Element) -> bool:
         "article",
         "section",
         "sect1",
+        "index",
     }
 
 
@@ -115,7 +116,8 @@ def _split_root(root: etree._Element) -> Tuple[etree._Element, List[ChapterFragm
 
         if _is_chapter_node(child):
             is_index_chapter = False
-            if _local_name(child) == "chapter":
+            local_name = _local_name(child)
+            if local_name == "chapter":
                 role = (child.get("role") or "").lower()
                 if role == "index":
                     is_index_chapter = True
@@ -123,6 +125,8 @@ def _split_root(root: etree._Element) -> Tuple[etree._Element, List[ChapterFragm
                     title_text = _extract_title_text(child).strip().lower()
                     if title_text == "index":
                         is_index_chapter = True
+            elif local_name == "index":
+                is_index_chapter = True
 
             if is_index_chapter:
                 entity_id = "Index"

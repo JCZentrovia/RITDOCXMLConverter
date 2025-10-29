@@ -64,9 +64,13 @@ def test_package_docbook_creates_chapters_and_media(tmp_path):
 def test_package_docbook_creates_index_fragment(tmp_path):
     root = etree.Element("book")
 
-    index_chapter = etree.SubElement(root, "chapter", role="index")
-    etree.SubElement(index_chapter, "title").text = "Index"
-    etree.SubElement(index_chapter, "para").text = "Entry"
+    index_root = etree.SubElement(root, "index")
+    etree.SubElement(index_root, "title").text = "Index"
+    div = etree.SubElement(index_root, "indexdiv")
+    etree.SubElement(div, "title").text = "A"
+    entry = etree.SubElement(div, "indexentry")
+    etree.SubElement(entry, "primaryie").text = "Apple"
+    etree.SubElement(entry, "seeie").text = "10"
 
     chapter = etree.SubElement(root, "chapter")
     etree.SubElement(chapter, "title").text = "Chapter After"

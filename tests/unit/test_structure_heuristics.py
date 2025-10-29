@@ -70,7 +70,7 @@ def test_label_blocks_groups_index_section(tmp_path):
         <pdf2xml>
           <fontspec id="f1" size="28" family="Heading" />
           <fontspec id="f2" size="12" family="Body" />
-          <page number="1" width="600" height="800">
+          <page number="3" width="600" height="800">
             <text top="60" left="100" width="240" height="35" font="f1">Sample Book</text>
             <text top="110" left="110" width="300" height="20" font="f2">An engaging introduction to testing heuristics.</text>
           </page>
@@ -106,3 +106,91 @@ def test_label_blocks_groups_index_section(tmp_path):
     assert any(block["label"] == "para" and block["text"].strip() == "A" for block in blocks)
 
     assert any(block["label"] == "chapter" and block["text"].startswith("Chapter 7") for block in blocks)
+
+
+def test_chapter_keyword_controls_split(tmp_path):
+    pdf_xml = dedent(
+        """
+        <pdf2xml>
+          <fontspec id="f1" size="28" family="Heading" />
+          <fontspec id="f2" size="12" family="Body" />
+          <page number="3" width="600" height="800">
+            <text top="80" left="100" width="240" height="30" font="f1">Chapter 1</text>
+            <text top="180" left="110" width="320" height="20" font="f2">Body text after heading that provides sufficient length for detection.</text>
+            <text top="210" left="110" width="320" height="20" font="f2">Additional paragraph content to stabilise the body font size estimate.</text>
+            <text top="300" left="100" width="260" height="30" font="f1">Learning Objectives</text>
+          </page>
+        </pdf2xml>
+        """
+    ).strip()
+
+    pdf_path = tmp_path / "chapter.xml"
+    pdf_path.write_text(pdf_xml, encoding="utf-8")
+
+    blocks = label_blocks(str(pdf_path), mapping={})
+
+    chapter_blocks = [block for block in blocks if block["label"] == "chapter"]
+    assert len(chapter_blocks) == 1
+    assert chapter_blocks[0]["text"].strip() == "Chapter 1"
+
+    assert any(block["label"] == "section" and block["text"].strip() == "Learning Objectives" for block in blocks)
+
+
+def test_chapter_keyword_detected_anywhere(tmp_path):
+    pdf_xml = dedent(
+        """
+        <pdf2xml>
+          <fontspec id="f1" size="28" family="Heading" />
+          <fontspec id="f2" size="12" family="Body" />
+          <page number="3" width="600" height="800">
+            <text top="80" left="100" width="300" height="30" font="f1">Unit Overview - Chapter 1</text>
+            <text top="130" left="110" width="320" height="20" font="f2">Body text to establish base font size.</text>
+            <text top="220" left="110" width="320" height="20" font="f2">More supporting content beneath the heading.</text>
+            <text top="300" left="100" width="260" height="30" font="f1">Glossary</text>
+          </page>
+        </pdf2xml>
+        """
+    ).strip()
+
+    pdf_path = tmp_path / "chapter_anywhere.xml"
+    pdf_path.write_text(pdf_xml, encoding="utf-8")
+
+    blocks = label_blocks(str(pdf_path), mapping={})
+
+    chapter_blocks = [block for block in blocks if block["label"] == "chapter"]
+    assert len(chapter_blocks) == 1
+    assert chapter_blocks[0]["text"].strip().startswith("Unit Overview - Chapter 1")
+    assert any(
+        block["label"] == "section" and block["text"].strip() == "Glossary"
+        for block in blocks
+    )
+
+
+def test_chapter_fallback_without_keyword(tmp_path):
+    pdf_xml = dedent(
+        """
+        <pdf2xml>
+          <fontspec id="f1" size="28" family="Heading" />
+          <fontspec id="f2" size="12" family="Body" />
+          <page number="3" width="600" height="800">
+            <text top="80" left="100" width="240" height="30" font="f1">Introduction</text>
+            <text top="130" left="110" width="320" height="20" font="f2">Body text establishing base font size.</text>
+          </page>
+          <page number="4" width="600" height="800">
+            <text top="80" left="100" width="240" height="30" font="f1">Background</text>
+            <text top="130" left="110" width="320" height="20" font="f2">More body text content.</text>
+          </page>
+        </pdf2xml>
+        """
+    ).strip()
+
+    pdf_path = tmp_path / "chapter_fallback.xml"
+    pdf_path.write_text(pdf_xml, encoding="utf-8")
+
+    blocks = label_blocks(str(pdf_path), mapping={})
+
+    chapter_blocks = [block for block in blocks if block["label"] == "chapter"]
+    assert [block["text"].strip() for block in chapter_blocks] == [
+        "Introduction",
+        "Background",
+    ]
