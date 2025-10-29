@@ -428,6 +428,12 @@ def _write_metadata_files(metadata_dir: Path, entries: List[ImageMetadata]) -> N
             )
 
 
+def _remove_image_node(image_node: etree._Element) -> None:
+    parent = image_node.getparent()
+    if parent is not None:
+        parent.remove(image_node)
+
+
 def _handle_decorative_image(
     image_node: etree._Element,
     shared_dir: Path,
@@ -442,13 +448,18 @@ def _handle_decorative_image(
     target_path = shared_cache.get(filename)
     if target_path is None:
         target_path = shared_dir / filename
-        shared_cache[filename] = target_path
         data = media_fetcher(original) if media_fetcher else None
         if data is None:
             logger.warning("Missing decorative media asset for %s; creating placeholder", original)
             target_path.touch(exist_ok=True)
+            shared_cache[filename] = target_path
+        elif len(data) == 0:
+            logger.warning("Skipping decorative image %s because it is empty", original)
+            _remove_image_node(image_node)
+            return
         else:
             target_path.write_bytes(data)
+            shared_cache[filename] = target_path
     image_node.set("fileref", f"media/Book_Images/Shared/{filename}")
 
 def _write_book_xml(
@@ -551,6 +562,10 @@ def package_docbook(
                         fmt = suffix.lstrip(".").upper()
                         file_size = "0B"
                     else:
+                        if len(data) == 0:
+                            logger.warning("Skipping media asset for %s because it is empty", original)
+                            _remove_image_node(image_node)
+                            continue
                         target_path.write_bytes(data)
                         width, height, fmt = _inspect_image_bytes(data, suffix)
                         file_size = _format_file_size(len(data))
@@ -613,6 +628,10 @@ def package_docbook(
                     fmt = suffix.lstrip(".").upper()
                     file_size = "0B"
                 else:
+                    if len(data) == 0:
+                        logger.warning("Skipping media asset for %s because it is empty", original)
+                        _remove_image_node(image_node)
+                        continue
                     target_path.write_bytes(data)
                     width, height, fmt = _inspect_image_bytes(data, suffix)
                     file_size = _format_file_size(len(data))
