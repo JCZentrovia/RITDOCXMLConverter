@@ -143,6 +143,10 @@ def _write_reports(metrics: Dict, source: str, report_dir: Path) -> None:
     )
     html_path.write_text(report_html, encoding="utf-8")
 
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="RIT DocBook converter CLI")
+    parser.add_argument("--config-dir", default=Path("config"), type=_directory)
+    parser.add_argument("--report-dir", default=Path("out/reports"), type=_directory)
 
 def _existing_file(path_str: str) -> Path:
     path = Path(path_str)
