@@ -16,6 +16,7 @@ from .package import make_file_fetcher, package_docbook
 from .structure.classifier import classify_blocks
 from .structure.docbook import build_docbook_tree
 from .structure.heuristics import label_blocks
+from .transform import transform_docbook_to_rittdoc
 from .validators.counters import compute_metrics
 
 # Temporarily disable validation while focusing on chapter splitting.
@@ -134,16 +135,20 @@ def convert_pdf(
 
         root_name = config.get("docbook", {}).get("root", "book")
         docbook_tree = build_docbook_tree(blocks, root_name)
+        rittdoc_root = transform_docbook_to_rittdoc(docbook_tree)
+        rittdoc_tree = etree.ElementTree(rittdoc_root)
 
         tmp_doc = tmp / "full_book.xml"
-        dtd_system = config.get("docbook", {}).get("dtd_system", "dtd/v1.1/docbookx.dtd")
-        _write_docbook(docbook_tree, root_name, dtd_system, tmp_doc)
+        dtd_system = config.get("docbook", {}).get(
+            "dtd_system", "RITTDOCdtd/v1.1/RittDocBook.dtd"
+        )
+        _write_docbook(rittdoc_tree, root_name, dtd_system, tmp_doc)
 
         # Temporarily disable validation while focusing on chapter splitting.
         # validate_dtd(str(tmp_doc), dtd_system, catalog)
 
         media_fetcher = make_file_fetcher([tmp, pdf_path_obj.parent])
-        zip_path = package_docbook(docbook_tree, root_name, dtd_system, out_path, media_fetcher=media_fetcher)
+        zip_path = package_docbook(rittdoc_root, root_name, dtd_system, out_path, media_fetcher=media_fetcher)
 
         post_pages = [
             PageText(

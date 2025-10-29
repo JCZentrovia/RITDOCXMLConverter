@@ -72,7 +72,13 @@ def test_package_docbook_creates_chapters_and_media(tmp_path):
         return media_store.get(ref)
 
     target = tmp_path / "output.xml"
-    zip_path = package_docbook(root, "book", "dtd/v1.1/docbookx.dtd", str(target), media_fetcher=fetch_media)
+    zip_path = package_docbook(
+        root,
+        "book",
+        "RITTDOCdtd/v1.1/RittDocBook.dtd",
+        str(target),
+        media_fetcher=fetch_media,
+    )
 
     assert zip_path.name == "9781234567890.zip"
     with zipfile.ZipFile(zip_path, "r") as zf:
@@ -166,7 +172,7 @@ def test_package_docbook_creates_index_fragment(tmp_path):
     etree.SubElement(chapter, "title").text = "Chapter After"
 
     target = tmp_path / "output.xml"
-    zip_path = package_docbook(root, "book", "dtd/v1.1/docbookx.dtd", str(target))
+    zip_path = package_docbook(root, "book", "RITTDOCdtd/v1.1/RittDocBook.dtd", str(target))
 
     with zipfile.ZipFile(zip_path, "r") as zf:
         names = sorted(zf.namelist())
@@ -204,7 +210,13 @@ def test_package_docbook_reuses_shared_media(tmp_path):
         return media_store.get(ref)
 
     target = tmp_path / "output.xml"
-    zip_path = package_docbook(root, "book", "dtd/v1.1/docbookx.dtd", str(target), media_fetcher=fetch_media)
+    zip_path = package_docbook(
+        root,
+        "book",
+        "RITTDOCdtd/v1.1/RittDocBook.dtd",
+        str(target),
+        media_fetcher=fetch_media,
+    )
 
     with zipfile.ZipFile(zip_path, "r") as zf:
         shared_names = [name for name in zf.namelist() if name.startswith("media/Book_Images/Shared/")]

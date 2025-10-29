@@ -329,7 +329,9 @@ def _handle_batch(args: argparse.Namespace, config_dir: Path) -> int:
 
 def _handle_validate(args: argparse.Namespace, config_dir: Path) -> int:
     default_mapping = json.loads((config_dir / "mapping.default.json").read_text(encoding="utf-8"))
-    dtd_path = default_mapping.get("docbook", {}).get("dtd_system", "dtd/v1.1/docbookx.dtd")
+    dtd_path = default_mapping.get("docbook", {}).get(
+        "dtd_system", "RITTDOCdtd/v1.1/RittDocBook.dtd"
+    )
     validate_dtd(str(args.input_path), dtd_path, args.catalog)
     print("valid")
     return 0

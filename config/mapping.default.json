@@ -20,7 +20,7 @@
   },
   "docbook": {
     "root": "book",
-    "dtd_system": "dtd/v1.1/docbookx.dtd"
+    "dtd_system": "RITTDOCdtd/v1.1/RittDocBook.dtd"
   },
   "tolerances": {
     "char_diff_per_page": 0,

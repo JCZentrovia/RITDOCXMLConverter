@@ -10,6 +10,7 @@ from lxml import etree
 
 from .common import PageText, checksum, load_mapping, normalize_text
 from .package import package_docbook
+from .transform import transform_docbook_to_rittdoc
 from .validators.counters import compute_metrics
 
 # Temporarily disable validation while focusing on chapter splitting.
@@ -116,12 +117,15 @@ def convert_epub(
         root_name = config.get("docbook", {}).get("root", "book")
         result_tree = transform(html_root, **{"root-element": etree.XSLT.strparam(root_name)})
         docbook_root = result_tree.getroot()
+        rittdoc_root = transform_docbook_to_rittdoc(docbook_root)
 
-        dtd_system = config.get("docbook", {}).get("dtd_system", "dtd/v1.1/docbookx.dtd")
+        dtd_system = config.get("docbook", {}).get(
+            "dtd_system", "RITTDOCdtd/v1.1/RittDocBook.dtd"
+        )
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp_file = Path(tmpdir) / "full_book.xml"
             header = f"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE {root_name} SYSTEM \"{dtd_system}\">\n"
-            xml_bytes = etree.tostring(docbook_root, encoding="UTF-8", pretty_print=True, xml_declaration=False)
+            xml_bytes = etree.tostring(rittdoc_root, encoding="UTF-8", pretty_print=True, xml_declaration=False)
             tmp_file.write_text(header + xml_bytes.decode("utf-8"), encoding="utf-8")
             # Temporarily disable validation while focusing on chapter splitting.
             # validate_dtd(str(tmp_file), dtd_system, catalog)
@@ -137,7 +141,7 @@ def convert_epub(
                     logger.warning("Missing media resource in EPUB: %s", ref)
                     return None
 
-        zip_path = package_docbook(docbook_root, root_name, dtd_system, out_path, media_fetcher=fetch_media)
+        zip_path = package_docbook(rittdoc_root, root_name, dtd_system, out_path, media_fetcher=fetch_media)
 
         post_pages = [
             PageText(
