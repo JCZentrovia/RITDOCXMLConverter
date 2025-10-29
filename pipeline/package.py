@@ -484,6 +484,25 @@ def _write_book_xml(
     target.write_text(header_text + body.decode("utf-8"), encoding="utf-8")
 
 
+def _write_fragment_xml(
+    target: Path,
+    element: etree._Element,
+    dtd_system: str,
+    *,
+    processing_instructions: Sequence[Tuple[str, str]] = (),
+) -> None:
+    root_tag = _local_name(element) or (
+        element.tag if isinstance(element.tag, str) else "chapter"
+    )
+    header_lines = ["<?xml version=\"1.0\" encoding=\"UTF-8\"?>"]
+    for target_name, data in processing_instructions:
+        header_lines.append(f"<?{target_name} {data}?>")
+    header_lines.append(f"<!DOCTYPE {root_tag} SYSTEM \"{dtd_system}\">")
+    header = "\n".join(header_lines) + "\n\n"
+    body = etree.tostring(element, encoding="UTF-8", pretty_print=True, xml_declaration=False)
+    target.write_text(header + body.decode("utf-8"), encoding="utf-8")
+
+
 def package_docbook(
     root: etree._Element,
     root_name: str,
@@ -683,10 +702,12 @@ def package_docbook(
                 image_node.set("fileref", f"media/Book_Images/Chapters/{new_filename}")
                 figure_counter += 1
 
-            chapter_bytes = etree.tostring(
-                fragment.element, encoding="UTF-8", pretty_print=True, xml_declaration=False
+            _write_fragment_xml(
+                chapter_path,
+                fragment.element,
+                dtd_system,
+                processing_instructions=processing_instructions,
             )
-            chapter_path.write_bytes(chapter_bytes)
             chapter_paths.append((fragment, chapter_path))
 
         for image_node in _iter_imagedata(book_root):
