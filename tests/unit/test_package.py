@@ -109,9 +109,13 @@ def test_package_docbook_creates_chapters_and_media(tmp_path):
         assert "media/Book_Images/Shared/logo.png" in book_xml
 
         chapter_data = zf.read("Ch001.xml").decode("utf-8")
+        assert chapter_data.startswith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+        assert "<!DOCTYPE chapter SYSTEM \"RITTDOCdtd/v1.1/RittDocBook.dtd\">" in chapter_data
         assert "fileref=\"media/Book_Images/Chapters/Ch0001f01.png\"" in chapter_data
 
         toc_data = zf.read("TableOfContents.xml").decode("utf-8")
+        assert toc_data.startswith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+        assert "<!DOCTYPE chapter SYSTEM \"RITTDOCdtd/v1.1/RittDocBook.dtd\">" in toc_data
         assert "Table of Contents" in toc_data
         assert "Ch001.xml" in toc_data
         assert "Ch002.xml" in toc_data
