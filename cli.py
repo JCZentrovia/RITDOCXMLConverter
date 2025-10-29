@@ -3,18 +3,51 @@ from __future__ import annotations
 import argparse
 import csv
 import html
+import importlib
 import json
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Callable, Dict, Iterable, List, Optional, Set
 
-from pipeline.epub_pipeline import convert_epub
-from pipeline.pdf_pipeline import convert_pdf
 from pipeline.validators.dtd_validator import validate_dtd
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 logger = logging.getLogger(__name__)
+
+
+_DEPENDENCY_HINTS = {
+    "lxml": "Install the lxml wheels via `pip install -r tools/requirements.txt`.",
+    "pdfminer": "Install pdfminer.six via `pip install -r tools/requirements.txt`.",
+}
+
+
+def _verify_runtime_dependencies(modules: Iterable[str]) -> None:
+    missing: List[str] = []
+    for module in modules:
+        try:
+            importlib.import_module(module)
+        except ModuleNotFoundError as exc:
+            missing.append(exc.name or module)
+    if not missing:
+        return
+
+    seen: Set[str] = set()
+    bullet_points: List[str] = []
+    for name in missing:
+        root = name.split(".")[0]
+        if root in seen:
+            continue
+        seen.add(root)
+        hint = _DEPENDENCY_HINTS.get(root, "Install dependencies with `pip install -r tools/requirements.txt`.")
+        bullet_points.append(f"  - {root}: {hint}")
+
+    message = (
+        "Missing required Python packages for this command:\n"
+        + "\n".join(bullet_points)
+        + "\nInstall the packages and retry."
+    )
+    raise SystemExit(message)
 
 
 def _ensure_report_dir(path: Path) -> Path:
@@ -60,32 +93,60 @@ def _write_reports(metrics: Dict, source: str, report_dir: Path) -> None:
                 ]
             )
 
-    env = Environment(
-        loader=FileSystemLoader("reports/templates"),
-        autoescape=select_autoescape(["html", "xml"]),
-    )
-    template = env.get_template("qa_report.html.j2")
-    files = [
-        {
-            "name": source,
-            "pages": [
-                {
-                    "number": page["page"],
-                    "chars_in": page["chars_in"],
-                    "chars_out": page["chars_out"],
-                    "words_in": page["words_in"],
-                    "words_out": page["words_out"],
-                    "checksum_in": page["checksum_in"],
-                    "checksum_out": page["checksum_out"],
-                    "flags": page.get("flags", []),
-                    "mismatch": bool(page.get("flags")),
-                }
-                for page in metrics.get("pages", [])
-            ],
-        }
-    ]
-    html_path.write_text(template.render(files=files), encoding="utf-8")
+    rows = []
+    for page in metrics.get("pages", []):
+        flags = page.get("flags", [])
+        rows.append(
+            "            <tr>\n"
+            f"                <td>{html.escape(str(page['page']))}</td>\n"
+            f"                <td>{html.escape(str(page['chars_in']))}</td>\n"
+            f"                <td>{html.escape(str(page['chars_out']))}</td>\n"
+            f"                <td>{html.escape(str(page['words_in']))}</td>\n"
+            f"                <td>{html.escape(str(page['words_out']))}</td>\n"
+            f"                <td>{html.escape(str(page['checksum_in']))}</td>\n"
+            f"                <td>{html.escape(str(page['checksum_out']))}</td>\n"
+            f"                <td>{html.escape(';'.join(flags))}</td>\n"
+            f"                <td>{'yes' if page.get('has_ocr') else 'no'}</td>\n"
+            "            </tr>"
+        )
 
+    report_html = (
+        "<!DOCTYPE html>\n"
+        "<html lang=\"en\">\n"
+        "  <head>\n"
+        "    <meta charset=\"utf-8\">\n"
+        f"    <title>{html.escape(source)} QA Report</title>\n"
+        "    <style>table {border-collapse: collapse;} th, td {border: 1px solid #999; padding: 0.3em; text-align: left;} th {background: #eee;}</style>\n"
+        "  </head>\n"
+        "  <body>\n"
+        f"    <h1>QA Report for {html.escape(source)}</h1>\n"
+        "    <table>\n"
+        "      <thead>\n"
+        "        <tr>\n"
+        "          <th>Page</th>\n"
+        "          <th>Chars In</th>\n"
+        "          <th>Chars Out</th>\n"
+        "          <th>Words In</th>\n"
+        "          <th>Words Out</th>\n"
+        "          <th>Checksum In</th>\n"
+        "          <th>Checksum Out</th>\n"
+        "          <th>Flags</th>\n"
+        "          <th>Has OCR</th>\n"
+        "        </tr>\n"
+        "      </thead>\n"
+        "      <tbody>\n"
+        + ("\n".join(rows) if rows else "        <tr><td colspan=\"9\">No pages processed</td></tr>")
+        + "\n      </tbody>\n"
+        "    </table>\n"
+        "  </body>\n"
+        "</html>\n"
+    )
+    html_path.write_text(report_html, encoding="utf-8")
+
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="RIT DocBook converter CLI")
+    parser.add_argument("--config-dir", default=Path("config"), type=_directory)
+    parser.add_argument("--report-dir", default=Path("out/reports"), type=_directory)
 
 def _existing_file(path_str: str) -> Path:
     path = Path(path_str)
@@ -121,6 +182,17 @@ def _build_parser() -> argparse.ArgumentParser:
     epub_parser.add_argument("--publisher", required=True)
     epub_parser.add_argument("--strict", action="store_true")
 
+    batch_parser = subparsers.add_parser("batch", help="Run batch conversions from a manifest")
+    batch_parser.add_argument("--manifest", dest="manifest_path", required=True, type=_existing_file)
+    batch_parser.add_argument("--parallel", type=int, default=1)
+    batch_parser.add_argument("--strict", action="store_true")
+
+    validate_parser = subparsers.add_parser("validate", help="Validate a DocBook XML file")
+    validate_parser.add_argument("--input", dest="input_path", required=True, type=_existing_file)
+    validate_parser.add_argument("--catalog", default="validation/catalog.xml")
+
+    return parser
+
 
 def _load_manifest(manifest_path: Path) -> List[Dict[str, str]]:
     if manifest_path.suffix.lower() == ".json":
@@ -136,19 +208,10 @@ def _load_manifest(manifest_path: Path) -> List[Dict[str, str]]:
     return rows
 
 
-    batch_parser = subparsers.add_parser("batch", help="Run batch conversions from a manifest")
-    batch_parser.add_argument("--manifest", dest="manifest_path", required=True, type=_existing_file)
-    batch_parser.add_argument("--parallel", type=int, default=1)
-    batch_parser.add_argument("--strict", action="store_true")
-
-    validate_parser = subparsers.add_parser("validate", help="Validate a DocBook XML file")
-    validate_parser.add_argument("--input", dest="input_path", required=True, type=_existing_file)
-    validate_parser.add_argument("--catalog", default="validation/catalog.xml")
-
-    return parser
-
-
 def _handle_pdf(args: argparse.Namespace, config_dir: Path, report_dir: Path) -> int:
+    _verify_runtime_dependencies({"lxml.etree", "pdfminer"})
+    from pipeline.pdf_pipeline import convert_pdf
+
     metrics = convert_pdf(
         str(args.input_path),
         args.out_path,
@@ -166,6 +229,9 @@ def _handle_pdf(args: argparse.Namespace, config_dir: Path, report_dir: Path) ->
 
 
 def _handle_epub(args: argparse.Namespace, config_dir: Path, report_dir: Path) -> int:
+    _verify_runtime_dependencies({"lxml.etree"})
+    from pipeline.epub_pipeline import convert_epub
+
     metrics = convert_epub(
         str(args.input_path),
         args.out_path,
@@ -183,12 +249,40 @@ def _handle_batch(args: argparse.Namespace, config_dir: Path) -> int:
         logger.warning("Parallel processing not implemented; running sequentially.")
 
     jobs = _load_manifest(args.manifest_path)
+
+    required_modules: Set[str] = set()
+    needs_pdf = False
+    needs_epub = False
+    for job in jobs:
+        job_type = job.get("type")
+        if job_type == "pdf":
+            required_modules.update({"lxml.etree", "pdfminer"})
+            needs_pdf = True
+        elif job_type == "epub":
+            required_modules.add("lxml.etree")
+            needs_epub = True
+
+    if required_modules:
+        _verify_runtime_dependencies(required_modules)
+
+    pdf_converter: Optional[Callable[..., Dict]] = None
+    epub_converter: Optional[Callable[..., Dict]] = None
+    if needs_pdf:
+        from pipeline.pdf_pipeline import convert_pdf as _convert_pdf
+
+        pdf_converter = _convert_pdf
+    if needs_epub:
+        from pipeline.epub_pipeline import convert_epub as _convert_epub
+
+        epub_converter = _convert_epub
+
     success = True
     for job in jobs:
         job_type = job.get("type")
         try:
             if job_type == "pdf":
-                convert_pdf(
+                assert pdf_converter is not None
+                pdf_converter(
                     job["input"],
                     job["out"],
                     job["publisher"],
@@ -197,7 +291,8 @@ def _handle_batch(args: argparse.Namespace, config_dir: Path) -> int:
                     strict=args.strict,
                 )
             elif job_type == "epub":
-                convert_epub(
+                assert epub_converter is not None
+                epub_converter(
                     job["input"],
                     job["out"],
                     job["publisher"],
