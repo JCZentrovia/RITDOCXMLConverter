@@ -1,129 +1,79 @@
+# RIT DOC XML Converter
 
-## Manuscript Processor
+Deterministic pipeline for converting publisher PDFs and EPUBs into DocBook-style XML that conforms to the RIT DOC DTD. The system prioritizes character-for-character fidelity while providing validation, metrics, and QA reports for each run.
 
-Full‑stack app to process PDFs into structured XML/DocBook with a FastAPI backend and Angular frontend.
-
-### Monorepo layout
+## Repository layout
 
 ```
-backend/   # FastAPI service (MongoDB, S3, schedulers)
-frontend/  # Angular 20 web UI
+cli.py                    # CLI entry point for pdf/epub/batch/validate commands
+config/                   # Default + publisher-specific mapping files
+pipeline/                 # Core extraction, structure inference, transforms, validators
+reports/templates/        # HTML template used for QA reports
+validation/               # xmllint catalog + helper scripts
+docs/                     # Operator and developer guides
+Makefile                  # Convenience targets for CLI commands and tests
 ```
+
+Sample acceptance fixtures live under `tests/`. Additional publisher examples can be stored in `ConversionExamples/`.
 
 ## Prerequisites
 
-- Backend: Python 3.11+ (3.11/3.12 recommended), pip, virtualenv
-- Frontend: Node.js 20+ and npm
-- Database: MongoDB (local or Docker)
-  - Quick Docker: `docker run -d --name mongo -p 27017:27017 mongo:6`
-- Optional (S3 features): AWS credentials/profile with access to your bucket
+* Python 3.10+
+* Poppler utilities (`pdftohtml`, `pdftotext`)
+* `pdfminer.six`
+* `xmllint` with the DocBook DTD bundle available under `dtd/v1.1`
+* Optional: `ocrmypdf` and Tesseract when OCR fallback is desired
 
-## Quickstart
-
-### 1) Start MongoDB (required)
+Install Python packages with:
 
 ```bash
-docker run -d --name mongo -p 27017:27017 mongo:6
-# or use a locally installed mongod on port 27017
-```
-
-### 2) Backend (FastAPI)
-
-```bash
-cd backend
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
-
-# (Optional) create .env in backend/ to override defaults
-cat > .env << 'ENV'
-# MongoDB
-MONGODB_HOST=localhost
-MONGODB_PORT=27017
-MONGODB_DATABASE=manuscript_processor
-
-# App
-DEBUG=true
-HOST=0.0.0.0
-PORT=8000
-SECRET_KEY=dev-secret-change-me
-
-# AWS (optional for S3 features)
-AWS_REGION=us-east-1
-S3_BUCKET_NAME=manuscript-processor-bucket
-ENV
-
-# Run dev server
-python run.py
-# Uvicorn directly (equivalent):
-# uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+pip install -r tools/requirements.txt
 ```
 
-Backend URLs:
+## Usage
 
-- API base: `http://localhost:8000/xmlconverter/api/v1`
-- Docs: `http://localhost:8000/xmlconverter/docs`
-- Health: `http://localhost:8000/xmlconverter/health`
-
-### 3) Frontend (Angular)
-
-The frontend is preconfigured to call the backend at `http://localhost:8000/xmlconverter` (see `frontend/src/environments/environment.ts`).
+All commands are executed via the CLI. Outputs include DocBook XML plus CSV/HTML QA reports written beneath `out/reports/` by default.
 
 ```bash
-cd frontend
-npm install
-npm start
-# App at http://localhost:4200/
+# Convert a PDF
+python cli.py pdf --input INPUT.pdf --out OUTPUT.xml --publisher publisher_A [--ocr-on-image-only] [--strict]
+
+# Convert an EPUB
+python cli.py epub --input INPUT.epub --out OUTPUT.xml --publisher publisher_A [--strict]
+
+# Run a batch manifest (CSV or JSON)
+python cli.py batch --manifest jobs.csv [--parallel N] [--strict]
+
+# Validate an existing DocBook file against the RIT DOC DTD
+python cli.py validate --input OUTPUT.xml [--catalog validation/catalog.xml]
 ```
 
-## Testing locally
+See `docs/OPERATOR_GUIDE.md` for command details and `docs/DEV_GUIDE.md` for architecture notes.
 
-### Backend tests
+## Testing
 
-MongoDB must be running on `localhost:27017` (see step 1). From `backend/`:
+Run the unit test suite with:
 
 ```bash
-# All suites + coverage
-python run_tests.py --type all
-
-# Unit only
-python run_tests.py --type unit
-
-# Integration only (DB)
-python run_tests.py --type integration
-
-# S3-only (uses mocked client by default)
-python run_tests.py --type s3
+pytest
 ```
 
-### Frontend tests
-
-From `frontend/`:
+The Makefile exposes shortcuts:
 
 ```bash
-# Unit tests (headless)
-npm run test:unit
-
-# E2E (Cypress headless)
-npm run test:e2e
-
-# Open Cypress runner (interactive)
-npm run test:e2e:open
+make pdf INPUT=file.pdf OUT=file.xml PUBLISHER=publisher_A
+make epub INPUT=file.epub OUT=file.xml PUBLISHER=publisher_A
+make validate FILE=output.xml
+make tests
 ```
 
-## Configuration notes
+## Configuration
 
-- Backend settings are loaded via `.env` in `backend/` (see example above). Defaults target local Mongo on `localhost:27017` and expose FastAPI at port 8000.
-- The backend mounts API at `/xmlconverter/api/v1`; the frontend `apiUrl` defaults to `http://localhost:8000/xmlconverter` so paths resolve like `.../xmlconverter/api/v1/...`.
-- AWS is optional; S3 operations require valid credentials or an AWS profile. Without them, core API and most tests still run; S3 integration tests patch the client.
+Default normalization, mapping, and tolerance rules live in `config/mapping.default.json`. Publisher-specific overrides can be added under `config/publishers/<publisher>.json` without modifying the Python code.
 
-## Common issues
+## QA reports
 
-- Port in use: change `PORT` in backend `.env` or `npm start -- --port 4300` for the frontend.
-- Mongo not running: start with the Docker command above.
-- CORS: backend allows all origins in dev; if you customize, ensure `http://localhost:4200` is allowed.
-
-=======
-# RITDOCXMLConverter
-PDF and ePub to RIT DOC XML CONVERTER
+Every conversion produces per-page metrics (character/word counts, checksums, OCR flags) alongside an HTML summary rendered via Jinja2. Templates can be customized in `reports/templates/qa_report.html.j2`.
 
