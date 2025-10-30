@@ -160,6 +160,7 @@ ORDERED_LIST_RE = re.compile(r"^(?:\(?\d+[\.\)]|[A-Za-z][\.)])\s+")
 TOC_DOTS_RE = re.compile(r"\.{2,}")
 TOC_PAGE_RE = re.compile(r"(?:\.{2,}\s*)?(?:\b[0-9ivxlcdm]+\b)$", re.IGNORECASE)
 TOC_LEADING_MARKER_RE = re.compile(r"^(?:\d+|[ivxlcdm]+)[\s.:\-]+", re.IGNORECASE)
+TOC_TOP_LEVEL_TOLERANCE = 6.0
 
 HEADING_FONT_TOLERANCE = 1.0
 
@@ -235,10 +236,10 @@ def _clean_toc_entry_text(text: str) -> str:
 def _extract_toc_entries(
     entries: Sequence[dict], body_size: float
 ) -> Tuple[List[str], Optional[int]]:
-    toc_entries: List[str] = []
     collecting = False
     toc_start_page: Optional[int] = None
     last_toc_page: Optional[int] = None
+    candidate_entries: List[Tuple[str, float, int]] = []
     for entry in entries:
         if entry.get("kind") != "line":
             continue
@@ -265,8 +266,23 @@ def _extract_toc_entries(
 
         cleaned = _clean_toc_entry_text(text)
         if cleaned:
-            toc_entries.append(cleaned)
+            candidate_entries.append((cleaned, line.left, line.page_num))
             last_toc_page = max(last_toc_page or line.page_num, line.page_num)
+    toc_entries: List[str] = []
+    if candidate_entries:
+        min_left = min(left for _, left, _ in candidate_entries)
+        top_level_entries = [
+            (text, page)
+            for text, left, page in candidate_entries
+            if left - min_left <= TOC_TOP_LEVEL_TOLERANCE
+        ]
+        if top_level_entries:
+            toc_entries = [text for text, _ in top_level_entries]
+            last_toc_page = max(page for _, page in top_level_entries)
+        else:
+            last_toc_page = None
+    else:
+        last_toc_page = None
     return toc_entries, last_toc_page
 
 
