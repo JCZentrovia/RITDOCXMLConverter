@@ -54,3 +54,40 @@ def test_build_docbook_tree_creates_structured_index():
 
     chapters = doc.findall("chapter")
     assert any(ch.findtext("title") == "Appendix A" for ch in chapters)
+
+
+def test_caption_preceding_figure_is_attached():
+    blocks = [
+        _block("chapter", "Chapter 1", font_size=28.0),
+        _block("caption", "Figure 1.1 Diagram of the process"),
+        {
+            **_block("figure", "", src="images/figure.png"),
+        },
+    ]
+
+    doc = build_docbook_tree(blocks, "book")
+
+    chapter = doc.find("chapter")
+    assert chapter is not None
+    figure = chapter.find("figure")
+    assert figure is not None
+    caption = figure.find("caption")
+    assert caption is not None
+    assert caption.text == "Figure 1.1 Diagram of the process"
+
+
+def test_orphan_caption_falls_back_to_paragraph():
+    blocks = [
+        _block("chapter", "Chapter 1", font_size=28.0),
+        _block("caption", "Figure 1.2 Unused caption"),
+        _block("para", "Following paragraph"),
+    ]
+
+    doc = build_docbook_tree(blocks, "book")
+
+    chapter = doc.find("chapter")
+    assert chapter is not None
+    paras = chapter.findall("para")
+    texts = [para.text for para in paras]
+    assert "Figure 1.2 Unused caption" in texts
+    assert "Following paragraph" in texts

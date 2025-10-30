@@ -25,6 +25,32 @@ def _close_list(state: dict) -> None:
     state["current_list_type"] = None
 
 
+def _queue_pending_caption(state: dict, text: str) -> None:
+    text = text.strip()
+    if not text:
+        return
+    pending = state.get("pending_caption")
+    if pending:
+        state["pending_caption"] = f"{pending} {text}"
+    else:
+        state["pending_caption"] = text
+
+
+def _attach_pending_caption(root: etree._Element, state: dict, target: Optional[etree._Element]) -> None:
+    pending = state.get("pending_caption")
+    if not pending:
+        return
+    if target is not None and _attach_caption(target, pending):
+        state["pending_caption"] = None
+        return
+    container = _current_container(root, state)
+    if container is not None:
+        _append_para(container, pending)
+        state["last_structure"] = container
+    state["pending_caption"] = None
+    _close_list(state)
+
+
 def _current_container(root: etree._Element, state: dict) -> etree._Element:
     if state.get("current_index") is not None:
         return state["current_index"]
@@ -195,11 +221,15 @@ def build_docbook_tree(blocks: List[dict], root_name: str) -> etree._Element:
         "last_structure": None,
         "current_index": None,
         "index_state": None,
+        "pending_caption": None,
     }
 
     for block in blocks:
         label = block.get("classifier_label") or block.get("label", "para")
         text = (block.get("text") or "").strip()
+
+        if state.get("pending_caption") and label not in {"caption", "figure", "table"}:
+            _attach_pending_caption(root, state, None)
 
         if state.get("current_index") is not None and label == "para":
             if _handle_index_para(block, state):
@@ -278,6 +308,7 @@ def build_docbook_tree(blocks: List[dict], root_name: str) -> etree._Element:
             mediaobject = etree.SubElement(figure, "mediaobject")
             imageobject = etree.SubElement(mediaobject, "imageobject")
             etree.SubElement(imageobject, "imagedata", fileref=block["src"])
+            _attach_pending_caption(root, state, figure)
             state["last_structure"] = figure
             _close_list(state)
             continue
@@ -294,15 +325,17 @@ def build_docbook_tree(blocks: List[dict], root_name: str) -> etree._Element:
                 for cell in row:
                     entry = etree.SubElement(row_el, "entry")
                     entry.text = (cell or "").strip()
+            _attach_pending_caption(root, state, table)
             state["last_structure"] = table
             _close_list(state)
             continue
 
         if label == "caption" and text:
             if _attach_caption(state.get("last_structure"), text):
+                state["pending_caption"] = None
                 continue
-            # Fallback to paragraph when we cannot attach the caption.
-            label = "para"
+            _queue_pending_caption(state, text)
+            continue
 
         if label == "para" and text:
             container = _current_container(root, state)
@@ -325,5 +358,8 @@ def build_docbook_tree(blocks: List[dict], root_name: str) -> etree._Element:
             _append_para(container, text)
             state["last_structure"] = container
             _close_list(state)
+
+    if state.get("pending_caption"):
+        _attach_pending_caption(root, state, None)
 
     return root
