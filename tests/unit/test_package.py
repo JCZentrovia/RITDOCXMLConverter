@@ -163,6 +163,104 @@ def test_package_docbook_creates_chapters_and_media(tmp_path):
         assert rows[1][-1] == "PNG"
 
 
+def test_package_docbook_skips_images_without_caption_or_label(tmp_path):
+    root = etree.Element("book")
+    chapter = etree.SubElement(root, "chapter")
+    etree.SubElement(chapter, "title").text = "Chapter"
+    figure = etree.SubElement(chapter, "figure")
+    media = etree.SubElement(figure, "mediaobject")
+    imageobject = etree.SubElement(media, "imageobject")
+    etree.SubElement(imageobject, "imagedata", fileref="img/missing_caption.png")
+
+    media_store = {"img/missing_caption.png": _make_png()}
+
+    def fetch_media(ref: str):
+        return media_store.get(ref)
+
+    target = tmp_path / "output.xml"
+    zip_path = package_docbook(
+        root,
+        "book",
+        "RITTDOCdtd/v1.1/RittDocBook.dtd",
+        str(target),
+        media_fetcher=fetch_media,
+    )
+
+    with zipfile.ZipFile(zip_path, "r") as zf:
+        names = [name for name in zf.namelist() if name.startswith("media/Book_Images/Chapters/")]
+        assert names == ["media/Book_Images/Chapters/"]
+
+        chapter_xml = zf.read("Ch001.xml").decode("utf-8")
+        assert "media/Book_Images/Chapters/" not in chapter_xml
+
+        catalog = etree.fromstring(zf.read("media/Book_Images/Metadata/image_catalog.xml"))
+        assert catalog.findall("image") == []
+
+        manifest = zf.read("media/Book_Images/Metadata/image_manifest.csv").decode("utf-8")
+        rows = list(csv.reader(io.StringIO(manifest)))
+        assert rows == [
+            [
+                "Filename",
+                "Chapter",
+                "Figure",
+                "Caption",
+                "Alt-Text",
+                "Original_Name",
+                "File_Size",
+                "Format",
+            ]
+        ]
+
+
+def test_package_docbook_skips_zero_byte_images(tmp_path):
+    root = etree.Element("book")
+    chapter = etree.SubElement(root, "chapter")
+    etree.SubElement(chapter, "title").text = "Chapter"
+    figure = etree.SubElement(chapter, "figure")
+    figure.set("id", "fig1")
+    caption = etree.SubElement(figure, "caption")
+    caption.text = "Figure caption"
+    media = etree.SubElement(figure, "mediaobject")
+    imageobject = etree.SubElement(media, "imageobject")
+    etree.SubElement(imageobject, "imagedata", fileref="img/zero.png")
+
+    media_store = {"img/zero.png": b""}
+
+    def fetch_media(ref: str):
+        return media_store.get(ref)
+
+    target = tmp_path / "output.xml"
+    zip_path = package_docbook(
+        root,
+        "book",
+        "RITTDOCdtd/v1.1/RittDocBook.dtd",
+        str(target),
+        media_fetcher=fetch_media,
+    )
+
+    with zipfile.ZipFile(zip_path, "r") as zf:
+        chapter_xml = zf.read("Ch001.xml").decode("utf-8")
+        assert "media/Book_Images/Chapters/" not in chapter_xml
+
+        catalog = etree.fromstring(zf.read("media/Book_Images/Metadata/image_catalog.xml"))
+        assert catalog.findall("image") == []
+
+        manifest = zf.read("media/Book_Images/Metadata/image_manifest.csv").decode("utf-8")
+        rows = list(csv.reader(io.StringIO(manifest)))
+        assert rows == [
+            [
+                "Filename",
+                "Chapter",
+                "Figure",
+                "Caption",
+                "Alt-Text",
+                "Original_Name",
+                "File_Size",
+                "Format",
+            ]
+        ]
+
+
 def test_package_docbook_creates_index_fragment(tmp_path):
     root = etree.Element("book")
 

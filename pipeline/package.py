@@ -264,6 +264,41 @@ def _extract_caption_text(figure: Optional[etree._Element]) -> str:
     return ""
 
 
+def _has_caption_or_label(
+    figure: Optional[etree._Element], image_node: etree._Element
+) -> bool:
+    if figure is not None:
+        if _extract_caption_text(figure):
+            return True
+        for attr in ("label", "id"):
+            value = (figure.get(attr) or "").strip()
+            if value:
+                return True
+        label_node = figure.find("label")
+        if label_node is not None:
+            text = "".join(label_node.itertext()).strip()
+            if text:
+                return True
+
+    mediaobject = next(
+        (ancestor for ancestor in image_node.iterancestors() if _local_name(ancestor) == "mediaobject"),
+        None,
+    )
+    if mediaobject is not None:
+        caption_node = mediaobject.find("caption")
+        if caption_node is not None:
+            text = "".join(caption_node.itertext()).strip()
+            if text:
+                return True
+
+    for attr in ("label", "id"):
+        value = (image_node.get(attr) or "").strip()
+        if value:
+            return True
+
+    return False
+
+
 def _extract_alt_text(image_node: etree._Element) -> str:
     alt = image_node.get("alt") or image_node.get("xlink:title")
     if alt:
@@ -576,6 +611,7 @@ def package_docbook(
                         for idx in range(len(images))
                     ]
                 current_index = figure_counter
+                saved_any = False
                 for idx, image_node in enumerate(images):
                     processed_nodes.add(id(image_node))
                     original = image_node.get("fileref")
@@ -590,6 +626,12 @@ def package_docbook(
                     if classification == "decorative":
                         _handle_decorative_image(image_node, shared_dir, shared_cache, media_fetcher)
                         continue
+                    if not _has_caption_or_label(figure, image_node):
+                        logger.warning(
+                            "Skipping media asset for %s because it lacks caption or label", original
+                        )
+                        _remove_image_node(image_node)
+                        continue
 
                     suffix = Path(original).suffix or ".jpg"
                     letter = suffixes[idx]
@@ -597,11 +639,9 @@ def package_docbook(
                     target_path = chapters_dir / new_filename
                     data = media_fetcher(original) if media_fetcher else None
                     if data is None:
-                        logger.warning("Missing media asset for %s; creating placeholder", original)
-                        target_path.touch(exist_ok=True)
-                        width = height = 0
-                        fmt = suffix.lstrip(".").upper()
-                        file_size = "0B"
+                        logger.warning("Missing media asset for %s; skipping", original)
+                        _remove_image_node(image_node)
+                        continue
                     else:
                         if len(data) == 0:
                             logger.warning("Skipping media asset for %s because it is empty", original)
@@ -639,7 +679,9 @@ def package_docbook(
                     image_node.set(
                         "fileref", f"media/Book_Images/Chapters/{new_filename}"
                     )
-                figure_counter += 1
+                    saved_any = True
+                if saved_any:
+                    figure_counter += 1
 
             for image_node in _iter_imagedata(fragment.element):
                 if id(image_node) in processed_nodes:
@@ -656,6 +698,12 @@ def package_docbook(
                 if classification == "decorative":
                     _handle_decorative_image(image_node, shared_dir, shared_cache, media_fetcher)
                     continue
+                if not _has_caption_or_label(None, image_node):
+                    logger.warning(
+                        "Skipping media asset for %s because it lacks caption or label", original
+                    )
+                    _remove_image_node(image_node)
+                    continue
 
                 suffix = Path(original).suffix or ".jpg"
                 current_index = figure_counter
@@ -663,11 +711,9 @@ def package_docbook(
                 target_path = chapters_dir / new_filename
                 data = media_fetcher(original) if media_fetcher else None
                 if data is None:
-                    logger.warning("Missing media asset for %s; creating placeholder", original)
-                    target_path.touch(exist_ok=True)
-                    width = height = 0
-                    fmt = suffix.lstrip(".").upper()
-                    file_size = "0B"
+                    logger.warning("Missing media asset for %s; skipping", original)
+                    _remove_image_node(image_node)
+                    continue
                 else:
                     if len(data) == 0:
                         logger.warning("Skipping media asset for %s because it is empty", original)
