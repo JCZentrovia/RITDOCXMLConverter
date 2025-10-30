@@ -171,41 +171,55 @@ class VisionFormatter:
             },
         }
 
-        client_response = self._client.responses.create(
-            model=self._model,
-            input=[
-                {
-                    "role": "system",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": (
-                                "You are a meticulous document formatter. Use the reference PDF "
-                                "to replicate visual styling in the supplied plain text without "
-                                "altering any characters. Preserve the text exactly as provided; "
-                                "do not add, remove, or rephrase words. Identify formatting "
-                                "instructions only—do not return the formatted document itself. "
-                                "Respond with JSON that references plain-text line numbers "
-                                "(1-indexed) and provides paragraph style, alignment, and "
-                                "character ranges requiring bold, italic, or underline styling."
-                            ),
-                        }
-                    ],
-                },
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "input_text", "text": plain_text},
-                        {
-                            "type": "input_file",
-                            "mime_type": "application/pdf",
-                            "data": pdf_base64,
-                        },
-                    ],
-                },
-            ],
-            response_format={"type": "json_schema", "json_schema": schema},
-        )
+        request_payload = [
+            {
+                "role": "system",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": (
+                            "You are a meticulous document formatter. Use the reference PDF "
+                            "to replicate visual styling in the supplied plain text without "
+                            "altering any characters. Preserve the text exactly as provided; "
+                            "do not add, remove, or rephrase words. Identify formatting "
+                            "instructions only—do not return the formatted document itself. "
+                            "Respond with JSON that references plain-text line numbers "
+                            "(1-indexed) and provides paragraph style, alignment, and "
+                            "character ranges requiring bold, italic, or underline styling."
+                        ),
+                    }
+                ],
+            },
+            {
+                "role": "user",
+                "content": [
+                    {"type": "input_text", "text": plain_text},
+                    {
+                        "type": "input_file",
+                        "mime_type": "application/pdf",
+                        "data": pdf_base64,
+                    },
+                ],
+            },
+        ]
+
+        request_kwargs = {
+            "model": self._model,
+            "input": request_payload,
+        }
+
+        try:
+            client_response = self._client.responses.create(
+                **request_kwargs,
+                response_format={"type": "json_schema", "json_schema": schema},
+            )
+        except TypeError as exc:  # pragma: no cover - depends on SDK version
+            if "response_format" not in str(exc):
+                raise
+            logger.warning(
+                "OpenAI SDK does not support 'response_format'; falling back to text parsing."
+            )
+            client_response = self._client.responses.create(**request_kwargs)
 
         payload = _extract_json_payload(client_response)
         instructions_path = output_dir / "formatting_instructions.json"
