@@ -1,6 +1,4 @@
-#!/bin/sh
-'''exec' "/Users/jagadishchowdibegurumesh/Desktop/XML Convertor-main/.venv/bin/python3.11" "$0" "$@"
-' '''
+#!/Users/jagadishchowdibegurumesh/Documents/Zentrovia/Accounts/R2/RITDocXMLConverter/RITDOCXMLConverter/.venv/bin/python3.14
 import sys
 from charset_normalizer.cli import cli_detect
 if __name__ == '__main__':

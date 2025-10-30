@@ -4,5 +4,5 @@
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
   <rewriteSystem systemIdStartString="http://docbook.org/xml/4.5/" rewritePrefix="../dtd/v1.1/"/>
   <system systemId="docbookx.dtd" uri="../dtd/v1.1/docbookx.dtd"/>
-  <system systemId="RittDocBook.dtd" uri="../RITTDOCdtd/v1.1/RittDocBook.dtd"/>
+  <system systemId="RITTDOCdtd/v1.1/RittDocBook.dtd" uri="file:///Users/jagadishchowdibegurumesh/Documents/Zentrovia/Accounts/R2/RITDocXMLConverter/RITDOCXMLConverter/RITTDOCdtd/v1.1/RittDocBook.dtd"/>
 </catalog>

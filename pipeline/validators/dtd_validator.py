@@ -61,12 +61,13 @@ def validate_dtd(xml_path: str, dtd_path: str, catalog: str) -> None:
     resolved_catalog: Path | None = None
     if catalog:
         resolved_catalog = resolve_catalog_path(catalog).resolve()
-        env["XML_CATALOG_FILES"] = str(resolved_catalog)
+        env["SGML_CATALOG_FILES"] = str(resolved_catalog)
+        env["XML_CATALOG_FILES"] = str(resolved_catalog)  # For newer xmllint versions
         # ``xmllint`` historically consulted ``SGML_CATALOG_FILES`` while
         # ``XML_CATALOG_FILES`` is honoured by newer builds.  Some platform
         # distributions continue to depend on the older variable being set,
         # so mirror the catalog path into both to keep validation portable.
-        env.setdefault("SGML_CATALOG_FILES", str(resolved_catalog))
+        # env.setdefault("SGML_CATALOG_FILES", str(resolved_catalog))
     resolved_dtd = resolve_dtd_path(dtd_path)
 
     args = [
@@ -77,7 +78,7 @@ def validate_dtd(xml_path: str, dtd_path: str, catalog: str) -> None:
         str(resolved_dtd),
     ]
     if resolved_catalog is not None:
-        args.extend(["--catalogs", str(resolved_catalog)])
+        args.append("--catalogs")
     args.append(str(xml))
     logger.info("Validating %s against %s", xml, resolved_dtd)
 
@@ -97,5 +98,5 @@ def validate_dtd(xml_path: str, dtd_path: str, catalog: str) -> None:
         )
         args_without_catalog = list(args)
         idx = args_without_catalog.index("--catalogs")
-        del args_without_catalog[idx : idx + 2]
+        del args_without_catalog[idx]
         run_cmd(args_without_catalog, env=env)
