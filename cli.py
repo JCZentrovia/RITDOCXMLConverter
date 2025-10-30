@@ -19,6 +19,9 @@ logger = logging.getLogger(__name__)
 _DEPENDENCY_HINTS = {
     "lxml": "Install the lxml wheels via `pip install -r tools/requirements.txt`.",
     "pdfminer": "Install pdfminer.six via `pip install -r tools/requirements.txt`.",
+    "openai": "Install the OpenAI SDK via `pip install -r tools/requirements.txt`.",
+    "docx": "Install python-docx via `pip install -r tools/requirements.txt`.",
+    "dotenv": "Install python-dotenv via `pip install -r tools/requirements.txt`.",
 }
 
 def _module_available(module: str) -> bool:

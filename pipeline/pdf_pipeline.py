@@ -3,10 +3,11 @@ from __future__ import annotations
 import logging
 import tempfile
 from pathlib import Path
-from typing import Dict, List, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from lxml import etree
 
+from .ai.config import export_intermediate_artifacts_enabled
 from .common import PageText, checksum, load_mapping, normalize_text
 from .extractors.pdfminer_text import pdfminer_pages
 from .extractors.poppler_pdfxml import pdftohtml_xml
@@ -77,6 +78,33 @@ def _write_docbook(
     header_lines.append(f"<!DOCTYPE {root_name} SYSTEM \"{dtd_system}\">")
     header = "\n".join(header_lines) + "\n"
     out_path.write_text(header + xml_bytes.decode("utf-8"), encoding="utf-8")
+
+
+def _write_plain_text_assets(
+    pages: Sequence[PageText],
+    base_dir: Path,
+    *,
+    export: bool = True,
+) -> Tuple[List[Tuple[str, Path]], Optional[Path], str]:
+    combined_parts: List[str] = [page.raw_text for page in pages]
+    combined_text = "\n".join(combined_parts)
+
+    if not export:
+        return [], None, combined_text
+
+    plain_text_dir = base_dir / "plain_text"
+    plain_text_dir.mkdir(parents=True, exist_ok=True)
+
+    assets: List[Tuple[str, Path]] = []
+    for page in pages:
+        page_path = plain_text_dir / f"page_{page.page_num:04d}.txt"
+        page_path.write_text(page.raw_text, encoding="utf-8")
+        assets.append((f"plain_text/{page_path.name}", page_path))
+
+    combined_path = plain_text_dir / "full_text.txt"
+    combined_path.write_text(combined_text, encoding="utf-8")
+    assets.append(("plain_text/full_text.txt", combined_path))
+    return assets, combined_path, combined_text
 
 
 def convert_pdf(
@@ -162,6 +190,55 @@ def convert_pdf(
         # Temporarily skip DTD validation to inspect raw conversion output.
         # validate_dtd(str(tmp_doc), dtd_system, catalog)
 
+        export_intermediate = export_intermediate_artifacts_enabled()
+        plain_text_assets, _plain_text_path, plain_text_text = _write_plain_text_assets(
+            pdfminer_pages_list, tmp, export=export_intermediate
+        )
+
+        ai_assets: List[Tuple[str, Path]] = []
+        ai_config = None
+        try:
+            from .ai import OpenAIConfig
+
+            ai_config = OpenAIConfig.load()
+        except Exception as exc:  # pragma: no cover - configuration failure logging
+            logger.warning("Unable to load AI configuration: %s", exc)
+
+        if ai_config and pdf_path_obj.suffix.lower() == ".pdf":
+            try:
+                from .ai import VisionFormatter, convert_docx_to_docbook
+
+                formatter = VisionFormatter(ai_config)
+                ai_output_dir = tmp / "ai_formatted"
+                result = formatter.apply_formatting(
+                    working_pdf,
+                    plain_text_text,
+                    ai_output_dir,
+                )
+                if export_intermediate:
+                    ai_assets.append(("formatted/FormattedDocument.docx", result.docx_path))
+                    if result.instructions_path:
+                        ai_assets.append(
+                            ("formatted/FormattingInstructions.json", result.instructions_path)
+                        )
+
+                try:
+                    formatted_docbook = convert_docx_to_docbook(
+                        result.docx_path,
+                        ai_output_dir / "FormattedDocbook.xml",
+                        expected_text=plain_text_text,
+                    )
+                except Exception as exc:
+                    logger.warning("Failed to convert AI formatted DOCX to DocBook: %s", exc)
+                else:
+                    ai_assets.append(("formatted/FormattedDocbook.xml", formatted_docbook))
+            except Exception as exc:
+                logger.warning("AI formatting skipped: %s", exc)
+        elif ai_config is None:
+            logger.info(
+                "AI formatting service not configured; skipping vision-based formatting stage"
+            )
+
         media_fetcher = make_file_fetcher([tmp, pdf_path_obj.parent])
         zip_path = package_docbook(
             rittdoc.root,
@@ -169,7 +246,7 @@ def convert_pdf(
             dtd_system,
             out_path,
             processing_instructions=rittdoc.processing_instructions,
-            assets=rittdoc.assets,
+            assets=[*rittdoc.assets, *plain_text_assets, *ai_assets],
             media_fetcher=media_fetcher,
         )
 
