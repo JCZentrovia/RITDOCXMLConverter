@@ -45,18 +45,20 @@ def _docx_text(docx_path: Path) -> str:
 
 
 def _extract_json_payload(response: object) -> Dict:
-    """Extract the JSON payload from a Chat Completion API result."""
+    """Extract the JSON payload from a Responses API result."""
 
     text_payload: Optional[str] = None
 
-    # Standard chat completion response format
-    try:
-        if hasattr(response, 'choices') and response.choices:
-            message = response.choices[0].message
-            if hasattr(message, 'content') and message.content:
-                text_payload = message.content
-    except Exception as exc:  # pragma: no cover - defensive fallback
-        logger.debug("Unable to extract chat completion response: %s", exc)
+    if hasattr(response, "output_text") and response.output_text:  # type: ignore[attr-defined]
+        text_payload = response.output_text
+    else:  # pragma: no cover - defensive fallback for future SDK versions
+        try:
+            output = response.output  # type: ignore[attr-defined]
+            if output:
+                content = output[0].content[0]
+                text_payload = content.text  # type: ignore[attr-defined]
+        except Exception:  # noqa: BLE001 - best effort
+            logger.debug("Unable to extract structured response; falling back to raw repr")
 
     if not text_payload:
         text_payload = str(response)
@@ -169,41 +171,55 @@ class VisionFormatter:
             },
         }
 
-        client_response = self._client.chat.completions.create(
-            model=self._model,
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "You are a meticulous document formatter. Use the reference PDF "
-                        "to replicate visual styling in the supplied plain text without "
-                        "altering any characters. Preserve the text exactly as provided; "
-                        "do not add, remove, or rephrase words. Identify formatting "
-                        "instructions only—do not return the formatted document itself. "
-                        "Respond with JSON that references plain-text line numbers "
-                        "(1-indexed) and provides paragraph style, alignment, and "
-                        "character ranges requiring bold, italic, or underline styling.\n\n"
-                        f"Expected JSON format:\n{json.dumps(schema['schema'], indent=2)}"
-                    ),
-                },
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": f"Plain text to format:\n\n{plain_text}",
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:application/pdf;base64,{pdf_base64}",
-                            },
-                        },
-                    ],
-                },
-            ],
-            response_format={"type": "json_object"},
-        )
+        request_payload = [
+            {
+                "role": "system",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": (
+                            "You are a meticulous document formatter. Use the reference PDF "
+                            "to replicate visual styling in the supplied plain text without "
+                            "altering any characters. Preserve the text exactly as provided; "
+                            "do not add, remove, or rephrase words. Identify formatting "
+                            "instructions only—do not return the formatted document itself. "
+                            "Respond with JSON that references plain-text line numbers "
+                            "(1-indexed) and provides paragraph style, alignment, and "
+                            "character ranges requiring bold, italic, or underline styling."
+                        ),
+                    }
+                ],
+            },
+            {
+                "role": "user",
+                "content": [
+                    {"type": "input_text", "text": plain_text},
+                    {
+                        "type": "input_file",
+                        "mime_type": "application/pdf",
+                        "data": pdf_base64,
+                    },
+                ],
+            },
+        ]
+
+        request_kwargs = {
+            "model": self._model,
+            "input": request_payload,
+        }
+
+        try:
+            client_response = self._client.responses.create(
+                **request_kwargs,
+                response_format={"type": "json_schema", "json_schema": schema},
+            )
+        except TypeError as exc:  # pragma: no cover - depends on SDK version
+            if "response_format" not in str(exc):
+                raise
+            logger.warning(
+                "OpenAI SDK does not support 'response_format'; falling back to text parsing."
+            )
+            client_response = self._client.responses.create(**request_kwargs)
 
         payload = _extract_json_payload(client_response)
         instructions_path = output_dir / "formatting_instructions.json"
