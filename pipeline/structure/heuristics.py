@@ -4,7 +4,7 @@ import logging
 import re
 from dataclasses import dataclass, field
 from statistics import median
-from typing import Iterable, List, Sequence
+from typing import Iterable, List, Optional, Sequence, Tuple
 
 from lxml import etree
 
@@ -157,6 +157,9 @@ INDEX_RE = re.compile(r"^index\b", re.IGNORECASE)
 SECTION_RE = re.compile(r"^(section|sec\.|part)\b", re.IGNORECASE)
 CAPTION_RE = re.compile(r"^(figure|fig\.|table)\s+\d+", re.IGNORECASE)
 ORDERED_LIST_RE = re.compile(r"^(?:\(?\d+[\.\)]|[A-Za-z][\.)])\s+")
+TOC_DOTS_RE = re.compile(r"\.{2,}")
+TOC_PAGE_RE = re.compile(r"(?:\.{2,}\s*)?(?:\b[0-9ivxlcdm]+\b)$", re.IGNORECASE)
+TOC_LEADING_MARKER_RE = re.compile(r"^(?:\d+|[ivxlcdm]+)[\s.:\-]+", re.IGNORECASE)
 
 HEADING_FONT_TOLERANCE = 1.0
 
@@ -213,6 +216,105 @@ def _collect_multiline_book_title(
         break
 
     return heading_lines, lookahead_idx
+
+
+def _normalise_heading_text(text: str) -> str:
+    cleaned = re.sub(r"\s+", " ", text or "").strip().lower()
+    cleaned = re.sub(r"[^0-9a-z]+", " ", cleaned)
+    return re.sub(r"\s+", " ", cleaned).strip()
+
+
+def _clean_toc_entry_text(text: str) -> str:
+    cleaned = TOC_DOTS_RE.sub(" ", text or "")
+    cleaned = re.sub(r"\s+", " ", cleaned)
+    cleaned = TOC_PAGE_RE.sub("", cleaned).strip()
+    cleaned = TOC_LEADING_MARKER_RE.sub("", cleaned).strip()
+    return cleaned
+
+
+def _extract_toc_entries(
+    entries: Sequence[dict], body_size: float
+) -> Tuple[List[str], Optional[int]]:
+    toc_entries: List[str] = []
+    collecting = False
+    toc_start_page: Optional[int] = None
+    last_toc_page: Optional[int] = None
+    for entry in entries:
+        if entry.get("kind") != "line":
+            continue
+        line = entry["line"]
+        text = line.text.strip()
+        if not text:
+            continue
+        if TOC_RE.match(text.lower()) and _has_heading_font(line, body_size):
+            collecting = True
+            toc_start_page = line.page_num
+            last_toc_page = line.page_num
+            continue
+        if not collecting:
+            continue
+        if toc_start_page is None:
+            toc_start_page = line.page_num
+        if _looks_like_chapter_heading(line, body_size) and line.page_num > toc_start_page:
+            break
+        if (
+            last_toc_page is not None
+            and line.page_num > last_toc_page + 2
+        ):
+            break
+
+        cleaned = _clean_toc_entry_text(text)
+        if cleaned:
+            toc_entries.append(cleaned)
+            last_toc_page = max(last_toc_page or line.page_num, line.page_num)
+    return toc_entries, last_toc_page
+
+
+def _extract_outline_titles(root: etree._Element) -> List[str]:
+    outline = root.find(".//outline")
+    if outline is None:
+        return []
+
+    titles: List[str] = []
+
+    def _traverse(node: etree._Element, depth: int) -> None:
+        for child in node:
+            if not isinstance(child.tag, str):
+                continue
+            if child.tag != "item":
+                _traverse(child, depth)
+                continue
+            title_attr = (child.get("title") or "").strip()
+            text_content = "".join(child.itertext()).strip()
+            title = title_attr or text_content
+            if title and depth == 0:
+                titles.append(title)
+            _traverse(child, depth + 1)
+
+    _traverse(outline, 0)
+    return titles
+
+
+def _prepare_chapter_targets(texts: Sequence[str]) -> List[Tuple[str, str]]:
+    seen: set[str] = set()
+    targets: List[Tuple[str, str]] = []
+    for text in texts:
+        normalised = _normalise_heading_text(text)
+        if not normalised or normalised in seen:
+            continue
+        seen.add(normalised)
+        targets.append((text, normalised))
+    return targets
+
+
+def _heading_matches_target(candidate: str, target: str) -> bool:
+    if not candidate or not target:
+        return False
+    if candidate == target:
+        return True
+    if candidate.startswith(target) or target.startswith(candidate):
+        return True
+    return False
 
 
 def _has_heading_font(line: Line, body_size: float) -> bool:
@@ -438,26 +540,50 @@ def label_blocks(pdfxml_path: str, mapping: dict) -> List[dict]:
 
     entries: List[dict] = []
     for page in tree.findall(".//page"):
-        entries.extend(sorted(_iter_page_entries(page, fontspecs), key=lambda item: (
-            item["line"].top if item["kind"] == "line" else item["image"]["top"],
-            item["line"].left if item["kind"] == "line" else item["image"]["left"],
-        )))
+        entries.extend(
+            sorted(
+                _iter_page_entries(page, fontspecs),
+                key=lambda item: (
+                    item["line"].top if item["kind"] == "line" else item["image"]["top"],
+                    item["line"].left if item["kind"] == "line" else item["image"]["left"],
+                ),
+            )
+        )
 
     lines = [item["line"] for item in entries if item["kind"] == "line"]
     body_size = _body_font_size(lines)
     logger.debug("Estimated body font size: %.2f", body_size)
+
+    toc_entries, toc_last_page = _extract_toc_entries(entries, body_size)
+    outline_titles = _extract_outline_titles(tree.getroot())
+    chapter_targets: List[Tuple[str, str]] = []
+    chapter_source: Optional[str] = None
+    if toc_entries:
+        chapter_targets = _prepare_chapter_targets(toc_entries)
+        chapter_source = "toc"
+        logger.info("Detected %d table of contents entries for chapter boundaries", len(chapter_targets))
+    elif outline_titles:
+        chapter_targets = _prepare_chapter_targets(outline_titles)
+        if chapter_targets:
+            chapter_source = "bookmark"
+            logger.info("Detected %d bookmark entries for chapter boundaries", len(chapter_targets))
 
     blocks: List[dict] = []
     current_para: List[Line] = []
     saw_book_title = False
     enforce_chapter_keyword = False
     in_index_section = False
-    should_enforce_chapter_keyword = any(
-        line_entry["kind"] == "line"
-        and CHAPTER_KEYWORD_RE.search(line_entry["line"].text.strip())
-        and _has_heading_font(line_entry["line"], body_size)
-        for line_entry in entries
+    should_enforce_chapter_keyword = (
+        not chapter_targets
+        and any(
+            line_entry["kind"] == "line"
+            and CHAPTER_KEYWORD_RE.search(line_entry["line"].text.strip())
+            and _has_heading_font(line_entry["line"], body_size)
+            for line_entry in entries
+        )
     )
+    next_chapter_idx = 0
+    chapter_heading_font_size: Optional[float] = None
     idx = 0
     while idx < len(entries):
         entry = entries[idx]
@@ -605,41 +731,59 @@ def label_blocks(pdfxml_path: str, mapping: dict) -> List[dict]:
             continue
 
         if not saw_book_title and _looks_like_book_title(line, body_size):
-            if current_para:
-                blocks.append(_finalize_paragraph(current_para))
-                current_para = []
+            candidate_norm = _normalise_heading_text(text)
+            skip_book_title = False
+            if chapter_targets and candidate_norm:
+                has_target_match = any(
+                    _heading_matches_target(candidate_norm, target_norm)
+                    for _, target_norm in chapter_targets[next_chapter_idx:]
+                )
+                if has_target_match:
+                    if chapter_source == "toc":
+                        if toc_last_page is not None and line.page_num > toc_last_page:
+                            skip_book_title = True
+                    else:
+                        skip_book_title = True
+            if not skip_book_title:
+                if current_para:
+                    blocks.append(_finalize_paragraph(current_para))
+                    current_para = []
 
-            heading_lines, next_idx = _collect_multiline_book_title(entries, idx, body_size)
-            combined_text = "\n".join(
-                heading_line.text.strip()
-                for heading_line in heading_lines
-                if heading_line.text.strip()
-            )
-            left = min(heading_line.left for heading_line in heading_lines)
-            right = max(heading_line.right for heading_line in heading_lines)
-            top = heading_lines[0].top
-            bottom = max(
-                heading_line.top + heading_line.height for heading_line in heading_lines
-            )
-            blocks.append(
-                {
-                    "label": "book_title",
-                    "text": combined_text,
-                    "page_num": heading_lines[0].page_num,
-                    "bbox": {
-                        "top": top,
-                        "left": left,
-                        "width": right - left,
-                        "height": bottom - top,
-                    },
-                    "font_size": max(
-                        heading_line.font_size for heading_line in heading_lines if heading_line.font_size
-                    ),
-                }
-            )
-            saw_book_title = True
-            idx = next_idx
-            continue
+                heading_lines, next_idx = _collect_multiline_book_title(
+                    entries, idx, body_size
+                )
+                combined_text = "\n".join(
+                    heading_line.text.strip()
+                    for heading_line in heading_lines
+                    if heading_line.text.strip()
+                )
+                left = min(heading_line.left for heading_line in heading_lines)
+                right = max(heading_line.right for heading_line in heading_lines)
+                top = heading_lines[0].top
+                bottom = max(
+                    heading_line.top + heading_line.height for heading_line in heading_lines
+                )
+                blocks.append(
+                    {
+                        "label": "book_title",
+                        "text": combined_text,
+                        "page_num": heading_lines[0].page_num,
+                        "bbox": {
+                            "top": top,
+                            "left": left,
+                            "width": right - left,
+                            "height": bottom - top,
+                        },
+                        "font_size": max(
+                            heading_line.font_size
+                            for heading_line in heading_lines
+                            if heading_line.font_size
+                        ),
+                    }
+                )
+                saw_book_title = True
+                idx = next_idx
+                continue
 
         if _looks_like_chapter_heading(line, body_size):
             if current_para:
@@ -658,11 +802,47 @@ def label_blocks(pdfxml_path: str, mapping: dict) -> List[dict]:
                 for heading_line in heading_lines
                 if heading_line.text.strip()
             )
-            if (
-                should_enforce_chapter_keyword
-                and enforce_chapter_keyword
-                and not contains_chapter_keyword
-            ):
+            heading_norm = _normalise_heading_text(combined_text)
+            demote_to_section = False
+
+            if chapter_targets:
+                match_idx: Optional[int] = None
+                for candidate_idx in range(next_chapter_idx, len(chapter_targets)):
+                    _, target_norm = chapter_targets[candidate_idx]
+                    if _heading_matches_target(heading_norm, target_norm):
+                        match_idx = candidate_idx
+                        break
+                if match_idx is None:
+                    demote_to_section = True
+                else:
+                    next_chapter_idx = match_idx + 1
+            else:
+                allow_heading = True
+                first_line = heading_lines[0]
+                base_font = first_line.font_size or 0.0
+                if (
+                    should_enforce_chapter_keyword
+                    and enforce_chapter_keyword
+                    and not contains_chapter_keyword
+                ):
+                    allow_heading = False
+                if contains_chapter_keyword and base_font:
+                    if chapter_heading_font_size is None:
+                        chapter_heading_font_size = base_font
+                    elif abs(base_font - chapter_heading_font_size) > HEADING_FONT_TOLERANCE:
+                        allow_heading = False
+                    else:
+                        chapter_heading_font_size = base_font
+                elif (
+                    chapter_heading_font_size is not None
+                    and should_enforce_chapter_keyword
+                    and enforce_chapter_keyword
+                ):
+                    allow_heading = False
+                if not allow_heading:
+                    demote_to_section = True
+
+            if demote_to_section:
                 blocks.append(
                     {
                         "label": "section",
@@ -685,6 +865,7 @@ def label_blocks(pdfxml_path: str, mapping: dict) -> List[dict]:
                 )
                 idx = lookahead_idx
                 continue
+
             left = min(heading_line.left for heading_line in heading_lines)
             right = max(heading_line.right for heading_line in heading_lines)
             top = heading_lines[0].top
@@ -703,7 +884,7 @@ def label_blocks(pdfxml_path: str, mapping: dict) -> List[dict]:
                     "font_size": max(heading_line.font_size for heading_line in heading_lines),
                 }
             )
-            if contains_chapter_keyword:
+            if not chapter_targets and contains_chapter_keyword:
                 enforce_chapter_keyword = True
             idx = lookahead_idx
             continue
