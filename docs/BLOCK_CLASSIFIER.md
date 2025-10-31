@@ -82,27 +82,6 @@ non-abstained blocks, and the resulting coverage.
   logs a warning and gracefully falls back to the stub classifier so the PDF
   pipeline continues to operate.
 
-### Aligning configuration with a trained bundle
-
-1. After fine-tuning, inspect the output directory (e.g.
-   `models/layout_classifier/`). It should contain the HuggingFace artefacts
-   (`config.json`, `pytorch_model.bin`, tokenizer files) and the generated
-   `label_map.json`.
-2. Point `model_path` in `config/mapping.default.json` (or a publisher override)
-   to that directory.
-3. Set `label_map_path` to the `label_map.json` file within the same directory.
-   The runtime uses this to translate between model indices and DCT labels.
-4. Run `tools/models/evaluate_layout_classifier.py` against your held-out
-   dataset. Copy the recommended `threshold` value from the resulting
-   `evaluation.json` into the configuration.
-5. Optionally toggle `monitoring.log_predictions` to `true` so that the pipeline
-   logs how many blocks were classified, abstained, and fell back to heuristics
-   during runs. This helps verify threshold effectiveness in production.
-
-When these paths or values do not resolve at runtime, the classifier logs the
-misconfiguration and reverts to the deterministic fallback, avoiding pipeline
-failures while signalling that the ML model was not engaged.
-
 ## Monitoring and troubleshooting
 
 * Enable `monitoring.log_predictions` in the classifier config to log coverage
