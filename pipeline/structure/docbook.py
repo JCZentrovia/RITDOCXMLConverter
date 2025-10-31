@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Sequence
 
 from lxml import etree
 
@@ -18,9 +18,126 @@ def _ensure_title(parent: etree._Element, text: str) -> etree._Element:
     return title
 
 
-def _append_para(parent: etree._Element, text: str) -> etree._Element:
+def _append_text_fragment(parent: etree._Element, fragment: str) -> None:
+    if not fragment:
+        return
+    fragment = str(fragment)
+    if len(parent):
+        last = parent[-1]
+        last.tail = (last.tail or "") + fragment
+    else:
+        if parent.text:
+            parent.text += fragment
+        else:
+            parent.text = fragment
+
+
+def _create_personname_element(text: str, details: Dict[str, object], label: str) -> etree._Element:
+    element = etree.Element("personname")
+    element.set("role", f"ner-{label}")
+
+    prefix = details.get("prefix")
+    if prefix:
+        prefix_el = etree.SubElement(element, "othername")
+        prefix_el.set("role", "prefix")
+        prefix_el.text = str(prefix)
+
+    first = details.get("first")
+    if first:
+        etree.SubElement(element, "firstname").text = str(first)
+
+    for middle in details.get("middle", []) or []:
+        middle_el = etree.SubElement(element, "othername")
+        middle_el.set("role", "middle")
+        middle_el.text = str(middle)
+
+    last = details.get("last")
+    if last:
+        etree.SubElement(element, "surname").text = str(last)
+
+    suffix = details.get("suffix")
+    if suffix:
+        suffix_el = etree.SubElement(element, "othername")
+        suffix_el.set("role", "suffix")
+        suffix_el.text = str(suffix)
+
+    if not len(element):
+        element.text = text
+
+    return element
+
+
+def _create_entity_element(entity: Dict[str, object]) -> etree._Element:
+    label = str(entity.get("label") or entity.get("type") or "entity").lower()
+    text = str(entity.get("text") or "")
+    if label == "person":
+        details = entity.get("person") or {}
+        element = _create_personname_element(text, details, label)
+    else:
+        element = etree.Element("phrase")
+        element.set("role", f"ner-{label}")
+        element.text = text
+
+    original = entity.get("original_label")
+    if original and element.get("role") is not None:
+        element.set("orig-label", str(original))
+    score = entity.get("score")
+    if score is not None:
+        element.set("confidence", f"{float(score):.3f}")
+    return element
+
+
+def _append_entities(parent: etree._Element, text: str, entities: Sequence[Dict[str, object]]) -> None:
+    if not entities:
+        parent.text = text
+        return
+
+    cursor = 0
+    text_length = len(text)
+    for entity in sorted(entities, key=lambda item: int(item.get("start", 0))):
+        start = int(entity.get("start", 0) or 0)
+        end = int(entity.get("end", start) or start)
+        start = max(0, min(text_length, start))
+        end = max(start, min(text_length, end))
+        if start < cursor or start == end:
+            continue
+
+        _append_text_fragment(parent, text[cursor:start])
+        segment = text[start:end]
+        if not segment:
+            cursor = end
+            continue
+
+        leading_ws = len(segment) - len(segment.lstrip())
+        trailing_ws = len(segment) - len(segment.rstrip())
+        if leading_ws:
+            _append_text_fragment(parent, segment[:leading_ws])
+
+        core = segment[leading_ws: len(segment) - trailing_ws if trailing_ws else len(segment)]
+        if core:
+            entity_copy = dict(entity)
+            entity_copy.setdefault("text", core)
+            parent.append(_create_entity_element(entity_copy))
+
+        if trailing_ws:
+            _append_text_fragment(parent, segment[-trailing_ws:])
+
+        cursor = end
+
+    if cursor < text_length:
+        _append_text_fragment(parent, text[cursor:])
+
+    if not len(parent) and not parent.text:
+        parent.text = text
+
+
+def _append_para(parent: etree._Element, text: str, entities: Optional[Sequence[Dict[str, object]]] = None) -> etree._Element:
     para = etree.SubElement(parent, "para")
-    para.text = text.strip()
+    clean_text = text.strip()
+    if entities:
+        _append_entities(para, clean_text, entities)
+    else:
+        para.text = clean_text
     return para
 
 
@@ -263,6 +380,7 @@ def build_docbook_tree(blocks: List[dict], root_name: str) -> etree._Element:
     for block in blocks:
         label = block.get("classifier_label") or block.get("label", "para")
         text = (block.get("text") or "").strip()
+        entities = block.get("entities") if isinstance(block, dict) else None
 
         if state.get("pending_caption") and label not in {"caption", "figure", "table"}:
             _attach_pending_caption(root, state, None)
@@ -334,7 +452,7 @@ def build_docbook_tree(blocks: List[dict], root_name: str) -> etree._Element:
                 state["current_list"] = etree.SubElement(container, tag)
                 state["current_list_type"] = tag
             listitem = etree.SubElement(state["current_list"], "listitem")
-            _append_para(listitem, text)
+            _append_para(listitem, text, entities)
             state["last_structure"] = state["current_list"]
             continue
 
@@ -375,7 +493,7 @@ def build_docbook_tree(blocks: List[dict], root_name: str) -> etree._Element:
 
         if label == "para" and text:
             container = _current_container(root, state)
-            para = _append_para(container, text)
+            para = _append_para(container, text, entities)
             
             # Log every 10th paragraph to track progress
             if not hasattr(build_docbook_tree, '_para_count'):
@@ -392,7 +510,7 @@ def build_docbook_tree(blocks: List[dict], root_name: str) -> etree._Element:
         if label == "footnote" and text:
             container = _current_container(root, state)
             footnote = etree.SubElement(container, "footnote")
-            _append_para(footnote, text)
+            _append_para(footnote, text, entities)
             state["last_structure"] = footnote
             _close_list(state)
             continue
@@ -400,7 +518,7 @@ def build_docbook_tree(blocks: List[dict], root_name: str) -> etree._Element:
         # Any unrecognised label with text should still result in a paragraph.
         if text:
             container = _current_container(root, state)
-            _append_para(container, text)
+            _append_para(container, text, entities)
             state["last_structure"] = container
             _close_list(state)
 

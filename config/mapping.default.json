@@ -15,7 +15,7 @@
     "list_markers": ["•", "-", "—", "–"]
   },
   "classifier": {
-    "enabled": false,
+    "enabled": true,
     "backend": "huggingface",
     "model_path": "models/layout_classifier",
     "label_map_path": "models/layout_classifier/label_map.json",
@@ -27,6 +27,21 @@
     "monitoring": {
       "log_predictions": false
     }
+  },
+  "ner": {
+    "enabled": true,
+    "backend": "huggingface",
+    "model_name": "dslim/bert-base-NER",
+    "aggregation_strategy": "simple",
+    "label_groups": {
+      "person": ["PER", "PERSON"],
+      "organization": ["ORG"],
+      "location": ["LOC"],
+      "date": ["DATE"],
+      "misc": ["MISC", "TITLE", "WORK_OF_ART"]
+    },
+    "eligible_block_labels": ["para", "footnote", "list_item"],
+    "max_text_length": 2000
   },
   "docbook": {
     "root": "book",
