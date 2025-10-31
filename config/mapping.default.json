@@ -3,6 +3,7 @@
     "collapse_internal_whitespace": true,
     "preserve_ligatures": true,
     "dehyphenate_line_endings": "safe",
+    "fix_split_words": true,
     "log_every_change": true
   },
   "pdf": {

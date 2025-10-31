@@ -3,10 +3,20 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 from statistics import median
 from typing import Iterable, List, Optional, Sequence
 
 from lxml import etree
+
+# Import PyPDF2 for bookmark extraction (fallback to older name if needed)
+try:
+    from pypdf import PdfReader
+except ImportError:
+    try:
+        from PyPDF2 import PdfReader
+    except ImportError:
+        PdfReader = None
 
 logger = logging.getLogger(__name__)
 
@@ -159,6 +169,340 @@ CAPTION_RE = re.compile(r"^(figure|fig\.|table)\s+\d+", re.IGNORECASE)
 ORDERED_LIST_RE = re.compile(r"^(?:\(?\d+[\.\)]|[A-Za-z][\.)])\s+")
 
 HEADING_FONT_TOLERANCE = 1.0
+
+
+def _get_bookmark_page_number(bookmark, reader) -> Optional[int]:
+    """
+    Try multiple methods to extract page number from a bookmark.
+    
+    Different PDFs and PyPDF2 versions store bookmark destinations differently.
+    This function tries all known methods to maximize compatibility.
+    
+    Args:
+        bookmark: Bookmark object from PyPDF2
+        reader: PdfReader instance
+    
+    Returns:
+        Page number (0-indexed) or None if not found
+    """
+    # Method 1: Try the .page attribute (most common)
+    try:
+        if hasattr(bookmark, 'page') and bookmark.page is not None:
+            return reader.pages.index(bookmark.page)
+    except Exception:
+        pass
+    
+    # Method 2: Try accessing as dictionary with '/Page' key
+    try:
+        if isinstance(bookmark, dict) and '/Page' in bookmark:
+            page_obj = bookmark['/Page']
+            return reader.pages.index(page_obj)
+    except Exception:
+        pass
+    
+    # Method 3: Try get_destination() method (older PyPDF2 versions)
+    try:
+        if hasattr(bookmark, 'get_destination'):
+            dest = bookmark.get_destination()
+            if dest and hasattr(dest, 'page'):
+                return reader.pages.index(dest.page)
+    except Exception:
+        pass
+    
+    # Method 4: Try dictionary-style access for destination
+    try:
+        if hasattr(bookmark, '__getitem__'):
+            dest = bookmark['/Dest']
+            if dest:
+                # Destination can be an array [page, /XYZ, left, top, zoom]
+                if isinstance(dest, list) and len(dest) > 0:
+                    page_ref = dest[0]
+                    return reader.pages.index(page_ref)
+    except Exception:
+        pass
+    
+    # Method 5: Try named destinations
+    try:
+        if hasattr(reader, 'named_destinations'):
+            # Some bookmarks reference named destinations
+            if hasattr(bookmark, 'title'):
+                for name, dest in reader.named_destinations.items():
+                    if hasattr(dest, 'page'):
+                        # This is a guess - named destinations don't always match titles
+                        return reader.pages.index(dest.page)
+    except Exception:
+        pass
+    
+    return None
+
+"""
+def _extract_bookmark_page_ranges(pdf_path: str) -> Optional[List[dict]]:
+"""
+"""
+    Extract level 0 (top-level) bookmarks from PDF with their page ranges.
+    
+    This is the PRIMARY method for chapter detection - only falls back to 
+    heuristics if bookmarks are not available.
+    
+    Args:
+        pdf_path: Path to the PDF file
+    
+    Returns:
+        List of bookmark dictionaries with 'title', 'start_page', 'end_page'
+        Returns None if bookmarks cannot be extracted
+"""
+"""
+    if PdfReader is None:
+        logger.info("📚 PyPDF2/pypdf not available - skipping bookmark extraction")
+        return None
+    
+    try:
+        reader = PdfReader(pdf_path)
+        outlines = reader.outline
+        total_pages = len(reader.pages)
+        
+        if not outlines:
+            logger.info("📚 No bookmarks found in PDF - will use heuristic detection")
+            return None
+        
+        # Collect level 0 (top-level) bookmarks only
+        level_0_bookmarks = []
+        
+        for item in outlines:
+            # Level 0 bookmarks are NOT nested in lists
+            # If item is a list, it contains nested sub-bookmarks - skip it
+            if isinstance(item, list):
+                continue
+            
+            # This is a level 0 bookmark
+            if not hasattr(item, 'title'):
+                continue
+                
+            title = item.title
+            
+            # Get the starting page number using robust method
+            start_page = _get_bookmark_page_number(item, reader)
+            
+            if start_page is not None:
+                level_0_bookmarks.append({
+                    'title': title,
+                    'start_page': start_page,  # 0-indexed
+                })
+            else:
+                logger.warning(f"Could not extract page for bookmark '{title}': no valid page reference found")
+                continue
+        
+        if not level_0_bookmarks:
+            logger.info("📚 No valid level 0 bookmarks found - will use heuristic detection")
+            return None
+        
+        # ═══════════════════════════════════════════════════════════════
+        # FILTER: Only keep bookmarks that look like actual chapters
+        # ═══════════════════════════════════════════════════════════════
+        logger.info(f"📚 Found {len(level_0_bookmarks)} level 0 bookmarks total")
+        
+        # Filter to only keep bookmarks starting with "Chapter" (case-insensitive)
+        chapter_bookmarks = []
+        non_chapter_bookmarks = []
+        
+        for bm in level_0_bookmarks:
+            title = bm['title'].strip()
+            # Check if this looks like a chapter heading
+            if re.match(r'^Chapter\s+\d+', title, re.IGNORECASE):
+                chapter_bookmarks.append(bm)
+            else:
+                non_chapter_bookmarks.append(title)
+        
+        if not chapter_bookmarks:
+            logger.warning("⚠️  No chapter bookmarks found after filtering")
+            logger.warning("   (Looking for bookmarks starting with 'Chapter N:')")
+            logger.warning("   Falling back to heuristic chapter detection")
+            return None
+        
+        logger.info(f"✅ Filtered to {len(chapter_bookmarks)} CHAPTER bookmarks only")
+        logger.info(f"   (Ignored {len(non_chapter_bookmarks)} non-chapter bookmarks)")
+        
+        # Show a few examples of what was filtered out
+        if non_chapter_bookmarks:
+            logger.info("   📝 Examples of ignored bookmarks:")
+            for title in non_chapter_bookmarks[:5]:
+                logger.info(f"      • {title}")
+            if len(non_chapter_bookmarks) > 5:
+                logger.info(f"      ... and {len(non_chapter_bookmarks) - 5} more")
+        
+        # Use the filtered chapter bookmarks from here on
+        level_0_bookmarks = chapter_bookmarks
+        
+        # Calculate ending pages
+        # Each bookmark ends where the next one starts (minus 1)
+        for i in range(len(level_0_bookmarks)):
+            if i < len(level_0_bookmarks) - 1:
+                # Not the last bookmark - ends where next one starts
+                level_0_bookmarks[i]['end_page'] = level_0_bookmarks[i + 1]['start_page'] - 1
+            else:
+                # Last bookmark - ends at the end of the document
+                level_0_bookmarks[i]['end_page'] = total_pages - 1
+        
+        logger.info(f"✅ Successfully extracted {len(level_0_bookmarks)} bookmarks from PDF")
+        for bm in level_0_bookmarks:
+            logger.info(f"   📖 '{bm['title']}': pages {bm['start_page']+1}-{bm['end_page']+1}")
+        
+        return level_0_bookmarks
+    
+    except Exception as e:
+        logger.warning(f"❌ Error extracting bookmarks from PDF: {e}")
+        logger.info("📚 Will use heuristic detection instead")
+        return None
+"""
+
+def _create_blocks_from_bookmarks(
+    bookmark_ranges: List[dict],
+    pdfxml_path: str,
+    config: dict
+) -> Optional[List[dict]]:
+    """
+    Create chapter blocks based on PDF bookmarks.
+    
+    This converts bookmark page ranges into the block structure expected
+    by the rest of the pipeline.
+    
+    Args:
+        bookmark_ranges: List of bookmarks with start_page and end_page
+        pdfxml_path: Path to the PDF XML file (to get page dimensions)
+        config: Configuration dict
+    
+    Returns:
+        List of blocks with chapter labels, or None if conversion fails
+    """
+    try:
+        tree = etree.parse(pdfxml_path)
+        root = tree.getroot()
+        
+        # Build a mapping of page numbers to page elements (for dimensions)
+        pages = {}
+        for page in root.findall(".//page"):
+            page_num = int(page.get("number", "0"))
+            pages[page_num] = page
+        
+        blocks = []
+        
+        for bm in bookmark_ranges:
+            title = bm['title']
+            start_page = bm['start_page']
+            end_page = bm['end_page']
+            
+            # Get page dimensions from the first page of this chapter
+            page_elem = pages.get(start_page)
+            if page_elem is not None:
+                page_width = float(page_elem.get("width", "612") or "612")
+                page_height = float(page_elem.get("height", "792") or "792")
+            else:
+                page_width = 612.0
+                page_height = 792.0
+            
+            # Create a chapter block
+            # Note: We use page_num as the start page where this chapter begins
+            block = {
+                "label": "chapter",
+                "text": title,
+                "page_num": start_page,  # 0-indexed page number
+                "bbox": {
+                    "top": 0.0,
+                    "left": 0.0,
+                    "width": page_width,
+                    "height": 72.0,  # Approximate heading height
+                },
+                "font_size": 18.0,  # Default chapter heading size
+                "bookmark_based": True,  # Flag to indicate this came from bookmarks
+                "end_page": end_page,  # Store the ending page for reference
+            }
+            blocks.append(block)
+        
+        logger.info(f"✅ Created {len(blocks)} chapter blocks from bookmarks")
+        return blocks
+    
+    except Exception as e:
+        logger.error(f"❌ Error creating blocks from bookmarks: {e}")
+        return None
+
+
+def _inject_bookmark_chapters(blocks: List[dict], bookmark_ranges: List[dict]) -> List[dict]:
+    """
+    Inject bookmark-based chapter headings into the blocks at appropriate positions.
+    
+    This function:
+    1. Removes heuristically-detected chapter headings (to avoid duplicates)
+    2. Inserts bookmark-based chapter headings at the correct page numbers
+    3. Preserves all other content blocks (paragraphs, figures, etc.)
+    
+    Args:
+        blocks: List of all content blocks (from heuristic extraction)
+        bookmark_ranges: List of bookmark dictionaries with title, start_page, end_page
+    
+    Returns:
+        Updated list of blocks with bookmark-based chapter headings
+    """
+    logger.info(f"🔄 Injecting {len(bookmark_ranges)} bookmark-based chapters into {len(blocks)} blocks")
+    
+    # Step 1: Remove heuristically-detected chapter headings
+    # Keep everything else (paragraphs, sections, figures, etc.)
+    filtered_blocks = []
+    removed_chapters = 0
+    
+    for block in blocks:
+        if block.get("label") == "chapter":
+            # Remove heuristic chapter headings - we'll replace with bookmark-based ones
+            removed_chapters += 1
+            logger.debug(f"   Removing heuristic chapter: '{block.get('text', '')[:50]}'")
+            continue
+        filtered_blocks.append(block)
+    
+    if removed_chapters > 0:
+        logger.info(f"   📝 Removed {removed_chapters} heuristically-detected chapter headings")
+    
+    # Step 2: Create chapter heading blocks from bookmarks
+    bookmark_chapter_blocks = []
+    
+    for bm in bookmark_ranges:
+        title = bm['title']
+        start_page = bm['start_page']
+        end_page = bm['end_page']
+        
+        # Create a chapter heading block
+        chapter_block = {
+            "label": "chapter",
+            "text": title,
+            "page_num": start_page,  # 0-indexed
+            "bbox": {
+                "top": 0.0,
+                "left": 0.0,
+                "width": 612.0,
+                "height": 72.0,
+            },
+            "font_size": 18.0,  # Default chapter heading size
+            "bookmark_based": True,  # Flag to indicate source
+            "end_page": end_page,  # Store ending page
+        }
+        bookmark_chapter_blocks.append(chapter_block)
+    
+    # Step 3: Merge blocks - insert chapter headings at correct positions
+    # Sort all blocks by page number first
+    all_blocks_to_sort = filtered_blocks + bookmark_chapter_blocks
+    
+    # Sort by page number, then by vertical position (top)
+    # Chapter headings should come first on their page (top=0.0)
+    sorted_blocks = sorted(
+        all_blocks_to_sort,
+        key=lambda b: (
+            b.get("page_num", 0),
+            b.get("bbox", {}).get("top", 0.0)
+        )
+    )
+    
+    logger.info(f"   ✅ Merged {len(filtered_blocks)} content blocks with {len(bookmark_chapter_blocks)} bookmark chapters")
+    logger.info(f"   📖 Result: {len(sorted_blocks)} total blocks")
+    
+    return sorted_blocks
 
 
 def _looks_like_book_title(line: Line, body_size: float) -> bool:
@@ -423,7 +767,27 @@ def _iter_page_entries(page: etree._Element, fontspecs: dict) -> Iterable[dict]:
         }
 
 
-def label_blocks(pdfxml_path: str, mapping: dict) -> List[dict]:
+def label_blocks(pdfxml_path: str, mapping: dict, pdf_path: Optional[str] = None) -> List[dict]:
+    """
+    Label blocks in the PDF XML.
+    
+    Strategy:
+    1. FIRST: Try to extract bookmarks from PDF (if pdf_path provided)
+    2. FALLBACK: Use heuristic-based detection if bookmarks unavailable
+    
+    Args:
+        pdfxml_path: Path to the PDF XML file
+        mapping: Configuration mapping
+        pdf_path: Optional path to the original PDF file (for bookmark extraction)
+    
+    Returns:
+        List of labeled blocks
+    """
+    
+    # ═══════════════════════════════════════════════════════════════
+    # STEP 1: Extract ALL content blocks from PDF
+    # ═══════════════════════════════════════════════════════════════
+    
     tree = etree.parse(pdfxml_path)
     fontspecs = {
         node.get("id"): {
@@ -816,5 +1180,20 @@ def label_blocks(pdfxml_path: str, mapping: dict) -> List[dict]:
     if current_para:
         blocks.append(_finalize_paragraph(current_para))
 
+
+    # ═══════════════════════════════════════════════════════════════
+    # STEP 2: If bookmarks exist, use them to mark chapter boundaries
+    # ═══════════════════════════════════════════════════════════════
+    # if pdf_path:
+    #    bookmark_ranges = _extract_bookmark_page_ranges(pdf_path)
+    #    
+    #   if bookmark_ranges:
+    #        logger.info("✅ Found bookmarks - using them to define chapter boundaries")
+    #       blocks = _inject_bookmark_chapters(blocks, bookmark_ranges)
+    #        logger.info("Labeled %s blocks (with bookmark-based chapters)", len(blocks))
+    #        return blocks
+    
     logger.info("Labeled %s blocks", len(blocks))
     return blocks
+
+    

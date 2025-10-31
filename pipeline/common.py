@@ -97,6 +97,13 @@ def normalize_text(text: str, config: dict, events: Optional[List[NormalizationE
             events.append(NormalizationEvent("dehyphenate_line_endings", result, dehyphenated))
             result = dehyphenated
 
+    # NEW: Add the split word fix here
+    if normalization_cfg.get("fix_split_words"):
+        fixed = _fix_split_words(result)
+        if fixed != result:
+            events.append(NormalizationEvent("fix_split_words", result, fixed))
+            result = fixed
+
     if normalization_cfg.get("preserve_ligatures"):
         # No-op placeholder; ligatures preserved by default.
         pass
@@ -107,6 +114,36 @@ def normalize_text(text: str, config: dict, events: Optional[List[NormalizationE
 
     return result
 
+def _fix_split_words(text: str) -> str:
+    """
+    Fix incorrectly split words like 'defi ciency' -> 'deficiency'
+    """
+    import re
+    
+    # This pattern finds cases like: "defi ciency" 
+    # (word fragment + space + word fragment)
+    # We look for short fragments (2-6 chars) that might be parts of one word
+    pattern = r'\b([a-z]{2,6})\s([a-z]{2,6})\b'
+    
+    def try_join(match):
+        """Try joining two fragments and see if it makes sense"""
+        part1 = match.group(1)
+        part2 = match.group(2)
+        joined = part1 + part2
+        
+        # Check if the joined word looks more legitimate
+        # A simple heuristic: if both parts are short and joined is longer,
+        # it's probably meant to be one word
+        if len(joined) >= 8:  # Words like "deficiency" are typically longer
+            # You could add dictionary lookup here for better accuracy
+            return joined
+        
+        # Keep original if unsure
+        return match.group(0)
+    
+    # Apply the fix
+    result = re.sub(pattern, try_join, text, flags=re.IGNORECASE)
+    return result
 
 def checksum(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()

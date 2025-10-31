@@ -7,6 +7,15 @@ from typing import Dict, List, Optional, Sequence, Tuple
 
 from lxml import etree
 
+# Import library for reading PDF bookmarks
+try:
+    from pypdf import PdfReader
+except ImportError:
+    try:
+        from PyPDF2 import PdfReader
+    except ImportError:
+        PdfReader = None
+
 from .ai.config import export_intermediate_artifacts_enabled
 from .common import PageText, checksum, load_mapping, normalize_text
 from .extractors.pdfminer_text import pdfminer_pages
@@ -20,6 +29,9 @@ from .structure.heuristics import label_blocks
 from .transform import RittDocTransformResult, transform_docbook_to_rittdoc
 from .validators.counters import compute_metrics
 from .validators.dtd_validator import validate_dtd
+# DISABLED: These modules are missing and were causing issues
+# from .ai_integration import integrate_ai_formatting
+# from .smart_label_enhancer import enhance_labels_with_ai_formatting
 
 logger = logging.getLogger(__name__)
 
@@ -122,6 +134,7 @@ def convert_pdf(
     pdf_path_obj = Path(pdf_path)
     if not pdf_path_obj.exists():
         raise FileNotFoundError(pdf_path)
+    
 
     with tempfile.TemporaryDirectory() as tmpdir:
         tmp = Path(tmpdir)
@@ -152,7 +165,8 @@ def convert_pdf(
         pdfxml_path = tmp / "pdfxml.xml"
         pdftohtml_xml(str(working_pdf), str(pdfxml_path))
 
-        blocks = label_blocks(str(pdfxml_path), config)
+        # Pass the PDF path to enable bookmark-based chapter detection
+        blocks = label_blocks(str(pdfxml_path), config, pdf_path=str(working_pdf))
         classifier_cfg = config.get("classifier", {})
         if classifier_cfg.get("enabled"):
             blocks = classify_blocks(
@@ -171,7 +185,71 @@ def convert_pdf(
             ]
 
         root_name = config.get("docbook", {}).get("root", "book")
-        docbook_tree = build_docbook_tree(blocks, root_name)
+        
+        # ==================================================================
+        # DEBUGGING: Let's see what blocks we have BEFORE any AI processing
+        # ==================================================================
+        logger.info("=" * 70)
+        logger.info("📊 BLOCKS AFTER CLASSIFIER (Before AI enhancement)")
+        logger.info("=" * 70)
+        logger.info(f"Total blocks: {len(blocks)}")
+        
+        # Count blocks by label
+        label_counts = {}
+        para_blocks_with_text = 0
+        para_blocks_without_text = 0
+        
+        for block in blocks:
+            label = block.get("classifier_label") or block.get("label", "para")
+            label_counts[label] = label_counts.get(label, 0) + 1
+            
+            if label == "para":
+                text = block.get("text", "").strip()
+                if text:
+                    para_blocks_with_text += 1
+                else:
+                    para_blocks_without_text += 1
+        
+        logger.info(f"Block label counts: {label_counts}")
+        logger.info(f"Para blocks WITH text: {para_blocks_with_text}")
+        logger.info(f"Para blocks WITHOUT text: {para_blocks_without_text}")
+        
+        # Show first few blocks as samples
+        logger.info("\n🔍 Sample of first 3 blocks:")
+        for i, block in enumerate(blocks[:3]):
+            label = block.get("classifier_label") or block.get("label", "para")
+            text = (block.get("text", "") or "")[:80]
+            page = block.get("page_num", "?")
+            logger.info(f"  Block {i+1}: [{label}] Page {page}: {text}...")
+        
+        logger.info("=" * 70)
+        
+        # ==================================================================
+        # DISABLED: AI enhancement temporarily disabled to debug content loss
+        # The AI functions were removing text from blocks!
+        # ==================================================================
+        
+        # Still need to check if we should export intermediate artifacts
+        # (even though AI enhancement is disabled, this is used for plain text export)
+        export_intermediate = export_intermediate_artifacts_enabled()
+        
+        # AI enhancement is disabled:
+        # export_intermediate = export_intermediate_artifacts_enabled()
+        # enhanced_blocks, ai_assets = integrate_ai_formatting(
+        #     pdf_path_obj,
+        #     blocks,
+        #     tmp,
+        #     export_intermediate=export_intermediate
+        # )
+        # logger.info("🎯 Enhancing labels using AI formatting patterns")
+        # enhanced_blocks = enhance_labels_with_ai_formatting(enhanced_blocks)
+        
+        # Using original blocks directly (no AI enhancement)
+        enhanced_blocks = blocks
+        ai_assets = []
+        
+        logger.info("✅ Building DocBook tree with %d blocks (AI enhancement disabled)", len(enhanced_blocks))
+        docbook_tree = build_docbook_tree(enhanced_blocks, root_name)
         rittdoc: RittDocTransformResult = transform_docbook_to_rittdoc(docbook_tree)
         rittdoc_tree = etree.ElementTree(rittdoc.root)
 
@@ -190,54 +268,9 @@ def convert_pdf(
         # Temporarily skip DTD validation to inspect raw conversion output.
         # validate_dtd(str(tmp_doc), dtd_system, catalog)
 
-        export_intermediate = export_intermediate_artifacts_enabled()
         plain_text_assets, _plain_text_path, plain_text_text = _write_plain_text_assets(
             pdfminer_pages_list, tmp, export=export_intermediate
         )
-
-        ai_assets: List[Tuple[str, Path]] = []
-        ai_config = None
-        try:
-            from .ai import OpenAIConfig
-
-            ai_config = OpenAIConfig.load()
-        except Exception as exc:  # pragma: no cover - configuration failure logging
-            logger.warning("Unable to load AI configuration: %s", exc)
-
-        if ai_config and pdf_path_obj.suffix.lower() == ".pdf":
-            try:
-                from .ai import VisionFormatter, convert_docx_to_docbook
-
-                formatter = VisionFormatter(ai_config)
-                ai_output_dir = tmp / "ai_formatted"
-                result = formatter.apply_formatting(
-                    working_pdf,
-                    plain_text_text,
-                    ai_output_dir,
-                )
-                if export_intermediate:
-                    ai_assets.append(("formatted/FormattedDocument.docx", result.docx_path))
-                    if result.instructions_path:
-                        ai_assets.append(
-                            ("formatted/FormattingInstructions.json", result.instructions_path)
-                        )
-
-                try:
-                    formatted_docbook = convert_docx_to_docbook(
-                        result.docx_path,
-                        ai_output_dir / "FormattedDocbook.xml",
-                        expected_text=plain_text_text,
-                    )
-                except Exception as exc:
-                    logger.warning("Failed to convert AI formatted DOCX to DocBook: %s", exc)
-                else:
-                    ai_assets.append(("formatted/FormattedDocbook.xml", formatted_docbook))
-            except Exception as exc:
-                logger.warning("AI formatting skipped: %s", exc)
-        elif ai_config is None:
-            logger.info(
-                "AI formatting service not configured; skipping vision-based formatting stage"
-            )
 
         media_fetcher = make_file_fetcher([tmp, pdf_path_obj.parent])
         zip_path = package_docbook(

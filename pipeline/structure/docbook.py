@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import logging
 import re
 from typing import Dict, List, Optional
 
 from lxml import etree
+
+# Set up logging so we can see what's happening
+logger = logging.getLogger(__name__)
 
 
 def _ensure_title(parent: etree._Element, text: str) -> etree._Element:
@@ -212,6 +216,38 @@ def _handle_index_para(block: dict, state: dict) -> bool:
 
 
 def build_docbook_tree(blocks: List[dict], root_name: str) -> etree._Element:
+    """
+    Build a DocBook XML tree from a list of labeled blocks.
+    
+    Each block should have:
+    - 'label' or 'classifier_label': what type of content it is (chapter, para, etc.)
+    - 'text': the actual text content
+    - other fields depending on the block type
+    """
+    logger.info("=" * 70)
+    logger.info("🏗️  BUILDING DOCBOOK TREE")
+    logger.info("=" * 70)
+    logger.info(f"Total blocks to process: {len(blocks)}")
+    
+    # Count blocks by label to see what we're working with
+    label_counts = {}
+    blocks_with_text_count = 0
+    total_text_chars = 0
+    
+    for block in blocks:
+        label = block.get("classifier_label") or block.get("label", "para")
+        text = block.get("text", "")
+        
+        label_counts[label] = label_counts.get(label, 0) + 1
+        if text and text.strip():
+            blocks_with_text_count += 1
+            total_text_chars += len(text)
+    
+    logger.info(f"Blocks with text content: {blocks_with_text_count}/{len(blocks)}")
+    logger.info(f"Total characters in all blocks: {total_text_chars:,}")
+    logger.info(f"Block types: {label_counts}")
+    logger.info("=" * 70)
+    
     root = etree.Element(root_name)
     state = {
         "current_chapter": None,
@@ -339,7 +375,16 @@ def build_docbook_tree(blocks: List[dict], root_name: str) -> etree._Element:
 
         if label == "para" and text:
             container = _current_container(root, state)
-            _append_para(container, text)
+            para = _append_para(container, text)
+            
+            # Log every 10th paragraph to track progress
+            if not hasattr(build_docbook_tree, '_para_count'):
+                build_docbook_tree._para_count = 0
+            build_docbook_tree._para_count += 1
+            
+            if build_docbook_tree._para_count % 10 == 0:
+                logger.debug(f"Added paragraph #{build_docbook_tree._para_count}: {text[:50]}...")
+            
             state["last_structure"] = container
             _close_list(state)
             continue
@@ -361,5 +406,26 @@ def build_docbook_tree(blocks: List[dict], root_name: str) -> etree._Element:
 
     if state.get("pending_caption"):
         _attach_pending_caption(root, state, None)
+    
+    # Final summary of what was built
+    logger.info("=" * 70)
+    logger.info("✅ DOCBOOK TREE BUILT")
+    logger.info("=" * 70)
+    
+    # Count what was created in the tree
+    para_count = len(root.findall(".//para"))
+    chapter_count = len(root.findall(".//chapter"))
+    section_count = len(root.findall(".//sect1"))
+    
+    logger.info(f"Chapters created: {chapter_count}")
+    logger.info(f"Sections created: {section_count}")
+    logger.info(f"Paragraphs created: {para_count}")
+    
+    if para_count == 0:
+        logger.warning("⚠️  WARNING: NO PARAGRAPHS were created!")
+        logger.warning("   This means no 'para' labeled blocks with text were processed")
+        logger.warning("   Check if blocks have the right labels and text content")
+    
+    logger.info("=" * 70)
 
     return root
