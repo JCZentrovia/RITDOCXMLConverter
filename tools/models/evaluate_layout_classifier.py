@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import inspect
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
@@ -125,12 +126,20 @@ def evaluate(
             offset += batch_count
             gold.extend(labels)
             model_inputs = _to_device(batch, device)
-            outputs = model(**model_inputs)
-            logits = outputs.logits
-            probs = torch.softmax(logits, dim=-1)
-            scores, indices = probs.max(dim=-1)
-            confidences.extend(scores.cpu().tolist())
-            predictions.extend(id_to_label[idx] for idx in indices.cpu().tolist())
+    # Filter model_inputs to only supported args for this model (e.g., drop 'bbox' for BERT)
+    try:
+        _allowed = set(inspect.signature(model.forward).parameters.keys())
+        model_inputs = {k: v for k, v in model_inputs.items() if k in _allowed}
+    except Exception:
+        # Fallback: drop known layout-specific keys
+        for _k in ("bbox", "pixel_values", "image"):
+            model_inputs.pop(_k, None)
+        outputs = model(**model_inputs)
+        logits = outputs.logits
+        probs = torch.softmax(logits, dim=-1)
+        scores, indices = probs.max(dim=-1)
+        confidences.extend(scores.cpu().tolist())
+        predictions.extend(id_to_label[idx] for idx in indices.cpu().tolist())
 
     return tune_threshold(confidences, predictions, gold)
 
