@@ -23,6 +23,8 @@ Sample acceptance fixtures live under `tests/`. Additional publisher examples ca
 * `pdfminer.six`
 * `xmllint` with the DocBook DTD bundle available under `dtd/v1.1`
 * Optional: `ocrmypdf` and Tesseract when OCR fallback is desired
+* Optional: `torch` and `transformers` (installed via `tools/requirements.txt`) to
+  enable the machine learning block classifier
 
 Install Python packages with:
 
@@ -87,6 +89,15 @@ When a PDF conversion runs, the pipeline can optionally invoke an OpenAI GPT‑4
 4. Run the PDF conversion as usual. When credentials are present, the formatter is engaged automatically for PDF inputs. EPUB conversions intentionally skip the AI stage.
 
 The formatter validates that the AI output exactly matches the extracted text. Any deviation or runtime failure causes the AI artifacts to be skipped so that content fidelity is never compromised.
+
+### Machine learning block classifier
+
+The structural classifier built on LayoutLMv3 augments the heuristic labelling
+in the PDF pipeline. Dataset construction, fine-tuning, evaluation, and runtime
+integration are documented in `docs/BLOCK_CLASSIFIER.md`. The default
+configuration keeps the classifier disabled; enable it by pointing
+`config/mapping.default.json` (or a publisher override) at a trained model
+bundle generated with the tooling under `tools/models/`.
 
 ## QA reports
 

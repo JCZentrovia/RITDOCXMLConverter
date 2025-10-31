@@ -1,0 +1,25 @@
+{
+  "label_distribution": {
+    "abstract.title": 13,
+    "bibliomixed.title": 1578,
+    "book.title": 1,
+    "bookinfo.title": 1,
+    "equation": 39,
+    "equation.title": 39,
+    "figure": 117,
+    "figure.title": 117,
+    "itemizedlist.item": 628,
+    "orderedlist.item": 278,
+    "para": 3826,
+    "preface.title": 5,
+    "sect1.title": 21,
+    "sect2.title": 136,
+    "sect3.title": 238,
+    "sect4.title": 177,
+    "sect5.title": 43,
+    "table": 42,
+    "table.title": 42
+  },
+  "label_entropy": 2.2959268674374385,
+  "total_examples": 7341
+}

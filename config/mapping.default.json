@@ -16,8 +16,17 @@
   },
   "classifier": {
     "enabled": false,
+    "backend": "huggingface",
+    "model_path": "models/layout_classifier",
+    "label_map_path": "models/layout_classifier/label_map.json",
     "threshold": 0.85,
-    "abstain_label": "abstain"
+    "abstain_label": "abstain",
+    "fallback_label": "para",
+    "max_length": 256,
+    "batch_size": 8,
+    "monitoring": {
+      "log_predictions": false
+    }
   },
   "docbook": {
     "root": "book",
