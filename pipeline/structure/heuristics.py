@@ -40,6 +40,7 @@ class Line:
     font_size: float
     text: str = ""
     segments: List[TextSegment] = field(default_factory=list)
+    column_index: Optional[int] = None
 
     @property
     def right(self) -> float:
@@ -128,6 +129,105 @@ def _parse_lines(page: etree._Element, fontspecs: dict) -> List[Line]:
         if not line.font_size and line.segments:
             line.font_size = max(seg.font_size for seg in line.segments if seg.font_size)
     return [line for line in lines if line.text.strip()]
+
+
+def _detect_page_columns(lines: Sequence[Line]) -> List[float]:
+    """Return the dominant column left positions for a page."""
+
+    if not lines:
+        return []
+
+    tolerance = 25.0
+    min_samples = 3
+    page_width = max((line.page_width for line in lines), default=0.0)
+    bins: List[dict] = []
+
+    for line in lines:
+        width = line.right - line.left
+        if page_width and width >= page_width * 0.65:
+            # Likely a heading that spans the page; ignore for column detection.
+            continue
+        position = line.left
+        for bin_ in bins:
+            if abs(bin_["pos"] - position) <= tolerance:
+                bin_["pos"] = (bin_["pos"] * bin_["count"] + position) / (bin_["count"] + 1)
+                bin_["count"] += 1
+                break
+        else:
+            bins.append({"pos": position, "count": 1})
+
+    columns = [bin_["pos"] for bin_ in bins if bin_["count"] >= min_samples]
+    columns.sort()
+
+    if len(columns) <= 1:
+        return []
+
+    if page_width:
+        span = columns[-1] - columns[0]
+        min_span = max(120.0, page_width * 0.25)
+        if span < min_span:
+            return []
+
+    filtered: List[float] = []
+    for pos in columns:
+        if not filtered:
+            filtered.append(pos)
+            continue
+        if all(abs(pos - existing) > tolerance for existing in filtered):
+            filtered.append(pos)
+
+    return filtered if len(filtered) >= 2 else []
+
+
+def _assign_column(line: Line, columns: Sequence[float]) -> Optional[int]:
+    if not columns:
+        return None
+    width = line.right - line.left
+    page_width = line.page_width or 0.0
+    if page_width and width >= page_width * 0.65:
+        return None
+    nearest = min(range(len(columns)), key=lambda idx: abs(columns[idx] - line.left))
+    if abs(columns[nearest] - line.left) > 40.0:
+        return None
+    return nearest
+
+
+def _emit_column_chunk(chunk: Sequence[Line], column_count: int) -> List[Line]:
+    ordered: List[Line] = []
+    groups: List[List[Line]] = [[] for _ in range(column_count)]
+    for line in chunk:
+        if line.column_index is None:
+            continue
+        groups[line.column_index].append(line)
+    for group in groups:
+        group.sort(key=lambda ln: ln.top)
+        ordered.extend(group)
+    return ordered
+
+
+def _reorder_lines_for_columns(lines: Sequence[Line]) -> List[Line]:
+    columns = _detect_page_columns(lines)
+    if not columns:
+        for line in lines:
+            line.column_index = None
+        return list(lines)
+
+    for line in lines:
+        line.column_index = _assign_column(line, columns)
+
+    reordered: List[Line] = []
+    chunk: List[Line] = []
+    for line in lines:
+        if line.column_index is None:
+            if chunk:
+                reordered.extend(_emit_column_chunk(chunk, len(columns)))
+                chunk = []
+            reordered.append(line)
+        else:
+            chunk.append(line)
+    if chunk:
+        reordered.extend(_emit_column_chunk(chunk, len(columns)))
+    return reordered
 
 
 def _line_gap(prev_line: Line, next_line: Line) -> float:
@@ -747,6 +847,7 @@ def _extract_table(lines: Sequence[Line], start_idx: int) -> tuple[dict, int] | 
 
 def _iter_page_entries(page: etree._Element, fontspecs: dict) -> Iterable[dict]:
     lines = _parse_lines(page, fontspecs)
+    lines = _reorder_lines_for_columns(lines)
     for line in lines:
         yield {"kind": "line", "line": line}
 
