@@ -34,6 +34,21 @@ def test_classify_blocks_missing_transformers_falls_back(monkeypatch):
     assert result[0]["classifier_confidence"] == 1.0
 
 
+def test_classify_blocks_missing_local_model_config(tmp_path):
+    local_model = tmp_path / "model"
+    local_model.mkdir()
+    config = {
+        "enabled": True,
+        "backend": "huggingface",
+        "model_path": str(local_model),
+        "fallback_label": "para",
+    }
+    blocks = [{"text": "Example", "label": "chapter"}]
+    result = classifier.classify_blocks(blocks, config)
+    assert result[0]["classifier_label"] == "chapter"
+    assert result[0]["classifier_confidence"] == 1.0
+
+
 def test_get_classifier_caches_instances():
     config = {"enabled": False, "backend": "huggingface"}
     first = classifier.get_classifier(config)
