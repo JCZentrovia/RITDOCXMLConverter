@@ -169,11 +169,7 @@ def convert_pdf(
         blocks = label_blocks(str(pdfxml_path), config, pdf_path=str(working_pdf))
         classifier_cfg = config.get("classifier", {})
         if classifier_cfg.get("enabled"):
-            blocks = classify_blocks(
-                blocks,
-                threshold=classifier_cfg.get("threshold", 0.85),
-                abstain_label=classifier_cfg.get("abstain_label", "abstain"),
-            )
+            blocks = classify_blocks(blocks, classifier_cfg)
         else:
             blocks = [
                 {
