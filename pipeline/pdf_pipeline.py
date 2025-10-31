@@ -26,6 +26,7 @@ from .package import make_file_fetcher, package_docbook
 from .structure.classifier import classify_blocks
 from .structure.docbook import build_docbook_tree
 from .structure.heuristics import label_blocks
+from .structure.ner import annotate_blocks_with_entities
 from .transform import RittDocTransformResult, transform_docbook_to_rittdoc
 from .validators.counters import compute_metrics
 from .validators.dtd_validator import validate_dtd
@@ -169,8 +170,10 @@ def convert_pdf(
         blocks = label_blocks(str(pdfxml_path), config, pdf_path=str(working_pdf))
         classifier_cfg = config.get("classifier", {})
         if classifier_cfg.get("enabled"):
+            logger.info("Applying model-based block classification")
             blocks = classify_blocks(blocks, classifier_cfg)
         else:
+            logger.info("Classifier disabled in configuration; using heuristic labels")
             blocks = [
                 {
                     **block,
@@ -179,6 +182,16 @@ def convert_pdf(
                 }
                 for block in blocks
             ]
+
+        ner_cfg = config.get("ner", {})
+        if ner_cfg.get("enabled"):
+            try:
+                blocks = annotate_blocks_with_entities(blocks, ner_cfg)
+                logger.info("Applied named entity recognition to %d blocks", len(blocks))
+            except Exception as exc:
+                logger.warning("Named entity recognition failed: %s", exc, exc_info=True)
+        else:
+            logger.info("Named entity recognition disabled in configuration; skipping")
 
         root_name = config.get("docbook", {}).get("root", "book")
         
