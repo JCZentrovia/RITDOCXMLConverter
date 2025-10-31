@@ -102,10 +102,12 @@ def evaluate(
     dataset = EvalDataset(records, tokenizer, max_length=max_length)
     loader = DataLoader(dataset, batch_size=batch_size)
 
+    logger.info("Loading model from %s...", model_dir)
     model = AutoModelForSequenceClassification.from_pretrained(model_dir)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
     model.eval()
+    logger.info("Model loaded successfully on device: %s", device)
 
     label_map = None
     if label_map_path and label_map_path.exists():
@@ -119,32 +121,44 @@ def evaluate(
     gold: List[str] = []
 
     offset = 0
+    total_batches = len(loader)
+    logger.info("Starting evaluation on %d batches...", total_batches)
+    
     with torch.no_grad():
-        for batch in loader:
+        for batch_idx, batch in enumerate(loader):
+            # Progress update every 100 batches
+            if batch_idx % 100 == 0 and batch_idx > 0:
+                logger.info("  Processed %d/%d batches (%.1f%%)", batch_idx, total_batches, 100 * batch_idx / total_batches)
+            
             batch_count = batch["input_ids"].size(0)
             labels = [dataset.records[i].label for i in range(offset, offset + batch_count)]
             offset += batch_count
             gold.extend(labels)
             model_inputs = _to_device(batch, device)
-    # Filter model_inputs to only supported args for this model (e.g., drop 'bbox' for BERT)
-    try:
-        _allowed = set(inspect.signature(model.forward).parameters.keys())
-        model_inputs = {k: v for k, v in model_inputs.items() if k in _allowed}
-    except Exception:
-        # Fallback: drop known layout-specific keys
-        for _k in ("bbox", "pixel_values", "image"):
-            model_inputs.pop(_k, None)
-        outputs = model(**model_inputs)
-        logits = outputs.logits
-        probs = torch.softmax(logits, dim=-1)
-        scores, indices = probs.max(dim=-1)
-        confidences.extend(scores.cpu().tolist())
-        predictions.extend(id_to_label[idx] for idx in indices.cpu().tolist())
+            
+            # Filter model_inputs to only supported args for this model (e.g., drop 'bbox' for BERT)
+            try:
+                _allowed = set(inspect.signature(model.forward).parameters.keys())
+                model_inputs = {k: v for k, v in model_inputs.items() if k in _allowed}
+            except Exception:
+                # Fallback: drop known layout-specific keys
+                for _k in ("bbox", "pixel_values", "image"):
+                    model_inputs.pop(_k, None)
+            
+            outputs = model(**model_inputs)
+            logits = outputs.logits
+            probs = torch.softmax(logits, dim=-1)
+            scores, indices = probs.max(dim=-1)
+            confidences.extend(scores.cpu().tolist())
+            predictions.extend(id_to_label[idx] for idx in indices.cpu().tolist())
 
+    logger.info("✅ Completed processing all %d batches!", total_batches)
+    logger.info("Computing optimal confidence threshold...")
     return tune_threshold(confidences, predictions, gold)
 
 
 def tune_threshold(confidences: Sequence[float], predictions: Sequence[str], gold: Sequence[str]) -> Dict[str, object]:
+    logger.info("Tuning threshold across %d unique confidence values...", len(set(confidences)))
     paired = sorted(zip(confidences, predictions, gold), reverse=True)
     best_threshold = 0.0
     best_accuracy = 0.0

@@ -53,3 +53,10 @@ reports/*.csv
 
 # Misc
 requirements.md
+
+# Model files and checkpoints
+models/tmp_classifier/
+*.pth
+*.pt
+*.h5
+*.ckpt

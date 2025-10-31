@@ -113,11 +113,12 @@ def build_label_map(records, label_field):
 
 # ------------------------ Datasets ------------------------
 class TextDataset(Dataset):
-    def __init__(self, records: List[Dict[str, Any]], tokenizer, label2id: Dict[str, int], max_length: int = 256):
+    def __init__(self, records: List[Dict[str, Any]], tokenizer, label2id: Dict[str, int], max_length: int = 256, label_field: str = "label"):
         self.records = records
         self.tokenizer = tokenizer
         self.label2id = label2id
         self.max_length = max_length
+        self.label_field = label_field
 
     def __len__(self):
         return len(self.records)
@@ -125,7 +126,7 @@ class TextDataset(Dataset):
     def __getitem__(self, idx):
         rec = self.records[idx]
         text = rec.get("text", "")
-        label = self.label2id[rec["label"]]
+        label = self.label2id[rec[self.label_field]]
         enc = self.tokenizer(
             text,
             truncation=True,
@@ -139,11 +140,12 @@ class TextDataset(Dataset):
 
 
 class LayoutDataset(Dataset):
-    def __init__(self, records: List[Dict[str, Any]], processor, label2id: Dict[str, int], max_length: int = 512):
+    def __init__(self, records: List[Dict[str, Any]], processor, label2id: Dict[str, int], max_length: int = 512, label_field: str = "label"):
         self.records = records
         self.processor = processor
         self.label2id = label2id
         self.max_length = max_length
+        self.label_field = label_field
 
     def __len__(self):
         return len(self.records)
@@ -169,7 +171,7 @@ class LayoutDataset(Dataset):
             return_tensors="pt",
         )
         item = {k: v.squeeze(0) for k, v in enc.items()}
-        item["labels"] = torch.tensor(self.label2id[rec["label"]], dtype=torch.long)
+        item["labels"] = torch.tensor(self.label2id[rec[self.label_field]], dtype=torch.long)
         return item
 
 
@@ -260,8 +262,8 @@ def main():
         model = LayoutLMv3ForSequenceClassification.from_pretrained(
             pretrained, num_labels=len(label2id), id2label=id2label, label2id=label2id
         )
-        train_ds = LayoutDataset(train_records, processor, label2id, max_length=args.max_length_layout)
-        val_ds = LayoutDataset(val_records, processor, label2id, max_length=args.max_length_layout)
+        train_ds = LayoutDataset(train_records, processor, label2id, max_length=args.max_length_layout, label_field=LABEL_FIELD)
+        val_ds = LayoutDataset(val_records, processor, label2id, max_length=args.max_length_layout, label_field=LABEL_FIELD)
         data_collator = None  # processor handles padding
         tok_or_proc = processor
     else:
@@ -270,8 +272,8 @@ def main():
         model = AutoModelForSequenceClassification.from_pretrained(
             pretrained, num_labels=len(label2id), id2label=id2label, label2id=label2id
         )
-        train_ds = TextDataset(train_records, tokenizer, label2id, max_length=args.max_length)
-        val_ds = TextDataset(val_records, tokenizer, label2id, max_length=args.max_length)
+        train_ds = TextDataset(train_records, tokenizer, label2id, max_length=args.max_length, label_field=LABEL_FIELD)
+        val_ds = TextDataset(val_records, tokenizer, label2id, max_length=args.max_length, label_field=LABEL_FIELD)
         data_collator = DataCollatorWithPadding(tokenizer)
         tok_or_proc = tokenizer
 

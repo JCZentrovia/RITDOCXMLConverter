@@ -1,0 +1,6 @@
+{
+  "best_threshold": 0.9978,
+  "non_abstain_accuracy": 1.0,
+  "coverage": 0.04645143713390546,
+  "abstain_label": "abstain"
+}
