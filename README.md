@@ -88,6 +88,15 @@ When a PDF conversion runs, the pipeline can optionally invoke an OpenAI GPT‑4
 
 The formatter validates that the AI output exactly matches the extracted text. Any deviation or runtime failure causes the AI artifacts to be skipped so that content fidelity is never compromised.
 
+### Machine learning block classifier
+
+The structural classifier built on LayoutLMv3 augments the heuristic labelling
+in the PDF pipeline. Dataset construction, fine-tuning, evaluation, and runtime
+integration are documented in `docs/BLOCK_CLASSIFIER.md`. The default
+configuration keeps the classifier disabled; enable it by pointing
+`config/mapping.default.json` (or a publisher override) at a trained model
+bundle generated with the tooling under `tools/models/`.
+
 ## QA reports
 
 Every conversion produces per-page metrics (character/word counts, checksums, OCR flags) alongside an HTML summary rendered via Jinja2. Templates can be customized in `reports/templates/qa_report.html.j2`.
