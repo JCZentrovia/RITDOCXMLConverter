@@ -74,6 +74,15 @@ class HuggingFaceBlockClassifier(BaseBlockClassifier):
         self.abstain_label = self.config.get("abstain_label", "abstain")
         self.fallback_label = self.config.get("fallback_label", "para")
         self.device = torch.device(self.config.get("device", "cuda" if torch.cuda.is_available() else "cpu"))
+        model_path = Path(self.model_name_or_path)
+        if model_path.exists() and model_path.is_dir():
+            config_path = model_path / "config.json"
+            if not config_path.exists():
+                raise FileNotFoundError(
+                    "HuggingFace classifier model path "
+                    f"'{self.model_name_or_path}' does not contain a config.json file. "
+                    "Ensure the trained model artifacts are available or disable the classifier."
+                )
         self._model = None
         self._tokenizer = None
         self._id_to_label: Dict[int, str] = {}
