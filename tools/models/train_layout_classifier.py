@@ -116,7 +116,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("dataset", type=Path, help="Path to the JSONL dataset produced by build_block_dataset")
     parser.add_argument("--output", type=Path, default=Path("models/layout_classifier"))
     parser.add_argument("--model", type=str, default="microsoft/layoutlmv3-base")
-    parser.add_argument("--labels", type=Path, default=Path("models/layout_classifier/labels.json"))
+    parser.add_argument(
+        "--labels",
+        type=Path,
+        default=None,
+        help=(
+            "Optional path to persist the label vocabulary. When omitted the file "
+            "is stored next to the fine-tuned model output directory."
+        ),
+    )
     parser.add_argument("--epochs", type=int, default=3)
     parser.add_argument("--batch-size", type=int, default=4)
     parser.add_argument("--learning-rate", type=float, default=5e-5)
@@ -124,7 +132,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-length", type=int, default=256)
     parser.add_argument("--seed", type=int, default=13)
     parser.add_argument("--warmup-steps", type=int, default=0)
-    parser.add_argument("--eval-split", type=float, default=0.1, help="Fraction reserved for evaluation")
+    parser.add_argument(
+        "--eval-split",
+        type=float,
+        default=0.1,
+        help="Fraction reserved for evaluation (between 0 and 1).",
+    )
     return parser.parse_args()
 
 
@@ -132,13 +145,17 @@ def train() -> None:
     args = parse_args()
     torch.manual_seed(args.seed)
 
+    if not 0 <= args.eval_split < 1:
+        raise SystemExit("--eval-split must be within [0, 1).")
+
     records = load_dataset(args.dataset)
     split_idx = max(1, int(len(records) * (1 - args.eval_split)))
     train_records = records[:split_idx]
     eval_records = records[split_idx:] if split_idx < len(records) else records[-1:]
 
     tokenizer = AutoTokenizer.from_pretrained(args.model)
-    label_to_id = build_label_mapping(records, args.labels)
+    labels_path = args.labels or args.output / "labels.json"
+    label_to_id = build_label_mapping(records, labels_path)
     id2label = {idx: label for label, idx in label_to_id.items()}
 
     train_dataset = LayoutBlockDataset(train_records, tokenizer, label_to_id, max_length=args.max_length)
@@ -185,7 +202,9 @@ def train() -> None:
     trainer.train()
     trainer.save_model(str(args.output))
     tokenizer.save_pretrained(str(args.output))
-    (args.output / "label_map.json").write_text(json.dumps(label_to_id, indent=2), encoding="utf-8")
+    (args.output / "label_map.json").write_text(
+        json.dumps(label_to_id, indent=2), encoding="utf-8"
+    )
     logger.info("Training completed; model saved to %s", args.output)
 
 
