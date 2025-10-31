@@ -23,6 +23,8 @@ Sample acceptance fixtures live under `tests/`. Additional publisher examples ca
 * `pdfminer.six`
 * `xmllint` with the DocBook DTD bundle available under `dtd/v1.1`
 * Optional: `ocrmypdf` and Tesseract when OCR fallback is desired
+* Optional: `torch` and `transformers` (installed via `tools/requirements.txt`) to
+  enable the machine learning block classifier
 
 Install Python packages with:
 
