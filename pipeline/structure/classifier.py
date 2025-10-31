@@ -150,15 +150,20 @@ class HuggingFaceBlockClassifier(BaseBlockClassifier):
             padding="max_length",
             return_attention_mask=True,
         )
-        bbox = self._normalise_bbox(block.get("bbox"))
+        geometry = block.get("bbox") or block.get("geometry")
+        bbox = self._normalise_bbox(geometry)
         encoding["bbox"] = [bbox] * len(encoding["input_ids"])
         return encoding
 
     def _batch(self, encodings: Sequence[Dict[str, List[int]]]) -> Dict[str, torch.Tensor]:
-        batch = {}
-        for key in ("input_ids", "attention_mask", "bbox"):
-            tensors = [torch.tensor(encoding[key]) for encoding in encodings]
-            batch[key] = torch.stack(tensors).to(self.device)
+        if not encodings:
+            return {}
+        batch: Dict[str, torch.Tensor] = {}
+        keys = encodings[0].keys()
+        for key in keys:
+            values = [encoding[key] for encoding in encodings]
+            tensor_list = [torch.tensor(value) for value in values]
+            batch[key] = torch.stack(tensor_list).to(self.device)
         return batch
 
     # ------------------------------------------------------------------
