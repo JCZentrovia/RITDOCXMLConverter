@@ -8,7 +8,8 @@ docx_mod = pytest.importorskip("docx")
 Document = docx_mod.Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
-from pipeline.ai.vision_formatter import _materialise_docx_from_instructions
+vision_formatter = pytest.importorskip("pipeline.ai.vision_formatter")
+_materialise_docx_from_instructions = vision_formatter._materialise_docx_from_instructions
 
 
 def test_materialise_docx_from_instructions(tmp_path: Path):

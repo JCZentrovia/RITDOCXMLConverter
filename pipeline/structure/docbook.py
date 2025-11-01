@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import logging
 import re
+from dataclasses import dataclass
 from typing import Dict, List, Optional, Sequence
 
 from lxml import etree
 
 # Set up logging so we can see what's happening
 logger = logging.getLogger(__name__)
+
+from .label_taxonomy import LabelDefinition, LabelTaxonomy, load_label_taxonomy
 
 
 def _ensure_title(parent: etree._Element, text: str) -> etree._Element:
@@ -194,6 +197,68 @@ def _attach_caption(target: Optional[etree._Element], text: str) -> bool:
     return True
 
 
+@dataclass
+class ActiveContainer:
+    name: str
+    level: int
+    element: etree._Element
+
+
+class ContainerManager:
+    """Manage the hierarchy of DocBook containers."""
+
+    def __init__(self, root: etree._Element, taxonomy: LabelTaxonomy) -> None:
+        self._taxonomy = taxonomy
+        book_def = taxonomy.get_container("book")
+        level = book_def.level if book_def else 0
+        self._root_state = ActiveContainer("book", level, root)
+        self._stack: List[ActiveContainer] = [self._root_state]
+        self._registry: Dict[str, List[ActiveContainer]] = {"book": [self._root_state]}
+
+    def ensure(self, name: str, starts_container: bool) -> etree._Element:
+        definition = self._taxonomy.get_container(name)
+        if not definition:
+            return self._stack[-1].element
+
+        if definition.singleton and name in self._registry:
+            state = self._registry[name][0]
+            self._align_stack(state)
+            return state.element
+
+        parent_name = definition.parent or self._root_state.name
+        if parent_name != name:
+            parent_element = self.ensure(parent_name, False)
+        else:
+            parent_element = self._root_state.element
+
+        if starts_container:
+            while self._stack and self._stack[-1].level >= definition.level:
+                self._stack.pop()
+        else:
+            for state in reversed(self._stack):
+                if state.name == name:
+                    return state.element
+            while self._stack and self._stack[-1].level > definition.level:
+                self._stack.pop()
+
+        if self._stack and self._stack[-1].name == name:
+            return self._stack[-1].element
+
+        element = etree.SubElement(parent_element, definition.element)
+        state = ActiveContainer(name, definition.level, element)
+        self._registry.setdefault(name, []).append(state)
+        self._stack.append(state)
+        return element
+
+    def _align_stack(self, target: ActiveContainer) -> None:
+        if target in self._stack:
+            while self._stack[-1] != target:
+                self._stack.pop()
+            return
+        # Reset to root and push target
+        self._stack = [self._root_state, target]
+
+
 _INDEX_LETTER_RE = re.compile(r"^[A-Z]$")
 _INDEX_REF_RE = re.compile(r",\s*(see(?:\s+also)?)\s+(.*)$", re.IGNORECASE)
 _INDEX_PAGE_RE = re.compile(r"(\d[\dA-Za-z\s,–-]*)$")
@@ -333,39 +398,37 @@ def _handle_index_para(block: dict, state: dict) -> bool:
 
 
 def build_docbook_tree(blocks: List[dict], root_name: str) -> etree._Element:
-    """
-    Build a DocBook XML tree from a list of labeled blocks.
-    
-    Each block should have:
-    - 'label' or 'classifier_label': what type of content it is (chapter, para, etc.)
-    - 'text': the actual text content
-    - other fields depending on the block type
-    """
+    """Build a DocBook XML tree from expanded blocks."""
+
     logger.info("=" * 70)
     logger.info("🏗️  BUILDING DOCBOOK TREE")
     logger.info("=" * 70)
     logger.info(f"Total blocks to process: {len(blocks)}")
-    
-    # Count blocks by label to see what we're working with
-    label_counts = {}
+
+    label_counts: Dict[str, int] = {}
     blocks_with_text_count = 0
     total_text_chars = 0
-    
+
     for block in blocks:
-        label = block.get("classifier_label") or block.get("label", "para")
+        label = (
+            block.get("rittdoc_label")
+            or block.get("classifier_label")
+            or block.get("label", "para")
+        )
         text = block.get("text", "")
-        
         label_counts[label] = label_counts.get(label, 0) + 1
         if text and text.strip():
             blocks_with_text_count += 1
             total_text_chars += len(text)
-    
+
     logger.info(f"Blocks with text content: {blocks_with_text_count}/{len(blocks)}")
     logger.info(f"Total characters in all blocks: {total_text_chars:,}")
     logger.info(f"Block types: {label_counts}")
     logger.info("=" * 70)
-    
+
+    taxonomy = load_label_taxonomy()
     root = etree.Element(root_name)
+    manager = ContainerManager(root, taxonomy)
     state = {
         "current_chapter": None,
         "current_section": None,
@@ -378,100 +441,118 @@ def build_docbook_tree(blocks: List[dict], root_name: str) -> etree._Element:
     }
 
     for block in blocks:
-        label = block.get("classifier_label") or block.get("label", "para")
         text = (block.get("text") or "").strip()
         entities = block.get("entities") if isinstance(block, dict) else None
+        label_name = (
+            block.get("rittdoc_label")
+            or block.get("classifier_label")
+            or block.get("label", "para")
+        )
+        label_def: Optional[LabelDefinition] = taxonomy.get_label(label_name)
+        container_name = (
+            block.get("rittdoc_container")
+            or (label_def.container if label_def else "book")
+        )
+        type_name = (
+            block.get("rittdoc_type")
+            or (label_def.type_name if label_def else label_name)
+        )
+        starts_container = bool(
+            block.get("rittdoc_starts_container")
+            or (label_def.starts_container if label_def else False)
+        )
+        role = block.get("rittdoc_role") or (label_def.role if label_def else None)
 
-        if state.get("pending_caption") and label not in {"caption", "figure", "table"}:
+        container_element = manager.ensure(container_name, starts_container)
+
+        if container_name == "chapter":
+            state["current_chapter"] = container_element
+            state["current_section"] = None
+            state["current_index"] = None
+        elif container_name in {"sect1", "sect2", "sect3"}:
+            state["current_section"] = container_element
+        elif container_name == "index":
+            state["current_index"] = container_element
+
+        if state.get("pending_caption") and type_name not in {
+            "figure.caption",
+            "table.caption",
+            "figure",
+            "table",
+        }:
             _attach_pending_caption(root, state, None)
 
-        if state.get("current_index") is not None and label == "para":
+        if container_name == "index" and type_name == "entry":
             if _handle_index_para(block, state):
                 state["last_structure"] = state.get("current_index")
                 continue
 
-        if label == "book_title" and text:
-            _ensure_title(root, text)
-            _close_list(state)
-            state["last_structure"] = root
-            continue
-
-        if label == "toc" and text:
-            chapter = etree.SubElement(root, "chapter")
-            chapter.set("role", "toc")
-            _ensure_title(chapter, text)
-            state["current_chapter"] = chapter
-            state["current_section"] = None
-            _close_list(state)
-            state["last_structure"] = chapter
-            continue
-
-        if label == "chapter" and text:
-            role = block.get("chapter_role")
-            if role == "index":
-                state["current_index"] = _start_index(root, text)
+        if type_name == "title" and text:
+            _ensure_title(container_element, text)
+            if container_name == "index":
                 state["index_state"] = _initialise_index_state()
-                state["current_chapter"] = None
-                state["current_section"] = None
-                _close_list(state)
-                state["last_structure"] = state["current_index"]
-                continue
-
-            state["current_index"] = None
-            state["index_state"] = None
-            chapter = etree.SubElement(root, "chapter")
-            if role:
-                chapter.set("role", role)
-            _ensure_title(chapter, text)
-            state["current_chapter"] = chapter
-            state["current_section"] = None
             _close_list(state)
-            state["last_structure"] = chapter
+            state["last_structure"] = container_element
             continue
 
-        if label == "section" and text:
-            if state.get("current_index") is not None:
-                if _handle_index_para(block, state):
-                    state["last_structure"] = state.get("current_index")
-                    continue
-            container = state.get("current_chapter")
-            if container is None:
-                container = root
-            section = etree.SubElement(container, "sect1")
-            _ensure_title(section, text)
-            state["current_section"] = section
+        if type_name == "subtitle" and text:
+            subtitle = container_element.find("subtitle")
+            if subtitle is None:
+                subtitle = etree.SubElement(container_element, "subtitle")
+            subtitle.text = text
             _close_list(state)
-            state["last_structure"] = section
+            state["last_structure"] = container_element
             continue
 
-        if label == "list_item" and text:
-            container = _current_container(root, state)
-            list_type = block.get("list_type") or "itemized"
-            tag = "orderedlist" if list_type == "ordered" else "itemizedlist"
-            if state["current_list"] is None or state["current_list"].tag != tag:
-                state["current_list"] = etree.SubElement(container, tag)
-                state["current_list_type"] = tag
+        if type_name == "abstract" and text:
+            abstract = container_element.find("abstract")
+            if abstract is None:
+                abstract = etree.SubElement(container_element, "abstract")
+            _append_para(abstract, text, entities)
+            _close_list(state)
+            state["last_structure"] = abstract
+            continue
+
+        if type_name == "toc.entry" and text:
+            para = etree.SubElement(container_element, "para")
+            para.text = text
+            _close_list(state)
+            state["last_structure"] = container_element
+            continue
+
+        if type_name in {"itemizedlist.item", "orderedlist.item"} and text:
+            list_tag = "orderedlist" if "ordered" in type_name else "itemizedlist"
+            if (
+                state["current_list"] is None
+                or state["current_list"].tag != list_tag
+                or state["current_list"].getparent() is not container_element
+            ):
+                state["current_list"] = etree.SubElement(container_element, list_tag)
+                state["current_list_type"] = list_tag
             listitem = etree.SubElement(state["current_list"], "listitem")
             _append_para(listitem, text, entities)
             state["last_structure"] = state["current_list"]
             continue
 
-        if label == "figure" and block.get("src"):
-            container = _current_container(root, state)
-            figure = etree.SubElement(container, "figure")
+        _close_list(state)
+
+        if type_name == "figure" and block.get("src"):
+            figure = etree.SubElement(container_element, "figure")
+            if role:
+                figure.set("role", role)
             mediaobject = etree.SubElement(figure, "mediaobject")
             imageobject = etree.SubElement(mediaobject, "imageobject")
             etree.SubElement(imageobject, "imagedata", fileref=block["src"])
             _attach_pending_caption(root, state, figure)
             state["last_structure"] = figure
-            _close_list(state)
             continue
 
-        if label == "table" and block.get("rows"):
-            container = _current_container(root, state)
+        if type_name == "table" and block.get("rows"):
             rows = block["rows"]
             cols = len(rows[0]) if rows else 0
-            table = etree.SubElement(container, "informaltable")
+            table = etree.SubElement(container_element, "informaltable")
+            if role:
+                table.set("role", role)
             tgroup = etree.SubElement(table, "tgroup", cols=str(cols))
             tbody = etree.SubElement(tgroup, "tbody")
             for row in rows:
@@ -481,69 +562,81 @@ def build_docbook_tree(blocks: List[dict], root_name: str) -> etree._Element:
                     entry.text = (cell or "").strip()
             _attach_pending_caption(root, state, table)
             state["last_structure"] = table
-            _close_list(state)
             continue
 
-        if label == "caption" and text:
+        if type_name in {"figure.caption", "table.caption"} and text:
             if _attach_caption(state.get("last_structure"), text):
                 state["pending_caption"] = None
-                continue
-            _queue_pending_caption(state, text)
+            else:
+                _queue_pending_caption(state, text)
             continue
 
-        if label == "para" and text:
-            container = _current_container(root, state)
-            para = _append_para(container, text, entities)
-            
-            # Log every 10th paragraph to track progress
-            if not hasattr(build_docbook_tree, '_para_count'):
-                build_docbook_tree._para_count = 0
-            build_docbook_tree._para_count += 1
-            
-            if build_docbook_tree._para_count % 10 == 0:
-                logger.debug(f"Added paragraph #{build_docbook_tree._para_count}: {text[:50]}...")
-            
-            state["last_structure"] = container
-            _close_list(state)
-            continue
-
-        if label == "footnote" and text:
-            container = _current_container(root, state)
-            footnote = etree.SubElement(container, "footnote")
+        if container_name == "footnote" and text:
+            parent_def = taxonomy.get_container("footnote")
+            parent_name = parent_def.parent if parent_def else "book"
+            parent_element = manager.ensure(parent_name, False)
+            footnote = etree.SubElement(parent_element, "footnote")
+            if role:
+                footnote.set("role", role)
             _append_para(footnote, text, entities)
             state["last_structure"] = footnote
-            _close_list(state)
             continue
 
-        # Any unrecognised label with text should still result in a paragraph.
+        if label_def and container_name in {"metadata", "frontmatter", "preface"}:
+            element_name = label_def.element
+            if element_name:
+                element = etree.SubElement(container_element, element_name)
+                if role:
+                    element.set("role", role)
+                if element_name == "abstract":
+                    _append_para(element, text, entities)
+                else:
+                    element.text = text
+                state["last_structure"] = element
+                continue
+
+        if type_name in {"note", "tip", "warning", "caution"} and text:
+            node = etree.SubElement(container_element, type_name)
+            if role:
+                node.set("role", role)
+            _append_para(node, text, entities)
+            state["last_structure"] = node
+            continue
+
+        if label_def and label_def.element in {"programlisting", "literallayout", "blockquote"}:
+            element = etree.SubElement(container_element, label_def.element)
+            if role:
+                element.set("role", role)
+            element.text = text
+            state["last_structure"] = element
+            continue
+
         if text:
-            container = _current_container(root, state)
-            _append_para(container, text, entities)
-            state["last_structure"] = container
-            _close_list(state)
+            para = _append_para(container_element, text, entities)
+            if role and para is not None:
+                para.set("role", role)
+            state["last_structure"] = container_element
 
     if state.get("pending_caption"):
         _attach_pending_caption(root, state, None)
-    
-    # Final summary of what was built
+
     logger.info("=" * 70)
     logger.info("✅ DOCBOOK TREE BUILT")
     logger.info("=" * 70)
-    
-    # Count what was created in the tree
+
     para_count = len(root.findall(".//para"))
     chapter_count = len(root.findall(".//chapter"))
     section_count = len(root.findall(".//sect1"))
-    
+
     logger.info(f"Chapters created: {chapter_count}")
     logger.info(f"Sections created: {section_count}")
     logger.info(f"Paragraphs created: {para_count}")
-    
+
     if para_count == 0:
         logger.warning("⚠️  WARNING: NO PARAGRAPHS were created!")
         logger.warning("   This means no 'para' labeled blocks with text were processed")
         logger.warning("   Check if blocks have the right labels and text content")
-    
+
     logger.info("=" * 70)
 
     return root

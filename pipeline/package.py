@@ -62,12 +62,9 @@ def _is_chapter_node(element: etree._Element) -> bool:
     tag = _local_name(element)
     return tag in {
         "chapter",
-        "preface",
         "appendix",
         "part",
         "article",
-        "section",
-        "sect1",
         "index",
     }
 
@@ -124,22 +121,7 @@ def _split_root(root: etree._Element) -> Tuple[etree._Element, List[ChapterFragm
             continue
 
         if _is_toc_node(child):
-            entity_id = "toc"
-            filename = "TableOfContents.xml"
-            title = _extract_title_text(child) or "Table of Contents"
-            fragments.append(
-                ChapterFragment(
-                    entity_id,
-                    filename,
-                    deepcopy(child),
-                    kind="toc",
-                    title=title,
-                    section_type="toc",
-                )
-            )
-            entity_node = etree.Entity(entity_id)
-            entity_node.tail = child.tail
-            root_copy.append(entity_node)
+            root_copy.append(deepcopy(child))
             continue
 
         if _is_chapter_node(child):
@@ -164,7 +146,7 @@ def _split_root(root: etree._Element) -> Tuple[etree._Element, List[ChapterFragm
                 section_type = "index"
             else:
                 chapter_index += 1
-                entity_id = f"Ch{chapter_index:03d}"
+                entity_id = f"Ch{chapter_index:04d}"
                 filename = f"{entity_id}.xml"
                 title = _extract_title_text(child)
             fragments.append(
@@ -198,7 +180,7 @@ def _split_root(root: etree._Element) -> Tuple[etree._Element, List[ChapterFragm
             else:
                 extracted.append(deepcopy(child))
 
-        entity_id = "Ch001"
+        entity_id = "Ch0001"
         filename = f"{entity_id}.xml"
         wrapper = etree.Element("chapter")
         for node in extracted:
@@ -218,27 +200,53 @@ def _split_root(root: etree._Element) -> Tuple[etree._Element, List[ChapterFragm
     return root_copy, fragments
 
 
-def _populate_toc_fragment(
-    toc_fragment: ChapterFragment, chapter_fragments: Sequence[ChapterFragment]
+def _ensure_toc_element(root: etree._Element) -> etree._Element:
+    for child in root:
+        if isinstance(child.tag, str) and _is_toc_node(child):
+            return child
+
+    toc = etree.Element("chapter")
+    toc.set("role", "toc")
+    title_el = etree.SubElement(toc, "title")
+    title_el.text = "Table of Contents"
+
+    insert_at = 0
+    for idx, child in enumerate(root):
+        if not isinstance(child.tag, str):
+            continue
+        if _local_name(child) in BOOKINFO_NODES:
+            insert_at = idx + 1
+        else:
+            break
+
+    root.insert(insert_at, toc)
+    return toc
+
+
+def _populate_toc_element(
+    toc_element: etree._Element, chapter_fragments: Sequence[ChapterFragment]
 ) -> None:
-    element = toc_fragment.element
-    title_el = element.find("title")
-    desired_title = toc_fragment.title or "Table of Contents"
+    title_el = toc_element.find("title")
     if title_el is None:
-        title_el = etree.SubElement(element, "title")
+        title_el = etree.SubElement(toc_element, "title")
+    desired_title = "".join(title_el.itertext()).strip() or "Table of Contents"
     title_el.text = desired_title
 
-    for child in list(element):
+    for child in list(toc_element):
         if child is title_el:
             continue
-        element.remove(child)
+        toc_element.remove(child)
 
-    itemized = etree.SubElement(element, "itemizedlist")
+    itemized = etree.SubElement(toc_element, "itemizedlist")
     for fragment in chapter_fragments:
         listitem = etree.SubElement(itemized, "listitem")
         para = etree.SubElement(listitem, "para")
+        link = etree.SubElement(para, "ulink")
+        link.set("url", fragment.filename)
         chapter_title = fragment.title or fragment.filename
-        para.text = f"{chapter_title} ({fragment.filename})"
+        link.text = chapter_title
+        if fragment.title:
+            link.tail = f" ({fragment.filename})"
 
 
 def _iter_imagedata(element: etree._Element) -> Iterable[etree._Element]:
@@ -551,6 +559,9 @@ def package_docbook(
     """Package the DocBook tree into a chapterised ZIP bundle."""
 
     book_root, fragments = _split_root(root)
+    toc_element = _ensure_toc_element(book_root)
+    chapter_fragments = [fragment for fragment in fragments if fragment.kind == "chapter"]
+    _populate_toc_element(toc_element, chapter_fragments)
     isbn = _extract_isbn(root)
     base = _sanitise_basename(isbn or Path(out_path).stem or "book")
     zip_path = Path(out_path).with_name(f"{base}.zip")
@@ -585,10 +596,6 @@ def package_docbook(
             asset_paths.append((href, target_path))
 
         chapter_paths: List[Tuple[ChapterFragment, Path]] = []
-        toc_fragment = next((fragment for fragment in fragments if fragment.kind == "toc"), None)
-        chapter_fragments = [fragment for fragment in fragments if fragment.kind == "chapter"]
-        if toc_fragment is not None:
-            _populate_toc_fragment(toc_fragment, chapter_fragments)
         metadata_entries: List[ImageMetadata] = []
         shared_cache: Dict[str, Path] = {}
         for fragment in fragments:

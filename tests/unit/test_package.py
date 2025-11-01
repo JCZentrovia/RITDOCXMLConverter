@@ -87,9 +87,8 @@ def test_package_docbook_creates_chapters_and_media(tmp_path):
         names = sorted(zf.namelist())
         assert names == [
             "Book.xml",
-            "Ch001.xml",
-            "Ch002.xml",
-            "TableOfContents.xml",
+            "Ch0001.xml",
+            "Ch0002.xml",
             "media/",
             "media/Book_Images/",
             "media/Book_Images/Chapters/",
@@ -102,23 +101,18 @@ def test_package_docbook_creates_chapters_and_media(tmp_path):
         ]
 
         book_xml = zf.read("Book.xml").decode("utf-8")
-        assert "<!ENTITY Ch001 SYSTEM \"Ch001.xml\">" in book_xml
-        assert "<!ENTITY Ch002 SYSTEM \"Ch002.xml\">" in book_xml
-        assert "<!ENTITY toc SYSTEM \"TableOfContents.xml\">" in book_xml
-        assert "&Ch001;" in book_xml
+        assert "<!ENTITY Ch0001 SYSTEM \"Ch0001.xml\">" in book_xml
+        assert "<!ENTITY Ch0002 SYSTEM \"Ch0002.xml\">" in book_xml
+        assert "&Ch0001;" in book_xml
+        assert "Table of Contents" in book_xml
+        assert "ulink url=\"Ch0001.xml\"" in book_xml
+        assert "ulink url=\"Ch0002.xml\"" in book_xml
         assert "media/Book_Images/Shared/logo.png" in book_xml
 
-        chapter_data = zf.read("Ch001.xml").decode("utf-8")
+        chapter_data = zf.read("Ch0001.xml").decode("utf-8")
         assert chapter_data.startswith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
         assert "<!DOCTYPE chapter SYSTEM \"RITTDOCdtd/v1.1/RittDocBook.dtd\">" in chapter_data
         assert "fileref=\"media/Book_Images/Chapters/Ch0001f01.png\"" in chapter_data
-
-        toc_data = zf.read("TableOfContents.xml").decode("utf-8")
-        assert toc_data.startswith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
-        assert "<!DOCTYPE chapter SYSTEM \"RITTDOCdtd/v1.1/RittDocBook.dtd\">" in toc_data
-        assert "Table of Contents" in toc_data
-        assert "Ch001.xml" in toc_data
-        assert "Ch002.xml" in toc_data
 
         media_bytes = zf.read("media/Book_Images/Chapters/Ch0001f01.png")
         assert media_bytes == media_store["img/figure1.png"]
@@ -190,7 +184,7 @@ def test_package_docbook_skips_images_without_caption_or_label(tmp_path):
         names = [name for name in zf.namelist() if name.startswith("media/Book_Images/Chapters/")]
         assert names == ["media/Book_Images/Chapters/"]
 
-        chapter_xml = zf.read("Ch001.xml").decode("utf-8")
+        chapter_xml = zf.read("Ch0001.xml").decode("utf-8")
         assert "media/Book_Images/Chapters/" not in chapter_xml
 
         catalog = etree.fromstring(zf.read("media/Book_Images/Metadata/image_catalog.xml"))
@@ -239,7 +233,7 @@ def test_package_docbook_skips_zero_byte_images(tmp_path):
     )
 
     with zipfile.ZipFile(zip_path, "r") as zf:
-        chapter_xml = zf.read("Ch001.xml").decode("utf-8")
+        chapter_xml = zf.read("Ch0001.xml").decode("utf-8")
         assert "media/Book_Images/Chapters/" not in chapter_xml
 
         catalog = etree.fromstring(zf.read("media/Book_Images/Metadata/image_catalog.xml"))
@@ -286,7 +280,7 @@ def test_package_docbook_creates_index_fragment(tmp_path):
         assert "media/Book_Images/Metadata/image_catalog.xml" in names
         assert "media/Book_Images/Metadata/image_manifest.csv" in names
         # Non-index chapters are still numbered
-        assert any(name.startswith("Ch") and name.endswith(".xml") for name in names)
+        assert any(name.startswith("Ch0") and name.endswith(".xml") for name in names)
 
         book_xml = zf.read("Book.xml").decode("utf-8")
         assert "<!ENTITY Index SYSTEM \"Index.xml\">" in book_xml
@@ -327,7 +321,7 @@ def test_package_docbook_reuses_shared_media(tmp_path):
         assert shared_names.count("media/Book_Images/Shared/logo.png") == 1
         book_xml = zf.read("Book.xml").decode("utf-8")
         assert book_xml.count("media/Book_Images/Shared/logo.png") >= 1
-        chapter_xml = zf.read("Ch001.xml").decode("utf-8")
+        chapter_xml = zf.read("Ch0001.xml").decode("utf-8")
         assert chapter_xml.count("media/Book_Images/Shared/logo.png") == 1
 
 
