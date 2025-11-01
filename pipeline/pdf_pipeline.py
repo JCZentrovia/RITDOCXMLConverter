@@ -24,6 +24,7 @@ from .extractors.poppler_text import pdftotext_pages
 from .ocr.ocrmypdf_runner import ocr_pages
 from .package import make_file_fetcher, package_docbook
 from .structure.classifier import classify_blocks
+from .structure.label_expander import LabelExpander
 from .structure.docbook import build_docbook_tree
 from .structure.heuristics import label_blocks
 from .structure.ner import annotate_blocks_with_entities
@@ -194,25 +195,30 @@ def convert_pdf(
             logger.info("Named entity recognition disabled in configuration; skipping")
 
         root_name = config.get("docbook", {}).get("root", "book")
-        
+
+        labels_cfg = config.get("labels", {})
+        taxonomy_path = labels_cfg.get("taxonomy_path")
+        expander = LabelExpander(taxonomy_path=taxonomy_path)
+        expanded_blocks = expander.expand(blocks)
+
         # ==================================================================
         # DEBUGGING: Let's see what blocks we have BEFORE any AI processing
         # ==================================================================
         logger.info("=" * 70)
-        logger.info("📊 BLOCKS AFTER CLASSIFIER (Before AI enhancement)")
+        logger.info("📊 BLOCKS AFTER LABEL EXPANSION")
         logger.info("=" * 70)
-        logger.info(f"Total blocks: {len(blocks)}")
-        
+        logger.info(f"Total blocks: {len(expanded_blocks)}")
+
         # Count blocks by label
         label_counts = {}
         para_blocks_with_text = 0
         para_blocks_without_text = 0
-        
-        for block in blocks:
-            label = block.get("classifier_label") or block.get("label", "para")
+
+        for block in expanded_blocks:
+            label = block.get("rittdoc_label") or block.get("classifier_label") or block.get("label", "para")
             label_counts[label] = label_counts.get(label, 0) + 1
-            
-            if label == "para":
+
+            if label.endswith("para"):
                 text = block.get("text", "").strip()
                 if text:
                     para_blocks_with_text += 1
@@ -225,8 +231,12 @@ def convert_pdf(
         
         # Show first few blocks as samples
         logger.info("\n🔍 Sample of first 3 blocks:")
-        for i, block in enumerate(blocks[:3]):
-            label = block.get("classifier_label") or block.get("label", "para")
+        for i, block in enumerate(expanded_blocks[:3]):
+            label = (
+                block.get("rittdoc_label")
+                or block.get("classifier_label")
+                or block.get("label", "para")
+            )
             text = (block.get("text", "") or "")[:80]
             page = block.get("page_num", "?")
             logger.info(f"  Block {i+1}: [{label}] Page {page}: {text}...")
@@ -254,7 +264,7 @@ def convert_pdf(
         # enhanced_blocks = enhance_labels_with_ai_formatting(enhanced_blocks)
         
         # Using original blocks directly (no AI enhancement)
-        enhanced_blocks = blocks
+        enhanced_blocks = expanded_blocks
         ai_assets = []
         
         logger.info("✅ Building DocBook tree with %d blocks (AI enhancement disabled)", len(enhanced_blocks))
@@ -273,9 +283,11 @@ def convert_pdf(
             tmp_doc,
             processing_instructions=rittdoc.processing_instructions,
         )
-
-        # Temporarily skip DTD validation to inspect raw conversion output.
-        # validate_dtd(str(tmp_doc), dtd_system, catalog)
+        try:
+            validate_dtd(str(tmp_doc), dtd_system, catalog)
+            logger.info("✅ DTD validation passed")
+        except Exception as exc:
+            logger.warning("DTD validation failed: %s", exc, exc_info=True)
 
         plain_text_assets, _plain_text_path, plain_text_text = _write_plain_text_assets(
             pdfminer_pages_list, tmp, export=export_intermediate

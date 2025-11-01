@@ -47,6 +47,9 @@
     "root": "book",
     "dtd_system": "RITTDOCdtd/v1.1/RittDocBook.dtd"
   },
+  "labels": {
+    "taxonomy_path": "config/labels.expanded.json"
+  },
   "tolerances": {
     "char_diff_per_page": 0,
     "word_diff_percent": 0.1
